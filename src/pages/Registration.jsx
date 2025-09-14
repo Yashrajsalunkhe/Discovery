@@ -16,8 +16,6 @@ const Registration = () => {
     year: '',
     selectedEvent: selectedEvent?.id || '',
     teamMembers: [],
-    paymentMethod: 'upi',
-    transactionId: '',
     agreeToTerms: false,
     agreeToPrivacy: false
   })
@@ -90,7 +88,6 @@ const Registration = () => {
     if (!formData.department.trim()) newErrors.department = 'Department is required'
     if (!formData.year) newErrors.year = 'Year is required'
     if (!formData.selectedEvent) newErrors.selectedEvent = 'Please select an event'
-    if (!formData.transactionId.trim()) newErrors.transactionId = 'Transaction ID is required'
     if (!formData.agreeToTerms) newErrors.agreeToTerms = 'You must agree to terms and conditions'
     if (!formData.agreeToPrivacy) newErrors.agreeToPrivacy = 'You must agree to privacy policy'
 
@@ -117,14 +114,104 @@ const Registration = () => {
     setIsSubmitting(true)
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      setSubmitSuccess(true)
-      // Reset form or redirect
+      await handlePayment()
     } catch (error) {
       console.error('Registration failed:', error)
+      setErrors({ submit: 'Registration failed. Please try again.' })
     } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handlePayment = async () => {
+    try {
+      // Create Razorpay order
+      const orderRes = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          amount: totalFee * 100, // Convert to paise
+          currency: 'INR',
+          receipt: `receipt_${Date.now()}`
+        })
+      })
+
+      const orderResult = await orderRes.json()
+      
+      if (!orderResult.success) {
+        throw new Error(orderResult.error || 'Failed to create order')
+      }
+
+      const orderId = orderResult.order_id
+
+      // Razorpay checkout options
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: totalFee * 100, // amount in paise
+        currency: 'INR',
+        name: 'Discovery 2K25',
+        description: 'Event Registration Fee',
+        image: '/favicon.ico',
+        order_id: orderId,
+        prefill: {
+          name: formData.participantName,
+          email: formData.email,
+          contact: formData.phone
+        },
+        notes: {
+          event: formData.selectedEvent,
+          college: formData.college
+        },
+        handler: async (razorpayResponse) => {
+          try {
+            // Register with payment details
+            const registerRes = await fetch('/api/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...formData,
+                paymentId: razorpayResponse.razorpay_payment_id,
+                orderId: razorpayResponse.razorpay_order_id,
+                signature: razorpayResponse.razorpay_signature
+              })
+            })
+
+            const result = await registerRes.json()
+            
+            if (result.success) {
+              setSubmitSuccess(true)
+            } else {
+              throw new Error(result.error || 'Registration failed')
+            }
+          } catch (error) {
+            console.error('Registration error:', error)
+            setErrors({ submit: error.message })
+            setIsSubmitting(false)
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsSubmitting(false)
+          }
+        },
+        theme: {
+          color: '#3B82F6'
+        }
+      }
+
+      // Open Razorpay checkout
+      const rzp = new window.Razorpay(options)
+      
+      rzp.on('payment.failed', (response) => {
+        console.error('Payment failed:', response.error)
+        setErrors({ submit: response.error.description || 'Payment failed' })
+        setIsSubmitting(false)
+      })
+
+      rzp.open()
+    } catch (error) {
+      console.error('Payment setup error:', error)
+      setErrors({ submit: error.message })
       setIsSubmitting(false)
     }
   }
@@ -141,7 +228,7 @@ const Registration = () => {
               Registration Successful!
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Thank you for registering for Discovery 2K25. We have sent a confirmation email with event details and payment instructions.
+              Thank you for registering for Discovery 2K25. Your payment has been processed successfully and we have sent a confirmation email with event details.
             </p>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
@@ -151,7 +238,7 @@ const Registration = () => {
                 <p><strong>Event:</strong> {eventsData.find(e => e.id === formData.selectedEvent)?.name}</p>
                 <p><strong>Participants:</strong> {formData.teamMembers.length + 1}</p>
                 <p><strong>Total Fee:</strong> ₹{totalFee}</p>
-                <p><strong>Transaction ID:</strong> {formData.transactionId}</p>
+                <p><strong>Payment:</strong> Completed Successfully</p>
               </div>
             </div>
             <div className="flex gap-4 justify-center">
@@ -440,53 +527,35 @@ const Registration = () => {
                   </h2>
                   
                   <div className="space-y-6">
-                    <div>
-                      <label className="form-label">Payment Method</label>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <label className="flex items-center p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
-                          <input
-                            type="radio"
-                            name="paymentMethod"
-                            value="upi"
-                            checked={formData.paymentMethod === 'upi'}
-                            onChange={handleInputChange}
-                            className="mr-3"
-                          />
-                          <div>
-                            <div className="font-medium text-gray-900 dark:text-white">UPI</div>
-                            <div className="text-sm text-gray-500">Google Pay, PhonePe, etc.</div>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                      <div className="flex items-start">
+                        <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-3 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">
+                            Secure Payment with Razorpay
+                          </h4>
+                          <p className="text-blue-700 dark:text-blue-300 text-sm mb-3">
+                            Complete your registration payment securely using Razorpay. We accept:
+                          </p>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex items-center text-blue-600 dark:text-blue-400">
+                              <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
+                              UPI (GPay, PhonePe, Paytm)
+                            </div>
+                            <div className="flex items-center text-blue-600 dark:text-blue-400">
+                              <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
+                              Debit/Credit Cards
+                            </div>
+                            <div className="flex items-center text-blue-600 dark:text-blue-400">
+                              <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
+                              Net Banking
+                            </div>
+                            <div className="flex items-center text-blue-600 dark:text-blue-400">
+                              <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
+                              Digital Wallets
+                            </div>
                           </div>
-                        </label>
-                        
-                        <label className="flex items-center p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
-                          <input
-                            type="radio"
-                            name="paymentMethod"
-                            value="netbanking"
-                            checked={formData.paymentMethod === 'netbanking'}
-                            onChange={handleInputChange}
-                            className="mr-3"
-                          />
-                          <div>
-                            <div className="font-medium text-gray-900 dark:text-white">Net Banking</div>
-                            <div className="text-sm text-gray-500">Online bank transfer</div>
-                          </div>
-                        </label>
-                        
-                        <label className="flex items-center p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
-                          <input
-                            type="radio"
-                            name="paymentMethod"
-                            value="card"
-                            checked={formData.paymentMethod === 'card'}
-                            onChange={handleInputChange}
-                            className="mr-3"
-                          />
-                          <div>
-                            <div className="font-medium text-gray-900 dark:text-white">Debit/Credit Card</div>
-                            <div className="text-sm text-gray-500">Visa, Mastercard, RuPay</div>
-                          </div>
-                        </label>
+                        </div>
                       </div>
                     </div>
 
@@ -495,29 +564,14 @@ const Registration = () => {
                         <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-3 mt-0.5" />
                         <div>
                           <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-1">
-                            Payment Instructions
+                            Payment Amount: ₹{totalFee}
                           </h4>
                           <p className="text-yellow-700 dark:text-yellow-300 text-sm">
-                            Please complete the payment of ₹{totalFee} using your preferred method and enter the transaction ID below. 
-                            Payment confirmation is required to complete registration.
+                            Payment will be processed securely when you click "Pay & Register" below.
+                            You'll receive a confirmation email after successful payment.
                           </p>
                         </div>
                       </div>
-                    </div>
-
-                    <div>
-                      <label className="form-label">Transaction ID *</label>
-                      <input
-                        type="text"
-                        name="transactionId"
-                        value={formData.transactionId}
-                        onChange={handleInputChange}
-                        className={`form-input ${errors.transactionId ? 'border-red-500' : ''}`}
-                        placeholder="Enter transaction/reference ID"
-                      />
-                      {errors.transactionId && (
-                        <p className="text-red-500 text-sm mt-1">{errors.transactionId}</p>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -563,6 +617,45 @@ const Registration = () => {
                     )}
                   </div>
                 </div>
+
+                {/* Error Display */}
+                {errors.submit && (
+                  <div className="card p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                    <div className="flex items-center">
+                      <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-3" />
+                      <p className="text-red-700 dark:text-red-300 text-sm">{errors.submit}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <div className="card p-6">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="btn-primary w-full text-lg font-bold py-4"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center justify-center">
+                        <div className="loading-spinner mr-2"></div>
+                        Processing Payment...
+                      </div>
+                    ) : (
+                      'Pay & Register'
+                    )}
+                  </button>
+                  
+                  {selectedEvent && (
+                    <div className="mt-4 text-center">
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">
+                        Total Amount: <span className="font-bold text-lg">₹{totalFee}</span>
+                      </p>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                        {formData.teamMembers.length + 1} participant(s) × ₹{entryFee} = ₹{totalFee}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Summary Sidebar */}
@@ -593,21 +686,6 @@ const Registration = () => {
                           <span>₹{totalFee}</span>
                         </div>
                       </div>
-                      
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="btn-primary w-full"
-                      >
-                        {isSubmitting ? (
-                          <div className="flex items-center justify-center">
-                            <div className="loading-spinner mr-2"></div>
-                            Submitting...
-                          </div>
-                        ) : (
-                          'Complete Registration'
-                        )}
-                      </button>
                     </div>
                   ) : (
                     <p className="text-gray-500 dark:text-gray-400 text-center py-8">
