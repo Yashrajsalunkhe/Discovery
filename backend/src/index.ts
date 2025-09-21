@@ -22,20 +22,64 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 
+// CORS configuration
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Allow vercel domains
+    if (origin.includes('vercel.app') || origin.includes('vercel.com')) {
+      return callback(null, true);
+    }
+    
+    // Add your production domain here
+    const allowedDomains = [
+      'https://discovery-adcet.vercel.app',
+      'https://discovery-rouge.vercel.app',
+      // Add more domains as needed
+    ];
+    
+    if (allowedDomains.some(domain => origin.startsWith(domain))) {
+      return callback(null, true);
+    }
+    
+    // Default allow in production
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log('Request headers:', req.headers);
+  console.log('Request origin:', req.get('Origin') || 'No origin');
   next();
 });
 
+// Additional OPTIONS handling for CORS preflight
+app.options('*', cors(corsOptions));
+
 // Health check route
 app.get('/', (req, res) => {
-  res.send('Discovery ADCET Backend Server is running!');
+  res.json({
+    message: 'Discovery ADCET Backend Server is running!',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // API Routes

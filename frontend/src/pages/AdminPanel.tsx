@@ -101,9 +101,28 @@ const AdminPanel: React.FC = () => {
   
   const { toast } = useToast();
 
-  // Use environment variable for API base URL with fallback
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 
-    (import.meta.env.DEV ? 'http://localhost:3000/api' : '/api');
+  // Use environment variable for API base URL with better fallback logic
+  const getApiBaseUrl = () => {
+    // First check for explicit environment variable
+    if (import.meta.env.VITE_API_BASE_URL) {
+      return import.meta.env.VITE_API_BASE_URL;
+    }
+    
+    // Development mode detection
+    if (import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://localhost:3000/api';
+    }
+    
+    // Production mode - use relative path which will be routed to backend by Vercel
+    return '/api';
+  };
+
+  const API_BASE = getApiBaseUrl();
+
+  console.log('Environment mode:', import.meta.env.MODE);
+  console.log('Environment dev:', import.meta.env.DEV);
+  console.log('Current hostname:', window.location.hostname);
+  console.log('Using API_BASE:', API_BASE);
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -135,6 +154,7 @@ const AdminPanel: React.FC = () => {
 
     setLoading(true);
     console.log('Attempting login with API_BASE:', API_BASE);
+    console.log('Full URL:', `${API_BASE}/admin/login`);
     
     try {
       const response = await fetch(`${API_BASE}/admin/login`, {
@@ -143,10 +163,16 @@ const AdminPanel: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ password }),
+        // Add credentials for CORS
+        credentials: 'same-origin',
       });
 
       console.log('Login response status:', response.status);
-      console.log('Login response headers:', response.headers);
+      console.log('Login response ok:', response.ok);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
       console.log('Login response data:', data);
@@ -171,9 +197,22 @@ const AdminPanel: React.FC = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
+      let errorMessage = 'Network error';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      // Provide more specific error messages
+      if (errorMessage.includes('Failed to fetch')) {
+        errorMessage = 'Cannot connect to server. Please check if the backend is running and accessible.';
+      } else if (errorMessage.includes('NetworkError')) {
+        errorMessage = 'Network connection failed. Please check your internet connection.';
+      }
+      
       toast({
-        title: "Error",
-        description: `Failed to authenticate: ${error instanceof Error ? error.message : 'Network error'}`,
+        title: "Authentication Failed",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -216,18 +255,24 @@ const AdminPanel: React.FC = () => {
         params.append('search', searchTerm.trim());
       }
 
-      console.log('Fetching registrations from:', `${API_BASE}/admin/registrations?${params}`);
+      const url = `${API_BASE}/admin/registrations?${params}`;
+      console.log('Fetching registrations from:', url);
       console.log('Using token:', token ? 'Token present' : 'No token');
 
-      const response = await fetch(`${API_BASE}/admin/registrations?${params}`, {
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'same-origin',
       });
 
       console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
+      console.log('Response ok:', response.ok);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
       console.log('Response data:', data);
@@ -247,9 +292,19 @@ const AdminPanel: React.FC = () => {
       }
     } catch (error) {
       console.error('Fetch error:', error);
+      
+      let errorMessage = 'Unknown error';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      if (errorMessage.includes('Failed to fetch')) {
+        errorMessage = 'Cannot connect to server. Please check your connection.';
+      }
+      
       toast({
         title: "Error",
-        description: `Failed to fetch registrations: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: `Failed to fetch registrations: ${errorMessage}`,
         variant: "destructive"
       });
     } finally {
@@ -262,16 +317,23 @@ const AdminPanel: React.FC = () => {
     if (!token) return;
 
     try {
-      console.log('Fetching stats from:', `${API_BASE}/admin/stats`);
+      const url = `${API_BASE}/admin/stats`;
+      console.log('Fetching stats from:', url);
       
-      const response = await fetch(`${API_BASE}/admin/stats`, {
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'same-origin',
       });
 
       console.log('Stats response status:', response.status);
+      console.log('Stats response ok:', response.ok);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
       const data = await response.json();
       console.log('Stats data:', data);
@@ -284,6 +346,7 @@ const AdminPanel: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to fetch stats:', error);
+      // Don't show toast error for stats as it's not critical
     }
   };
 
@@ -299,10 +362,14 @@ const AdminPanel: React.FC = () => {
         params.append('eventFilter', eventFilter);
       }
 
-      const response = await fetch(`${API_BASE}/admin/export?${params}`, {
+      const url = `${API_BASE}/admin/export?${params}`;
+      console.log('Exporting data from:', url);
+
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
+        credentials: 'same-origin',
       });
 
       if (response.ok) {
@@ -322,6 +389,7 @@ const AdminPanel: React.FC = () => {
         });
       }
     } catch (error) {
+      console.error('Export error:', error);
       toast({
         title: "Error",
         description: "Failed to export data",

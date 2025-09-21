@@ -29,30 +29,50 @@ export interface AdminExportRequest extends Request {
 
 // Admin authentication middleware
 export const authenticateAdmin = (req: Request, res: Response, next: any) => {
+  console.log('Admin authentication middleware called');
+  console.log('Request headers:', req.headers);
+  
   const authHeader = req.headers.authorization;
+  console.log('Auth header:', authHeader);
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('No valid auth header provided');
     return res.status(401).json({ success: false, error: 'No admin token provided' });
   }
   
   const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  console.log('Token received:', token ? 'Token present' : 'No token');
+  console.log('Expected admin password exists:', !!process.env.ADMIN_PASSWORD);
   
   if (token !== process.env.ADMIN_PASSWORD) {
+    console.log('Invalid admin credentials');
     return res.status(401).json({ success: false, error: 'Invalid admin credentials' });
   }
   
+  console.log('Admin authentication successful');
   next();
 };
 
 // Admin login handler
 export const adminLogin = async (req: AdminAuthRequest, res: Response) => {
   try {
+    console.log('Admin login attempt');
+    console.log('Request body:', req.body);
+    console.log('Environment ADMIN_PASSWORD exists:', !!process.env.ADMIN_PASSWORD);
+    
     const { password } = req.body;
     
-    if (!password || password !== process.env.ADMIN_PASSWORD) {
+    if (!password) {
+      console.log('No password provided');
+      return res.status(400).json({ success: false, error: 'Password is required' });
+    }
+    
+    if (password !== process.env.ADMIN_PASSWORD) {
+      console.log('Invalid password provided');
       return res.status(401).json({ success: false, error: 'Invalid admin password' });
     }
     
+    console.log('Admin login successful');
     // Return the password as token for simplicity (in production, use JWT)
     return res.json({ 
       success: true, 
