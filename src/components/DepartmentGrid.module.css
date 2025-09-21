@@ -1,0 +1,171 @@
+.agFormatContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.agCoursesBox {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  padding: 40px 0;
+  justify-items: center;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .agCoursesBox {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px 0;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .agCoursesBox {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+}
+
+.agCoursesItem {
+  width: 100%;
+  max-width: 350px;
+  overflow: hidden;
+  border-radius: 28px;
+  cursor: pointer;
+}
+
+.agCoursesItemLink {
+  display: block;
+  padding: 30px 20px;
+  background-color: #121212;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .agCoursesItemLink {
+    padding: 25px 18px;
+  }
+}
+
+.agCoursesItemLink:hover,
+.agCoursesItemLink:hover .agCoursesItemDate {
+  text-decoration: none;
+  color: #FFF;
+}
+
+.agCoursesItemLink:hover .agCoursesItemBg {
+  transform: scale(10);
+}
+
+.agCoursesItemTitle {
+  min-height: 80px;
+  margin: 0 0 20px;
+  overflow: hidden;
+  font-weight: bold;
+  font-size: 26px;
+  color: #FFF;
+  z-index: 2;
+  position: relative;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .agCoursesItemTitle {
+    font-size: 22px;
+    min-height: 70px;
+    margin: 0 0 15px;
+  }
+}
+
+.agCoursesItemDateBox {
+  font-size: 18px;
+  color: #FFF;
+  z-index: 2;
+  position: relative;
+}
+
+.agCoursesItemDate {
+  font-weight: bold;
+  color: #f9b234;
+  transition: color 0.5s ease;
+}
+
+.agCoursesItemBg {
+  height: 128px;
+  width: 128px;
+  background-color: #f9b234;
+  z-index: 1;
+  position: absolute;
+  top: -75px;
+  right: -75px;
+  border-radius: 50%;
+  transition: all 0.5s ease;
+}
+
+.agCoursesItem:nth-child(2n) .agCoursesItemBg {
+  background-color: #3ecd5e;
+}
+
+.agCoursesItem:nth-child(3n) .agCoursesItemBg {
+  background-color: #e44002;
+}
+
+.agCoursesItem:nth-child(4n) .agCoursesItemBg {
+  background-color: #952aff;
+}
+
+.agCoursesItem:nth-child(5n) .agCoursesItemBg {
+  background-color: #cd3e94;
+}
+
+.agCoursesItem:nth-child(6n) .agCoursesItemBg {
+  background-color: #4c49ea;
+}
+
+@media only screen and (max-width: 979px) {
+  .agCoursesBox {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+  .agCoursesItemTitle {
+    font-size: 24px;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .agFormatContainer {
+    width: 96%;
+    padding: 0 15px;
+  }
+  .agCoursesBox {
+    gap: 20px;
+  }
+}
+
+@media only screen and (max-width: 639px) {
+  .agCoursesBox {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .agCoursesItem {
+    max-width: 100%;
+  }
+  .agCoursesItemTitle {
+    min-height: 72px;
+    line-height: 1.2;
+    font-size: 22px;
+  }
+  .agCoursesItemLink {
+    padding: 25px 30px;
+  }
+  .agCoursesItemDateBox {
+    font-size: 16px;
+  }
+}
