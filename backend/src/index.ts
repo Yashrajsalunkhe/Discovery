@@ -1,39 +1,29 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
-import { registerUser } from './register';
-import { checkDuplicate } from './search';
-import { orderRazorpay } from './utils/razorpay';
-import { verifyPayment } from './utils/payment-verification';
+import { registerUser } from './register.js';
+import { checkDuplicate } from './search.js';
+import { orderRazorpay } from './utils/razorpay.js';
+import { verifyPayment } from './utils/payment-verification.js';
 import { 
   adminLogin, 
   authenticateAdmin, 
   getAllRegistrations, 
   exportRegistrationsExcel, 
   getRegistrationStats 
-} from './utils/admin';
+} from './utils/admin.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
-// Middlewares
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://discovery.adcet.ac.in/",
-];
-
-app.use(
-  cors({
-    origin: allowedOrigins,
-    methods: ["GET", "POST", "PATCH", "DELETE"],
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization']
-  })
-);
+app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
@@ -65,10 +55,13 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ success: false, error: 'Something went wrong!' });
 });
 
-// Start server
-app.listen(PORT, () => {   
-  console.log(`Discovery ADCET Backend Server is running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}`);
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {   
+    console.log(`Discovery ADCET Backend Server is running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}`);
+  });
+}
 
 export default app;

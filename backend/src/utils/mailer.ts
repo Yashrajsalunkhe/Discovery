@@ -2,9 +2,12 @@ import nodemailer from "nodemailer";
 import { Transporter } from "nodemailer";
 import path from 'path';
 import dotenv from 'dotenv';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { fileURLToPath } from 'url';
 
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const emailUser = process.env.EMAIL_USER;
 const emailPass = process.env.EMAIL_PASS;
@@ -16,18 +19,12 @@ if (!emailUser || !emailPass) {
 let transporter: Transporter;
 
 transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  requireTLS: true,
-  auth: { user: emailUser, pass: emailPass },
-  from: emailUser as string,
-  pool: false,
-  connectionTimeout: 60000,  // 60s
-  greetingTimeout: 60000,    // 60s
-  socketTimeout: 60000,
-  tls: { rejectUnauthorized: false },
-} as SMTPTransport.Options);
+  service: 'gmail',
+  auth: {
+    user: emailUser,
+    pass: emailPass
+  }
+});
 
 transporter.verify((error, success) => {
     if (error) {
