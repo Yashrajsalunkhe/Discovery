@@ -69,7 +69,11 @@ export const ContactSection = () => {
                   (Affiliated to Shivaji University, Kolhapur)
                 </p>
               </div>
-              <Button variant="neon" className="w-full">
+              <Button 
+                variant="neon" 
+                className="w-full"
+                onClick={() => window.open("https://www.google.com/maps/place/Annasaheb+Dange+College+of+Engineering+and+Technology,+Ashta,+Shahu+Maharaj+Rd,+near+Annasaheb+Dange+College,+Anand+Colony,+Sangli,+Ashta,+Maharashtra+416301/@16.9425195,74.4153605,17z/data=!4m6!3m5!1s0x3bc111c2d044fb39:0x88bc2b178525ba1e!8m2!3d16.9425195!4d74.4153605!16s%2Fm%2F0gwyyby?utm_campaign=ml-sbr-16204205&g_ep=Eg1tbF8yMDI1MDkxN18wIJvbDyoASAJQAg%3D%3D", "_blank")}
+              >
                 <MapPin className="h-4 w-4 mr-2" />
                 Get Directions
               </Button>

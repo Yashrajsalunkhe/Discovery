@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Trophy, Users, UserPlus } from "lucide-react";
-import { memo } from "react";
+import { Calendar, MapPin, Trophy, Users, UserPlus, Clock } from "lucide-react";
+import { memo, useState, useEffect } from "react";
 import Galaxy from "./Galaxy";
 
 interface HeroSectionProps {
@@ -9,6 +9,35 @@ interface HeroSectionProps {
 }
 
 export const HeroSection = memo(({ onExploreEvents, onRegister }: HeroSectionProps) => {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+
+  useEffect(() => {
+    const targetDate = new Date('2025-10-11T00:00:00').getTime();
+
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000)
+        });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Galaxy Background - Always enabled for high performance */}
@@ -43,6 +72,32 @@ export const HeroSection = memo(({ onExploreEvents, onRegister }: HeroSectionPro
           <p className="text-lg xs:text-xl md:text-2xl lg:text-3xl font-semibold text-foreground/90 mb-4 animate-slide-in-left px-2">
             National Level Technical Festival
           </p>
+          
+          {/* Countdown Timer */}
+          <div className="mb-6 sm:mb-8 animate-fade-in px-2">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Clock className="h-5 w-5 text-primary" />
+              <span className="text-sm xs:text-base text-foreground/80 font-medium">Event Starts In:</span>
+            </div>
+            <div className="flex justify-center gap-2 xs:gap-4 md:gap-6">
+              <div className="bg-gradient-to-b from-primary/20 to-primary/10 backdrop-blur-sm border border-primary/30 rounded-lg p-2 xs:p-3 md:p-4 min-w-[60px] xs:min-w-[70px] md:min-w-[80px]">
+                <div className="text-xl xs:text-2xl md:text-3xl font-bold text-primary">{timeLeft.days}</div>
+                <div className="text-xs xs:text-sm text-foreground/70">Days</div>
+              </div>
+              <div className="bg-gradient-to-b from-secondary/20 to-secondary/10 backdrop-blur-sm border border-secondary/30 rounded-lg p-2 xs:p-3 md:p-4 min-w-[60px] xs:min-w-[70px] md:min-w-[80px]">
+                <div className="text-xl xs:text-2xl md:text-3xl font-bold text-secondary">{timeLeft.hours}</div>
+                <div className="text-xs xs:text-sm text-foreground/70">Hours</div>
+              </div>
+              <div className="bg-gradient-to-b from-accent/20 to-accent/10 backdrop-blur-sm border border-accent/30 rounded-lg p-2 xs:p-3 md:p-4 min-w-[60px] xs:min-w-[70px] md:min-w-[80px]">
+                <div className="text-xl xs:text-2xl md:text-3xl font-bold text-accent">{timeLeft.minutes}</div>
+                <div className="text-xs xs:text-sm text-foreground/70">Minutes</div>
+              </div>
+              <div className="bg-gradient-to-b from-orange-500/20 to-orange-500/10 backdrop-blur-sm border border-orange-500/30 rounded-lg p-2 xs:p-3 md:p-4 min-w-[60px] xs:min-w-[70px] md:min-w-[80px]">
+                <div className="text-xl xs:text-2xl md:text-3xl font-bold text-orange-400">{timeLeft.seconds}</div>
+                <div className="text-xs xs:text-sm text-foreground/70">Seconds</div>
+              </div>
+            </div>
+          </div>
           
           {/* Event Details */}
           <div className="flex flex-col xs:flex-row xs:flex-wrap justify-center gap-3 xs:gap-4 md:gap-6 mb-6 sm:mb-8 animate-slide-in-right px-2">

@@ -15,7 +15,7 @@ export const EventsList = memo(({ department, onBack, onEventSelect }: EventsLis
   const events = getEventsByDepartment(department.id);
 
   return (
-    <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8">
+    <section className="pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6 sm:mb-8">
@@ -35,7 +35,13 @@ export const EventsList = memo(({ department, onBack, onEventSelect }: EventsLis
         </div>
 
         {/* Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className={`grid gap-6 sm:gap-8 ${
+          events.length === 1 
+            ? 'grid-cols-1 place-items-center' 
+            : events.length === 2
+            ? 'grid-cols-1 md:grid-cols-2 place-items-center'
+            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+        }`}>
           {events.map((event, index) => (
             <article 
               key={event.id}

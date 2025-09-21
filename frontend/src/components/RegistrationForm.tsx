@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2 } from "lucide-react";
+import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft } from "lucide-react";
 import { getAllEvents, type Event } from "@/data/events";
 import { Footer } from "@/components/Footer";
 
@@ -432,8 +432,18 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   }
 
   return (
-    <div className="min-h-screen py-12 sm:py-20 px-4 sm:px-6 lg:px-8 flex flex-col">
+    <div className="min-h-screen pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8 flex flex-col">
       <div className="max-w-3xl mx-auto flex-1">
+        {/* Back Button */}
+        {onBack && (
+          <div className="flex items-center gap-4 mb-6 sm:mb-8">
+            <Button variant="ghost" onClick={onBack} className="hover:bg-primary/20">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {eventTitle ? "Back to Events" : "Back to Home"}
+            </Button>
+          </div>
+        )}
+        
         <Card>
           <CardHeader className="text-center">
             <div className="flex items-center justify-center mb-4">
