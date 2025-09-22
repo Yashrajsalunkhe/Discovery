@@ -19,16 +19,17 @@ export const validateTeamMember = (member: Partial<BaseTeamMember>): string[] =>
     errors.push("Name must be at least 2 characters long");
   }
 
-  if (!member.email || !isValidEmail(member.email)) {
+  if (!member.college || member.college.trim().length < 2) {
+    errors.push("Please provide college name");
+  }
+
+  // Optional fields validation
+  if (member.email && !isValidEmail(member.email)) {
     errors.push("Please provide a valid email address");
   }
 
-  if (!member.mobile || !isValidMobile(member.mobile)) {
+  if (member.mobile && !isValidMobile(member.mobile)) {
     errors.push("Please provide a valid mobile number (10-15 digits)");
-  }
-
-  if (!member.college || member.college.trim().length < 2) {
-    errors.push("Please provide college name");
   }
 
   return errors;
@@ -75,7 +76,7 @@ export const isValidMobile = (mobile: string): boolean => {
 
 // Data formatting functions
 export const formatTeamMemberForDisplay = (member: BaseTeamMember | ExtendedTeamMember): string => {
-  return `${member.name} (${member.email})`;
+  return member.email ? `${member.name} (${member.email})` : `${member.name} - ${member.college}`;
 };
 
 export const formatTeamMemberDetails = (member: ExtendedTeamMember): string => {

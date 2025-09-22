@@ -19,13 +19,11 @@ import { calculateTeamFee, formatCurrency, type FeeBreakdown } from "@/utils/fee
 // Team member schema
 const teamMemberSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  mobile: z.string().regex(/^\d{10,15}$/, "Mobile number should contain only digits"),
-  email: z.string().email("Please enter a valid email address"),
   college: z.string().min(2, "Please enter college name"),
 });
 
 // Function to create dynamic registration schema based on event
-const createRegistrationSchema = (maxTeamSize: number = 4, isPaperPresentation: boolean = false) => z.object({
+const createRegistrationSchema = (maxTeamSize: number = 4, minTeamSize: number = 1, isPaperPresentation: boolean = false) => z.object({
   // Leader details
   leaderName: z.string().min(2, "Name must be at least 2 characters"),
   leaderCollege: z.string().min(2, "Please enter your college name"),
@@ -45,7 +43,7 @@ const createRegistrationSchema = (maxTeamSize: number = 4, isPaperPresentation: 
   participationType: z.enum(["solo", "team"], {
     required_error: "Please select participation type",
   }),
-  teamSize: z.number().min(1).max(maxTeamSize).optional(),
+  teamSize: z.number().min(minTeamSize).max(maxTeamSize).optional(),
   
   // Team members (conditional)
   teamMembers: z.array(teamMemberSchema).optional(),
@@ -121,7 +119,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
   // Create dynamic schema based on selected event
   const currentSchema = selectedEvent 
-    ? createRegistrationSchema(selectedEvent.maxTeamSize, selectedEvent.name === "Paper Presentation")
+    ? createRegistrationSchema(selectedEvent.maxTeamSize, selectedEvent.minTeamSize || 1, selectedEvent.name === "Paper Presentation")
     : defaultRegistrationSchema;
 
   const form = useForm<RegistrationFormValues>({
@@ -166,7 +164,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       if (currentMembers.length < targetMemberCount) {
         // Add empty members
         for (let i = currentMembers.length; i < targetMemberCount; i++) {
-          append({ name: "", mobile: "", email: "", college: "" });
+          append({ name: "", college: "" });
         }
       } else if (currentMembers.length > targetMemberCount) {
         // Remove excess members
@@ -190,27 +188,37 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       form.setValue("paperPresentationDept", "");
     }
 
-    // Handle participation type based on event's maxTeamSize
+    // Handle participation type based on event's team size requirements
     if (event) {
-      if (event.maxTeamSize === 1) {
+      const minTeamSize = event.minTeamSize || 1;
+      const maxTeamSize = event.maxTeamSize;
+      
+      if (maxTeamSize === 1) {
         // Force solo participation for events with maxTeamSize 1
         setParticipationType("solo");
         form.setValue("participationType", "solo");
         setTeamSize(1);
         form.setValue("teamSize", 1);
+      } else if (minTeamSize > 1) {
+        // Force team participation for events with minTeamSize > 1
+        setParticipationType("team");
+        form.setValue("participationType", "team");
+        setTeamSize(minTeamSize);
+        form.setValue("teamSize", minTeamSize);
       } else {
-        // Reset team size if current size exceeds event's max
-        if (teamSize > event.maxTeamSize) {
-          const newTeamSize = Math.min(teamSize, event.maxTeamSize);
+        // Reset team size if current size exceeds event's max or is below min
+        if (teamSize > maxTeamSize || teamSize < minTeamSize) {
+          const newTeamSize = Math.max(minTeamSize, Math.min(teamSize, maxTeamSize));
           setTeamSize(newTeamSize);
           form.setValue("teamSize", newTeamSize);
           
-          // If in team mode, ensure we don't exceed max
-          if (participationType === "team" && newTeamSize < 2) {
+          // Set appropriate participation type
+          if (newTeamSize === 1 && minTeamSize === 1) {
             setParticipationType("solo");
             form.setValue("participationType", "solo");
-            setTeamSize(1);
-            form.setValue("teamSize", 1);
+          } else {
+            setParticipationType("team");
+            form.setValue("participationType", "team");
           }
         }
       }
@@ -218,11 +226,24 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   };
 
   const handleParticipationTypeChange = (type: "solo" | "team") => {
+    const minTeamSize = selectedEvent?.minTeamSize || 1;
+    const maxTeamSize = selectedEvent?.maxTeamSize || 4;
+    
     // Don't allow team participation for events with maxTeamSize 1
-    if (type === "team" && selectedEvent?.maxTeamSize === 1) {
+    if (type === "team" && maxTeamSize === 1) {
       toast({
         title: "Team participation not allowed",
         description: "This event only allows solo participation.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Don't allow solo participation for events with minTeamSize > 1
+    if (type === "solo" && minTeamSize > 1) {
+      toast({
+        title: "Solo participation not allowed",
+        description: `This event requires teams of at least ${minTeamSize} members.`,
         variant: "destructive",
       });
       return;
@@ -234,22 +255,36 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
     if (type === "solo") {
       setTeamSize(1);
     } else {
-      // Set default team size to 2, but respect event's maxTeamSize
-      const defaultTeamSize = selectedEvent ? Math.min(2, selectedEvent.maxTeamSize) : 2;
+      // Set default team size to minTeamSize or 2, whichever is larger
+      const defaultTeamSize = Math.max(minTeamSize, Math.min(2, maxTeamSize));
       setTeamSize(defaultTeamSize);
     }
   };
 
   const handleTeamSizeChange = (size: number) => {
+    const minTeamSize = selectedEvent?.minTeamSize || 1;
+    const maxTeamSize = selectedEvent?.maxTeamSize || 4;
+    
     // Validate against event's maxTeamSize
-    if (selectedEvent && size > selectedEvent.maxTeamSize) {
+    if (size > maxTeamSize) {
       toast({
         title: "Team size too large",
-        description: `This event allows maximum ${selectedEvent.maxTeamSize} team members.`,
+        description: `This event allows maximum ${maxTeamSize} team members.`,
         variant: "destructive",
       });
       return;
     }
+    
+    // Validate against event's minTeamSize
+    if (size < minTeamSize) {
+      toast({
+        title: "Team size too small",
+        description: `This event requires minimum ${minTeamSize} team members.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setTeamSize(size);
   };
 
@@ -527,7 +562,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         <FormItem>
                           <FormLabel>Mobile Number *</FormLabel>
                           <FormControl>
-                            <Input type="tel" placeholder="9876543210" {...field} />
+                            <Input type="tel" placeholder="eg. 9876543210" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -724,16 +759,19 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         <div>
                           <Label className="text-sm font-medium">Select Team Size *</Label>
                           <div className="flex gap-2 mt-2 flex-wrap">
-                            {Array.from({ length: selectedEvent.maxTeamSize - 1 }, (_, i) => i + 2).map((size) => (
+                            {Array.from(
+                              { length: selectedEvent.maxTeamSize - (selectedEvent.minTeamSize || 1) + 1 }, 
+                              (_, i) => (selectedEvent.minTeamSize || 1) + i
+                            ).map((size) => (
                               <Button
                                 key={size}
                                 type="button"
                                 variant={teamSize === size ? "default" : "outline"}
                                 size="sm"
                                 onClick={() => handleTeamSizeChange(size)}
-                                disabled={size > selectedEvent.maxTeamSize}
+                                disabled={size > selectedEvent.maxTeamSize || size < (selectedEvent.minTeamSize || 1)}
                               >
-                                {size} Members ({formatCurrency(calculateTeamFee('team', size, 100).totalAmount)})
+                                {size} Members
                               </Button>
                             ))}
                           </div>
@@ -742,69 +780,14 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                               This event only allows solo participation.
                             </p>
                           )}
+                          {(selectedEvent.minTeamSize || 1) > 1 && (
+                            <p className="text-sm text-muted-foreground mt-2">
+                              This event requires teams of at least {selectedEvent.minTeamSize} members. Solo participation is not allowed.
+                            </p>
+                          )}
                         </div>
                       </div>
                     )}
-
-                    {/* Fee Display with Breakdown */}
-                    <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">
-                            Participation: {participationType === "solo" ? "Solo" : `Team of ${teamSize}`}
-                          </p>
-                          {selectedEvent && (
-                            <p className="text-sm text-muted-foreground">Event: {selectedEvent.name}</p>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-primary flex items-center gap-1">
-                            <IndianRupee className="h-5 w-5" />
-                            {feeBreakdown?.totalAmount?.toFixed(2) || '0.00'}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            ₹100/- per member
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* Fee Breakdown */}
-                      {feeBreakdown && (
-                        <div className="mt-3 pt-3 border-t border-primary/20">
-                          <div className="space-y-1 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Event Fee:</span>
-                              <span>{formatCurrency(feeBreakdown.baseFee)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Processing Charges:</span>
-                              <span>{formatCurrency(feeBreakdown.processingCharges)}</span>
-                            </div>
-                            <div className="flex justify-between font-medium pt-1 border-t border-primary/20">
-                              <span>Total Payable:</span>
-                              <span>{formatCurrency(feeBreakdown.totalAmount)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Payment Notice */}
-                    <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0">
-                          <svg className="h-5 w-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-semibold text-orange-800">Payment Information</h4>
-                          <p className="text-sm text-orange-700 mt-1">
-                            Registration will only be confirmed after successful payment. The processing charges shown above include payment gateway fees to ensure you receive the exact event fee amount. You will be redirected to a secure payment gateway to complete the transaction.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
@@ -840,34 +823,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
                             <FormField
                               control={form.control}
-                              name={`teamMembers.${index}.mobile`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Mobile Number *</FormLabel>
-                                  <FormControl>
-                                    <Input type="tel" placeholder="9876543210" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`teamMembers.${index}.email`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Email *</FormLabel>
-                                  <FormControl>
-                                    <Input type="email" placeholder="member@example.com" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
                               name={`teamMembers.${index}.college`}
                               render={({ field }) => (
                                 <FormItem>
@@ -885,6 +840,66 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                     </div>
                   </div>
                 )}
+
+                {/* Fee Display with Breakdown */}
+                <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">
+                        Participation: {participationType === "solo" ? "Solo" : `Team of ${teamSize}`}
+                      </p>
+                      {selectedEvent && (
+                        <p className="text-sm text-muted-foreground">Event: {selectedEvent.name}</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-primary flex items-center gap-1">
+                        <IndianRupee className="h-5 w-5" />
+                        {feeBreakdown?.totalAmount?.toFixed(2) || '0.00'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        ₹100/- per member
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Fee Breakdown */}
+                  {feeBreakdown && (
+                    <div className="mt-3 pt-3 border-t border-primary/20">
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Event Fee:</span>
+                          <span>{formatCurrency(feeBreakdown.baseFee)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Processing Charges:</span>
+                          <span>{formatCurrency(feeBreakdown.processingCharges)}</span>
+                        </div>
+                        <div className="flex justify-between font-medium pt-1 border-t border-primary/20">
+                          <span>Total Payable:</span>
+                          <span>{formatCurrency(feeBreakdown.totalAmount)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Payment Notice */}
+                <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-orange-800">Payment Information</h4>
+                      <p className="text-sm text-orange-700 mt-1">
+                        Registration will only be confirmed after successful payment. The processing charges shown above include payment gateway fees to ensure you receive the exact event fee amount. You will be redirected to a secure payment gateway to complete the transaction.
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 <Separator />
 

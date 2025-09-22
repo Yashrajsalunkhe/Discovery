@@ -3,9 +3,9 @@
 export interface BaseTeamMember {
   id?: string;
   name: string;
-  email: string;
-  mobile: string;
   college: string;
+  email?: string;
+  mobile?: string;
 }
 
 export interface ExtendedTeamMember extends BaseTeamMember {

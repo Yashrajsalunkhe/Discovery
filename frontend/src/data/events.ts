@@ -2,6 +2,7 @@ export interface Event {
   id: string;
   name: string;
   department: string;
+  minTeamSize?: number;
   maxTeamSize: number;
   entryFee: number;
   description?: string;
@@ -703,13 +704,15 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "box-cricket",
       name: "Box Cricket League",
       department: "IoT & Cyber Security",
+      minTeamSize: 6,
       maxTeamSize: 6,
       entryFee: 100,
       image: "/event-images/box_cricket.png",
-      description: "Indoor cricket tournament for tech enthusiasts combining sports and technology. Form your team and compete in fast-paced 3-over matches, demonstrating teamwork, strategy, and athletic skills in this exciting recreational competition."
+      description: "Indoor cricket tournament for tech enthusiasts combining sports and technology. Form your team and compete in fast-paced 3-over matches, demonstrating teamwork, strategy, and athletic skills in this exciting recreational competition. Team registration is mandatory with exactly 6 members - no solo participation allowed."
       ,
       rules: [
-        "Each team shall consist of six (6) players. A player may represent only one team.",
+        "Each team shall consist of exactly six (6) players. A player may represent only one team.",
+        "Solo participation is not allowed - teams must register with all 6 members.",
         "The match shall be of three (3) overs per side, with each bowler permitted to bowl a maximum of one (1) over.",
         "Throw bowling is strictly prohibited. Legitimacy of bowling action shall be determined solely by the umpire.",
         "In the event of a tie, a Super Over shall be conducted to determine the winner.",

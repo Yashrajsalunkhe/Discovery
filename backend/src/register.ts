@@ -65,9 +65,9 @@ interface RegistrationDoc extends Document {
   teamSize: number;
   teamMembers: Array<{
     name: string;
-    mobile: string;
-    email: string;
     college: string;
+    mobile?: string;
+    email?: string;
   }>;
   paymentId: string;
   orderId: string;
@@ -78,9 +78,9 @@ interface RegistrationDoc extends Document {
 
 const teamMemberSchema = new Schema({
   name: { type: String, required: true },
-  mobile: { type: String, required: true },
-  email: { type: String, required: true },
-  college: { type: String, required: true }
+  college: { type: String, required: true },
+  mobile: { type: String, required: false },
+  email: { type: String, required: false }
 });
 
 const registrationSchema = new Schema<RegistrationDoc>({
@@ -162,9 +162,9 @@ export const registerUser = async (req: Request, res: Response) => {
       teamSize: Number(teamSize),
       teamMembers: (teamMembers || []).map((member: any) => ({
         name: member.name.trim(),
-        mobile: member.mobile.trim(),
-        email: member.email.trim().toLowerCase(),
-        college: member.college.trim()
+        college: member.college.trim(),
+        mobile: member.mobile?.trim() || '',
+        email: member.email?.trim().toLowerCase() || ''
       })),
       paymentId,
       orderId,

@@ -55,7 +55,10 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <Badge variant="secondary" className="flex items-center gap-2 px-4 py-2 text-base">
               <Users className="h-4 w-4" />
-              Max {event.maxTeamSize} {event.maxTeamSize === 1 ? 'Participant' : 'Participants'}
+              {event.minTeamSize && event.minTeamSize > 1 
+                ? `${event.minTeamSize}-${event.maxTeamSize} Participants` 
+                : `Max ${event.maxTeamSize} ${event.maxTeamSize === 1 ? 'Participant' : 'Participants'}`
+              }
             </Badge>
             <Badge variant="outline" className="flex items-center gap-2 px-4 py-2 text-base text-primary border-primary/30">
               <DollarSign className="h-4 w-4" />

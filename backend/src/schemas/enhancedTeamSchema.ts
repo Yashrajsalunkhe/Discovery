@@ -16,9 +16,11 @@ const emergencyContactSchema = new Schema({
 const enhancedTeamMemberSchema = new Schema({
   // Basic required fields (compatible with existing schema)
   name: { type: String, required: true, trim: true },
-  mobile: { type: String, required: true, trim: true },
-  email: { type: String, required: true, trim: true, lowercase: true },
   college: { type: String, required: true, trim: true },
+  
+  // Optional contact fields
+  mobile: { type: String, required: false, trim: true },
+  email: { type: String, required: false, trim: true, lowercase: true },
   
   // Additional fields for enhanced data storage
   department: { 
