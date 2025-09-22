@@ -108,8 +108,8 @@ const AdminPanel: React.FC = () => {
       return 'http://localhost:3000/api';
     }
     
-    // Production mode - use relative path which will be routed to backend by Vercel
-    return '/api';
+    // Production mode - temporarily disabled for deployment
+    return null; // This will trigger maintenance mode
   };
 
   const API_BASE = getApiBaseUrl();
@@ -118,6 +118,37 @@ const AdminPanel: React.FC = () => {
   console.log('Environment dev:', import.meta.env.DEV);
   console.log('Current hostname:', window.location.hostname);
   console.log('Using API_BASE:', API_BASE);
+
+  // Maintenance mode check
+  if (!API_BASE) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-slate-900 border-slate-800">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center mb-4">
+              <UsersIcon className="w-8 h-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Admin Panel
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Currently under maintenance
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <Alert>
+              <AlertDescription>
+                The admin panel is temporarily unavailable. Please check back later or contact the development team.
+              </AlertDescription>
+            </Alert>
+            <div className="text-sm text-slate-500">
+              For urgent matters, please contact support directly.
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Check if user is already authenticated
   useEffect(() => {
