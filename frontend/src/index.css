@@ -231,17 +231,6 @@
     input, textarea, select {
       font-size: 16px; /* Prevents zoom on iOS */
     }
-    
-    /* Hide scrollbars in navbar */
-    nav {
-      overflow: hidden;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE and Edge */
-    }
-    
-    nav::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
-    }
   }
 
   /* Extra small devices */
