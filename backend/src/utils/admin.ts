@@ -45,7 +45,6 @@ export const authenticateAdmin = (req: Request, res: Response, next: any) => {
   
   const token = authHeader.substring(7); // Remove 'Bearer ' prefix
   console.log('Token received:', token ? 'Token present' : 'No token');
-  console.log('Expected admin password:', ADMIN_PASSWORD);
   
   if (token !== ADMIN_PASSWORD) {
     console.log('Invalid admin credentials');
