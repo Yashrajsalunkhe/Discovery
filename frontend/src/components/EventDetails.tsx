@@ -406,7 +406,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
               <Card className="festival-card border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5">
                 <CardContent className="pt-6">
                   <div className="text-center space-y-4">
-                    <h3 className="text-lg font-semibold text-primary">Need the Rule Book?</h3>
+                    <h3 className="text-lg font-semibold text-primary">Need the Template?</h3>
                     <p className="text-sm text-muted-foreground">
                       Download the complete paper submission guidelines
                     </p>
@@ -417,7 +417,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                       className="w-full border-primary/30 hover:bg-primary/10 text-primary"
                     >
                       <Download className="h-5 w-5 mr-2" />
-                      Download Rule Book
+                      Download Template
                     </Button>
                   </div>
                 </CardContent>

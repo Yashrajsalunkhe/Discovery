@@ -795,20 +795,36 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Select Department for Paper Presentation *</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Choose department" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {paperPresentationDepartments.map((dept) => (
-                                  <SelectItem key={dept} value={dept}>
-                                    {dept}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <div className="flex items-center gap-3">
+                              <div className="flex-1">
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Choose department" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {paperPresentationDepartments.map((dept) => (
+                                      <SelectItem key={dept} value={dept}>
+                                        {dept}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {/* Download button for paper submission doc */}
+                              <div className="whitespace-nowrap">
+                                <a
+                                  href="/docs/Paper_Submission_Discovery2k25.docx"
+                                  download
+                                  className="inline-flex items-center px-3 py-2 border border-primary/30 rounded-md text-sm bg-primary/5 hover:bg-primary/10"
+                                  title="Download paper submission template"
+                                >
+                                  Download Template
+                                </a>
+                              </div>
+                            </div>
                             <FormMessage />
                           </FormItem>
                         )}
