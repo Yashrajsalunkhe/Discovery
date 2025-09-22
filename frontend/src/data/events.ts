@@ -535,7 +535,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       name: "B-Plan",
       department: "Computer Science Engineering",
       maxTeamSize: 2,
-      entryFee: 200,
+      entryFee: 100,
       image: "/event-images/b_plan.png",
       description: "Present your innovative startup business plan and pitch your entrepreneurial ideas to industry experts. Showcase your business acumen, market analysis, and financial projections in this comprehensive business competition."
       ,
@@ -545,9 +545,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Use clear graphics, colors, and fonts for better impact.",
         "Presentation time: 10 minutes + 5 minutes Q&A.",
         "Teams must present both poster and business idea to judges.",
-        "Entry fee: Rs. 200/- (per participant or per team of 2).",
-        "Posters and presentations must be clear, concise, and focused on key aspects.",
-        "Entry Fee: Rs. 100/- Per Participant."
+        "Entry fee: Rs. 100/- per participant.",
+        "Posters and presentations must be clear, concise, and focused on key aspects."
       ],
       coordinators: {
         faculty: { name: "Mrs. Shubhangi Patil", phone: "9730623168", email: "spp1_cse@adcet.in" },
