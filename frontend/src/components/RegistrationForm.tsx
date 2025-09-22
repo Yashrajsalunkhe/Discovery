@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, ArrowLeft, Check, ChevronsUpDown, Download } from "lucide-react";
+import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, ArrowLeft, Check, ChevronsUpDown } from "lucide-react";
 import { getAllEvents, type Event } from "@/data/events";
 import { Footer } from "@/components/Footer";
 import { calculateTeamFee, formatCurrency, type FeeBreakdown } from "@/utils/feeCalculation";
@@ -103,24 +103,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const teamMembersRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Function to handle manual rule book download
-  const handleRuleBookDownload = () => {
-    if (selectedEvent?.ruleBookFile) {
-      const success = downloadRuleBook(selectedEvent);
-      if (success) {
-        toast({
-          title: "Rule Book Downloaded",
-          description: "Paper submission guidelines have been downloaded successfully!",
-        });
-      } else {
-        toast({
-          title: "Download Failed",
-          description: "Could not download the rule book. Please try again.",
-          variant: "destructive"
-        });
-      }
-    }
-  };
+  // ...existing code...
 
   const allEvents = getAllEvents();
 
@@ -836,30 +819,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                     )}
 
                     {/* Download Rule Book Button for Paper Presentation */}
-                    {showPaperPresentationDept && selectedEvent?.ruleBookFile && (
-                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-medium text-blue-900">Paper Submission Guidelines</h4>
-                            <p className="text-sm text-blue-700 mt-1">
-                              Download the official guidelines for paper submission requirements and formatting.
-                            </p>
-                          </div>
-                          <Button
-                            type="button"
-                            onClick={handleRuleBookDownload}
-                            variant="outline"
-                            size="sm"
-                            className="ml-4 border-blue-300 text-blue-700 hover:bg-blue-100"
-                          >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Download Guidelines
-                          </Button>
-                        </div>
-                      </div>
-                    )}
+                    {/* Paper presentation rule book download removed per request */}
                   </div>
                 </div>
 
@@ -967,32 +927,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                           {selectedEvent && (
                             <div className="flex items-center justify-between">
                               <p className="text-sm text-muted-foreground">Event: {selectedEvent.name}</p>
-                              {selectedEvent.name === "Paper Presentation" && selectedEvent.ruleBookFile && (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    const success = downloadRuleBook(selectedEvent);
-                                    if (success) {
-                                      toast({
-                                        title: "Rule Book Downloaded",
-                                        description: "Paper submission guidelines have been downloaded successfully!",
-                                      });
-                                    } else {
-                                      toast({
-                                        title: "Download Failed",
-                                        description: "Could not download the rule book. Please try again.",
-                                        variant: "destructive"
-                                      });
-                                    }
-                                  }}
-                                  className="text-xs"
-                                >
-                                  <Download className="h-3 w-3 mr-1" />
-                                  Rule Book
-                                </Button>
-                              )}
+                              {/* Rule book button removed */}
                             </div>
                           )}
                         </div>
