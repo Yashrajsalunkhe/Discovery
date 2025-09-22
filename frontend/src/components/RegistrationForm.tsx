@@ -13,11 +13,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+<<<<<<< HEAD
 import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft, Check, ChevronsUpDown, Search } from "lucide-react";
 import { getAllEvents, type Event } from "@/data/events";
 import { Footer } from "@/components/Footer";
 import { calculateTeamFee, formatCurrency, type FeeBreakdown } from "@/utils/feeCalculation";
 import { cn } from "@/lib/utils";
+=======
+import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft, Download } from "lucide-react";
+import { getAllEvents, type Event } from "@/data/events";
+import { Footer } from "@/components/Footer";
+import { downloadRuleBook } from "@/utils/downloadUtils";
+>>>>>>> 05e7c59 (Final changes 5.0)
 
 // Team member schema
 const teamMemberSchema = z.object({
@@ -101,6 +108,25 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const [eventSelectOpen, setEventSelectOpen] = useState(false);
   const teamMembersRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Function to handle manual rule book download
+  const handleRuleBookDownload = () => {
+    if (selectedEvent?.ruleBookFile) {
+      const success = downloadRuleBook(selectedEvent);
+      if (success) {
+        toast({
+          title: "Rule Book Downloaded",
+          description: "Paper submission guidelines have been downloaded successfully!",
+        });
+      } else {
+        toast({
+          title: "Download Failed",
+          description: "Could not download the rule book. Please try again.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
 
   const allEvents = getAllEvents();
 
@@ -814,6 +840,32 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         )}
                       />
                     )}
+
+                    {/* Download Rule Book Button for Paper Presentation */}
+                    {showPaperPresentationDept && selectedEvent?.ruleBookFile && (
+                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-medium text-blue-900">Paper Submission Guidelines</h4>
+                            <p className="text-sm text-blue-700 mt-1">
+                              Download the official guidelines for paper submission requirements and formatting.
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={handleRuleBookDownload}
+                            variant="outline"
+                            size="sm"
+                            className="ml-4 border-blue-300 text-blue-700 hover:bg-blue-100"
+                          >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Download Guidelines
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -910,6 +962,77 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         </div>
                       </div>
                     )}
+<<<<<<< HEAD
+=======
+
+                    {/* Fee Display */}
+                    <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">
+                            Participation: {participationType === "solo" ? "Solo" : `Team of ${teamSize}`}
+                          </p>
+                          {selectedEvent && (
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm text-muted-foreground">Event: {selectedEvent.name}</p>
+                              {selectedEvent.name === "Paper Presentation" && selectedEvent.ruleBookFile && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    const success = downloadRuleBook(selectedEvent);
+                                    if (success) {
+                                      toast({
+                                        title: "Rule Book Downloaded",
+                                        description: "Paper submission guidelines have been downloaded successfully!",
+                                      });
+                                    } else {
+                                      toast({
+                                        title: "Download Failed",
+                                        description: "Could not download the rule book. Please try again.",
+                                        variant: "destructive"
+                                      });
+                                    }
+                                  }}
+                                  className="text-xs"
+                                >
+                                  <Download className="h-3 w-3 mr-1" />
+                                  Rule Book
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-primary flex items-center gap-1">
+                            <IndianRupee className="h-5 w-5" />
+                            {totalFee}/-
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            ₹100/- per member
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Payment Notice */}
+                    <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                          <svg className="h-5 w-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-semibold text-orange-800">Payment Required</h4>
+                          <p className="text-sm text-orange-700 mt-1">
+                            Registration will only be confirmed after successful payment. You will be redirected to a secure payment gateway to complete the transaction.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+>>>>>>> 05e7c59 (Final changes 5.0)
                   </div>
                 </div>
 

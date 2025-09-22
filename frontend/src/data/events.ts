@@ -20,6 +20,7 @@ export interface Event {
   teamComposition?: string[];
   themes?: string[];
   submissionGuidelines?: string[];
+  ruleBookFile?: string; // Path to downloadable rule book file
   coordinators?: {
     faculty?: {
       name: string;
@@ -76,6 +77,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         ...paperPresentationRules,
         "Submit abstract (soft copy) to the group faculty coordinators by 7th October 2025."
       ],
+      ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
       coordinators: {
         faculty: {
           name: "Dr. Sudharson Murugan",
@@ -182,6 +184,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Renewable Energy Technologies"
     ],
     rules: paperPresentationRules,
+    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
         name: "Mr. Ajit R. Mane",
@@ -300,6 +303,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "High Voltage Engineering"
     ],
     rules: paperPresentationRules,
+    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
         name: "Mr. I.D.Pharane",
@@ -359,7 +363,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Host institute reserves rights related to modification and updating the rules for successful completion of the event."
       ],
       coordinators: {
-        faculty: { name: "Mr. P. D. More", phone: "09657175613", email: "pdm_ele@adcet.in" },
+        faculty: { name: "Mr. P. D. More", phone: "9657175613", email: "pdm_ele@adcet.in" },
         student: { name: "Mr. Vivek Borage", phone: "8080220991", email: "vivekborage1711@gmail.com" }
       }
     }
@@ -384,6 +388,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Green Building Technologies"
     ],
     rules: paperPresentationRules,
+    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
         name: "Dr. Vidya A. Lande",
@@ -414,7 +419,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Entry Fee: Rs. 100/- Per Participant."
       ],
       coordinators: {
-        faculty: { name: "Mr. Atul N. Kolekar", phone: "9545428026", email: "Ank_civil@adcet.in" },
+        faculty: { name: "Mr. Atul N. Kolekar", phone: "9545428026", email: "ank_civil@adcet.in" },
         student: { name: "Aman Attar", phone: "9356709191", email: "amanattar0303@gmail.com" }
       }
     },
@@ -483,6 +488,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Software Engineering and Agile Methodologies"
     ],
     rules: paperPresentationRules,
+    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
         name: "Dr. B. A. Jadhawar",
@@ -569,9 +575,10 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Reinforcement Learning"
     ],
     rules: paperPresentationRules,
+    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
-        name: "Mrs. Priyank S. Patil",
+        name: "Mrs. Priyanka S. Patil",
         phone: "7875642616",
         email: "psp_aids@adcet.in"
       },
@@ -606,7 +613,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ],
       coordinators: {
         faculty: { name: "Mr. V. N. Honmane", phone: "8329490361", email: "Vikas_aids@adcet.in" },
-        student: { name: "Ronit Swami", phone: "8208980085", email: "ronitswami43@gmail.com" }
+        student: { name: "Shahid Tamboli", phone: "9359841640", email: "shahidboxer58@gmail.com" }
       }
     },
     {
@@ -652,6 +659,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Digital Forensics and Incident Response"
     ],
     rules: paperPresentationRules,
+    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
         name: "Mr Samish N Kamble",
@@ -721,7 +729,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Entry Fee: Rs. 100/- Per Participant."
       ],
       coordinators: {
-        faculty: { name: "Prof. Kumarsagar M. Dange", phone: "9922425350", email: "" },
+        faculty: { name: "Prof. Rushabh Patil", phone: "9096993070", email: "" },
         student: { name: "Mr. Ruturaj Wani", phone: "9226990917", email: "" }
       }
     }
@@ -746,6 +754,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Corporate Social Responsibility"
       ],
       rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
       coordinators: {
         faculty: { name: "Mr. Aftab Mulla", phone: "8928735958", email: "ahm_bba@adcet.in" },
         student: { name: "Mr. Rudrapratap Chavan", phone: "7028354005", email: "rudrachavan400@gmail.com" }

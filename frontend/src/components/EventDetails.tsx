@@ -14,9 +14,12 @@ import {
   BookOpen,
   Target,
   CheckCircle,
-  UserPlus
+  UserPlus,
+  Download
 } from "lucide-react";
 import { Event } from "@/data/events";
+import { downloadRuleBook } from "@/utils/downloadUtils";
+import { useToast } from "@/hooks/use-toast";
 
 interface EventDetailsProps {
   event: Event;
@@ -25,6 +28,24 @@ interface EventDetailsProps {
 }
 
 export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) => {
+  const { toast } = useToast();
+
+  const handleDownloadRuleBook = () => {
+    const success = downloadRuleBook(event);
+    if (success) {
+      toast({
+        title: "Rule Book Downloaded",
+        description: "Paper submission guidelines have been downloaded successfully!",
+      });
+    } else {
+      toast({
+        title: "Download Failed",
+        description: "Could not download the rule book. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <section className="pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
@@ -34,12 +55,20 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Events
           </Button>
-          {onRegister && (
-            <Button onClick={onRegister} className="bg-primary hover:bg-primary/90">
-              <UserPlus className="h-4 w-4 mr-2" />
-              Register Now
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {event.name === "Paper Presentation" && event.ruleBookFile && (
+              <Button variant="outline" onClick={handleDownloadRuleBook} className="hidden sm:flex hover:bg-primary/10">
+                <Download className="h-4 w-4 mr-2" />
+                Download Rule Book
+              </Button>
+            )}
+            {onRegister && (
+              <Button onClick={onRegister} className="bg-primary hover:bg-primary/90">
+                <UserPlus className="h-4 w-4 mr-2" />
+                Register Now
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Event Title */}
@@ -369,6 +398,31 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* Mobile Download Rule Book Button - Only for Paper Presentation */}
+          {event.name === "Paper Presentation" && event.ruleBookFile && (
+            <div className="sm:hidden"> {/* Only show on mobile */}
+              <Card className="festival-card border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5">
+                <CardContent className="pt-6">
+                  <div className="text-center space-y-4">
+                    <h3 className="text-lg font-semibold text-primary">Need the Rule Book?</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Download the complete paper submission guidelines
+                    </p>
+                    <Button 
+                      onClick={handleDownloadRuleBook} 
+                      size="lg" 
+                      variant="outline"
+                      className="w-full border-primary/30 hover:bg-primary/10 text-primary"
+                    >
+                      <Download className="h-5 w-5 mr-2" />
+                      Download Rule Book
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {/* Coordinators */}
