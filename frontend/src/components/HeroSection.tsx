@@ -39,7 +39,7 @@ export const HeroSection = memo(({ onExploreEvents, onRegister }: HeroSectionPro
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 sm:pt-20">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Galaxy Background - Always enabled for high performance */}
       <div className="absolute inset-0 z-0">
         <Galaxy 
