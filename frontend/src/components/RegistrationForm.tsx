@@ -13,11 +13,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, ArrowLeft, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft, Check, ChevronsUpDown, Search } from "lucide-react";
 import { getAllEvents, type Event } from "@/data/events";
 import { Footer } from "@/components/Footer";
 import { calculateTeamFee, formatCurrency, type FeeBreakdown } from "@/utils/feeCalculation";
-import { downloadRuleBook } from "@/utils/downloadUtils";
 import { cn } from "@/lib/utils";
 
 // Team member schema
@@ -102,8 +101,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const [eventSelectOpen, setEventSelectOpen] = useState(false);
   const teamMembersRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-
-  // ...existing code...
 
   const allEvents = getAllEvents();
 
@@ -817,9 +814,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         )}
                       />
                     )}
-
-                    {/* Download Rule Book Button for Paper Presentation */}
-                    {/* Paper presentation rule book download removed per request */}
                   </div>
                 </div>
 
@@ -916,49 +910,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         </div>
                       </div>
                     )}
-
-                    {/* Fee Display */}
-                    <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">
-                            Participation: {participationType === "solo" ? "Solo" : `Team of ${teamSize}`}
-                          </p>
-                          {selectedEvent && (
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm text-muted-foreground">Event: {selectedEvent.name}</p>
-                              {/* Rule book button removed */}
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-primary flex items-center gap-1">
-                            <IndianRupee className="h-5 w-5" />
-                            {formatCurrency(feeBreakdown?.totalAmount || 0)}/-
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            ₹100/- per member
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Payment Notice */}
-                    <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0">
-                          <svg className="h-5 w-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-semibold text-orange-800">Payment Required</h4>
-                          <p className="text-sm text-orange-700 mt-1">
-                            Registration will only be confirmed after successful payment. You will be redirected to a secure payment gateway to complete the transaction.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
