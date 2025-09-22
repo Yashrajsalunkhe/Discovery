@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -7,14 +7,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft } from "lucide-react";
+import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft, Check, ChevronsUpDown, Search } from "lucide-react";
 import { getAllEvents, type Event } from "@/data/events";
 import { Footer } from "@/components/Footer";
 import { calculateTeamFee, formatCurrency, type FeeBreakdown } from "@/utils/feeCalculation";
+import { cn } from "@/lib/utils";
 
 // Team member schema
 const teamMemberSchema = z.object({
@@ -95,6 +98,8 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const [teamSize, setTeamSize] = useState<number>(1);
   const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown | null>(null);
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
+  const [eventSelectOpen, setEventSelectOpen] = useState(false);
+  const teamMembersRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const allEvents = getAllEvents();
@@ -172,6 +177,17 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           remove(i);
         }
       }
+      
+      // Auto-scroll to team members section when team members are added for Box Cricket
+      if (selectedEvent?.name === "Box Cricket League" && targetMemberCount > 0) {
+        setTimeout(() => {
+          teamMembersRef.current?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          });
+        }, 200);
+      }
     }
   }, [participationType, teamSize, form, append, remove]);
 
@@ -207,20 +223,60 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         form.setValue("teamSize", minTeamSize);
       } else {
         // Reset team size if current size exceeds event's max or is below min
-        if (teamSize > maxTeamSize || teamSize < minTeamSize) {
-          const newTeamSize = Math.max(minTeamSize, Math.min(teamSize, maxTeamSize));
+        if (teamSize > maxTeamSize || (participationType === "solo" && teamSize < minTeamSize) || (participationType === "team" && teamSize < Math.max(minTeamSize, 2))) {
+          let newTeamSize;
+          
+          if (participationType === "team") {
+            // For team mode, ensure minimum is 2 (or event minTeamSize if higher)
+            newTeamSize = Math.max(minTeamSize, 2);
+            newTeamSize = Math.min(newTeamSize, maxTeamSize);
+          } else {
+            // For solo mode or undetermined, use event requirements
+            newTeamSize = Math.max(minTeamSize, Math.min(teamSize, maxTeamSize));
+          }
+          
           setTeamSize(newTeamSize);
           form.setValue("teamSize", newTeamSize);
           
-          // Set appropriate participation type
-          if (newTeamSize === 1 && minTeamSize === 1) {
+          // Set appropriate participation type based on team size and event requirements
+          if (newTeamSize === 1 && minTeamSize === 1 && participationType !== "team") {
             setParticipationType("solo");
             form.setValue("participationType", "solo");
-          } else {
+          } else if (newTeamSize > 1) {
             setParticipationType("team");
             form.setValue("participationType", "team");
           }
         }
+      }
+      
+      // Auto-scroll to team members section for Box Cricket
+      if (event?.name === "Box Cricket League" && minTeamSize > 1) {
+        // Show helpful toast
+        toast({
+          title: "Box Cricket Selected! 🏏",
+          description: "Please add details for all 6 team members below.",
+          duration: 4000,
+        });
+        
+        // Use setTimeout to ensure the DOM has been updated and team members section is visible
+        setTimeout(() => {
+          if (teamMembersRef.current) {
+            teamMembersRef.current.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+            
+            // Add a subtle highlight effect
+            teamMembersRef.current.style.transition = 'all 0.3s ease';
+            teamMembersRef.current.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+              if (teamMembersRef.current) {
+                teamMembersRef.current.style.transform = 'scale(1)';
+              }
+            }, 300);
+          }
+        }, 300);
       }
     }
   };
@@ -255,15 +311,18 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
     if (type === "solo") {
       setTeamSize(1);
     } else {
-      // Set default team size to minTeamSize or 2, whichever is larger
-      const defaultTeamSize = Math.max(minTeamSize, Math.min(2, maxTeamSize));
-      setTeamSize(defaultTeamSize);
+      // For team mode, minimum is 2 (or event minTeamSize if higher)
+      const defaultTeamSize = Math.max(minTeamSize, 2);
+      setTeamSize(Math.min(defaultTeamSize, maxTeamSize));
     }
   };
 
   const handleTeamSizeChange = (size: number) => {
     const minTeamSize = selectedEvent?.minTeamSize || 1;
     const maxTeamSize = selectedEvent?.maxTeamSize || 4;
+    
+    // For team mode, minimum should be 2 (unless event specifically requires more)
+    const effectiveMinSize = Math.max(minTeamSize, 2);
     
     // Validate against event's maxTeamSize
     if (size > maxTeamSize) {
@@ -275,11 +334,11 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       return;
     }
     
-    // Validate against event's minTeamSize
-    if (size < minTeamSize) {
+    // Validate against effective minimum (at least 2 for team mode)
+    if (size < effectiveMinSize) {
       toast({
         title: "Team size too small",
-        description: `This event requires minimum ${minTeamSize} team members.`,
+        description: `Team mode requires at least ${effectiveMinSize} members. Use solo participation for 1 member.`,
         variant: "destructive",
       });
       return;
@@ -649,23 +708,81 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Select Event *</FormLabel>
-                          <Select onValueChange={handleEventChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Choose an event" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="max-h-60">
-                              {filteredEvents.map((event) => (
-                                <SelectItem key={event.id} value={event.id}>
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">{event.name}</span>
-                                    <span className="text-xs text-muted-foreground">{event.department}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <Popover open={eventSelectOpen} onOpenChange={setEventSelectOpen}>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  aria-expanded={eventSelectOpen}
+                                  className={cn(
+                                    "w-full justify-between",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value
+                                    ? (() => {
+                                        const event = filteredEvents.find(e => e.id === field.value);
+                                        return event ? (
+                                          <div className="flex flex-col items-start">
+                                            <span className="font-medium">{event.name}</span>
+                                            <span className="text-xs text-muted-foreground">{event.department}</span>
+                                          </div>
+                                        ) : "Choose an event";
+                                      })()
+                                    : "Choose an event"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[400px] p-0" align="start">
+                              <Command>
+                                <CommandInput placeholder="Search by event name or department..." className="h-9" />
+                                <CommandEmpty>No event found.</CommandEmpty>
+                                <CommandList>
+                                  <CommandGroup>
+                                    {filteredEvents.map((event) => (
+                                      <CommandItem
+                                        key={event.id}
+                                        value={`${event.name} ${event.department}`}
+                                        onSelect={() => {
+                                          handleEventChange(event.id);
+                                          setEventSelectOpen(false);
+                                        }}
+                                        className="flex items-center justify-between"
+                                      >
+                                        <div className="flex flex-col">
+                                          <span className="font-medium">{event.name}</span>
+                                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                            <span>{event.department}</span>
+                                            <span>•</span>
+                                            <span>
+                                              {event.minTeamSize && event.minTeamSize > 1 
+                                                ? `${event.minTeamSize}-${event.maxTeamSize} members` 
+                                                : `Max ${event.maxTeamSize} ${event.maxTeamSize === 1 ? 'member' : 'members'}`
+                                              }
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs font-medium text-primary">₹{event.entryFee}</span>
+                                          <Check
+                                            className={cn(
+                                              "h-4 w-4",
+                                              field.value === event.id ? "opacity-100" : "opacity-0"
+                                            )}
+                                          />
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            💡 Click to search by event name or department
+                          </p>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -760,8 +877,8 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                           <Label className="text-sm font-medium">Select Team Size *</Label>
                           <div className="flex gap-2 mt-2 flex-wrap">
                             {Array.from(
-                              { length: selectedEvent.maxTeamSize - (selectedEvent.minTeamSize || 1) + 1 }, 
-                              (_, i) => (selectedEvent.minTeamSize || 1) + i
+                              { length: selectedEvent.maxTeamSize - Math.max(selectedEvent.minTeamSize || 1, 2) + 1 }, 
+                              (_, i) => Math.max(selectedEvent.minTeamSize || 1, 2) + i
                             ).map((size) => (
                               <Button
                                 key={size}
@@ -769,7 +886,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                                 variant={teamSize === size ? "default" : "outline"}
                                 size="sm"
                                 onClick={() => handleTeamSizeChange(size)}
-                                disabled={size > selectedEvent.maxTeamSize || size < (selectedEvent.minTeamSize || 1)}
+                                disabled={size > selectedEvent.maxTeamSize || size < Math.max(selectedEvent.minTeamSize || 1, 2)}
                               >
                                 {size} Members
                               </Button>
@@ -785,6 +902,11 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                               This event requires teams of at least {selectedEvent.minTeamSize} members. Solo participation is not allowed.
                             </p>
                           )}
+                          {!(selectedEvent.minTeamSize && selectedEvent.minTeamSize > 1) && (
+                            <p className="text-sm text-muted-foreground mt-2">
+                              💡 For 1 member, use Solo participation. Team mode is for 2+ members.
+                            </p>
+                          )}
                         </div>
                       </div>
                     )}
@@ -793,10 +915,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
                 {/* Team Members Section - Only show if team is selected */}
                 {participationType === "team" && teamSize > 1 && (
-                  <div className="bg-muted/30 p-6 rounded-lg border-2 border-primary/20">
+                  <div ref={teamMembersRef} className="bg-muted/30 p-6 rounded-lg border-2 border-primary/20">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                       <Users className="h-5 w-5 text-primary" />
-                      Team Member Details
+                      {selectedEvent?.name === "Box Cricket League" ? "Box Cricket Team Members (5 more required)" : "Team Member Details"}
                     </h3>
                     
                     <div className="space-y-6">
