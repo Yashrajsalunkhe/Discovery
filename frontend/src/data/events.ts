@@ -135,45 +135,17 @@ export const eventsByDepartment: Record<string, Event[]> = {
       }
     },
     {
-      id: "water-rocket",
-      name: "Water Rocket",
+      id: "real-flight-simulator",
+      name: "Real Flight Simulator",
       department: "Aeronautical Engineering", 
-      maxTeamSize: 4,
+      maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Water_rocket.png",
-      description: "Build and launch water-powered rockets for maximum altitude and accuracy. Apply principles of propulsion, aerodynamics, and structural design to create the ultimate high-flying rocket using only water and compressed air.",
-      specifications: [
-        "Rockets must be constructed from one or more standard plastic soda bottles (PET bottles).",
-        "Additional materials such as paper, cardboard, tape, and adhesive (glue, glue sticks, etc.) are permitted for fins, nose cones, and other external components.",
-        "Prohibited materials include, but are not limited to: metal, wood, glass, or any pre-fabricated components designed for model rocketry.",
-        "The rocket must be built around a main body tube of standard 2 L or smaller plastic soda bottles.",
-        "Maximum Length: 75 cm. The maximum diameter is determined by the bottle used.",
-        "The only propellant is water and compressed air. No other liquids, gases, or solid propellants are permitted.",
-        "Water Volume: A maximum of 1/3 of the bottle's total volume. This will be measured by judges prior to launch.",
-        "The rocket must be a single, self-contained unit.",
-        "Fins and nose cones must be securely attached and may not detach during flight.",
-        "No external devices or components for active guidance, deployment, or stabilization are permitted."
-      ],
+      description: "Experience realistic drone flight simulation with precision control challenges. Test your piloting skills through take-off, maneuvering, and safe landing procedures using professional flight simulation equipment.",
       rules: [
-        "The competition is open to all enrolled engineering students.",
-        "Teams must consist of a minimum of two (2) and a maximum of four (4) members.",
-        "Each team may only submit one (1) rocket for the competition.",
-        "All rockets must pass a pre-flight inspection by the judges to verify adherence to all material and specification rules before being cleared for launch."
-      ],
-      gameplay: [
-        "All rockets will be launched using a standardized water rocket launcher provided by the competition organizers. Teams are not permitted to use their own launch systems.",
-        "The launch system will be pressurized to a standard pressure of 80 psi for all rockets.",
-        "Each team will be given two (2) official launch attempts. The best score from these two attempts will be used for final ranking.",
-        "The final score will be a combination of flight duration (measured in seconds) and horizontal distance (measured in meters)."
-      ],
-      safetyRegulations: [
-        "Safety is the highest priority. All participants, judges, and spectators must be at a safe distance from the launch pad as designated by event staff.",
-        "All team members within the designated launch area must wear safety goggles, which will be provided.",
-        "Do not attempt to modify the launch system. Any tampering will result in immediate disqualification.",
-        "Any team or individual found to be engaging in unsafe behavior will be immediately disqualified."
-      ],
-      disqualification: [
-        "A team will be disqualified for failure to meet rocket specifications, use of unapproved materials or propellants, tampering with the official launch system, or unsportsmanlike conduct or unsafe behavior."
+        "Each participant will get a briefing session and one trial attempt before the main round.",
+        "Participants must successfully take off, maneuver, and land the drone safely using the simulator.",
+        "Performance will be judged on control, safety, and smooth landing within the given time."
       ],
       coordinators: {
         faculty: {
@@ -655,7 +627,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ],
       coordinators: {
         faculty: { name: "Ms. Smita Dhanaji Patil", phone: "7498695865", email: "Sdp_aids@adect.in" },
-        student: { name: "Gaurav Kumbhare", phone: "7768807185", email: "" }
+        student: { name: "Aditya Padale", phone: "9881861784", email: "adityapadale25@gmail.com" }
       }
     }
   ],
@@ -779,9 +751,9 @@ export const eventsByDepartment: Record<string, Event[]> = {
   ],
   food: [
     {
-      id: "food-paper",
-      name: "Paper Presentation",
-      department: "Food technology",
+      id: "functional-food",
+      name: "Functional food",
+      department: "Food Technology",
       maxTeamSize: 4,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
@@ -792,8 +764,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "The idea should be presented using MS PowerPoint presentations only.",
         "Each group must have a minimum of 1 and a maximum of 4 participants.",
         "Each presenter will have a maximum of 10 minutes for their presentation.",
-        "After the presentation, there will be a 10-minute question and answer session.",
-        "Entry Fee: Rs. 100/- Per Participant."
+        "After the presentation, there will be a 10-minute question and answer session"
       ],
       coordinators: {
         faculty: {
@@ -809,8 +780,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
       }
     },
     {
-      id: "product-development",
-      name: "New Product Development (Prototype)",
+      id: "new-product-development",
+      name: "New Product Development",
       department: "Food Technology",
       maxTeamSize: 4,
       entryFee: 100,
@@ -826,8 +797,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Sensory evaluation will be conducted during the event's official evaluation by a pane of judge.",
         "Each group/Team must consist of minimum 1 to maximum 4 members.",
         "Each presenter will get a maximum of 5 minutes for their presentation.",
-        "All development must adhere to ethical standards, including safety and intellectual property respect.",
-        "Entry Fee: Rs. 100/- Per Participant."
+        "All development must adhere to ethical standards, including safety and intellectual property respect."
       ],
       coordinators: {
         faculty: {
@@ -837,8 +807,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
         },
         student: {
           name: "Vaishnavi Suryawanshi",
-          phone: "8227987675",
-          email: ""
+          phone: "87675 82279",
+          email: "malvadeomkar2005@gmail.com"
         }
       }
     }

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Globe, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Globe, MessageCircle, User } from "lucide-react";
 
 export const ContactSection = () => {
   return (
@@ -16,7 +16,7 @@ export const ContactSection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {/* General Contact */}
           <Card className="festival-card hover-float">
             <CardHeader>
@@ -45,6 +45,39 @@ export const ContactSection = () => {
                 <div>
                   <p className="font-medium text-foreground">Website</p>
                   <p className="text-sm text-muted-foreground">www.adcet.in</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Student Coordinator */}
+          <Card className="festival-card hover-float">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <User className="h-6 w-6 text-accent" />
+                Student Coordinator
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start gap-3">
+                <User className="h-5 w-5 text-accent mt-1" />
+                <div>
+                  <p className="font-medium text-foreground">Pranav Patil</p>
+                  <p className="text-sm text-muted-foreground">Discovery 2K25 Coordinator</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Mail className="h-5 w-5 text-primary mt-1" />
+                <div>
+                  <p className="font-medium text-foreground">Email</p>
+                  <p className="text-sm text-muted-foreground">mrpranavpatil01@gmail.com</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Phone className="h-5 w-5 text-secondary mt-1" />
+                <div>
+                  <p className="font-medium text-foreground">Contact</p>
+                  <p className="text-sm text-muted-foreground">+91 91308 67073</p>
                 </div>
               </div>
             </CardContent>

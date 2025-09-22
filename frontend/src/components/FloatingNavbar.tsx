@@ -81,14 +81,6 @@ export const FloatingNavbar = ({ onNavigate }: NavbarProps) => {
         >
           Register
         </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleNavClick("contact")}
-          className="text-white/90 hover:text-white hover:bg-white/5 rounded-full px-2 sm:px-4 py-1 sm:py-2 transition-all duration-200 text-xs sm:text-sm"
-        >
-          Contact
-        </Button>
       </div>
     </nav>
   );
