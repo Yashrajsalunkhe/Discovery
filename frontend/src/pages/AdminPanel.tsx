@@ -101,19 +101,19 @@ const AdminPanel: React.FC = () => {
   
   const { toast } = useToast();
 
-  // Use environment variable for API base URL with proper fallback
+  // Use environment variable for API base URL with better fallback logic
   const getApiBaseUrl = () => {
-    // If explicitly set in environment, use it
+    // First check for explicit environment variable
     if (import.meta.env.VITE_API_BASE_URL) {
       return import.meta.env.VITE_API_BASE_URL;
     }
     
-    // Development mode - use localhost
-    if (import.meta.env.DEV) {
+    // Development mode detection
+    if (import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return 'http://localhost:3000/api';
     }
     
-    // Production mode - use relative path
+    // Production mode - use relative path which will be routed to backend by Vercel
     return '/api';
   };
 
@@ -163,6 +163,8 @@ const AdminPanel: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ password }),
+        // Add credentials for CORS
+        credentials: 'same-origin',
       });
 
       console.log('Login response status:', response.status);
@@ -262,6 +264,7 @@ const AdminPanel: React.FC = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'same-origin',
       });
 
       console.log('Response status:', response.status);
@@ -322,6 +325,7 @@ const AdminPanel: React.FC = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'same-origin',
       });
 
       console.log('Stats response status:', response.status);
@@ -365,6 +369,7 @@ const AdminPanel: React.FC = () => {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
+        credentials: 'same-origin',
       });
 
       if (response.ok) {

@@ -22,9 +22,36 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 
-// CORS configuration - Allow all origins for simplicity
+// CORS configuration
 const corsOptions = {
-  origin: true, // Allow all origins
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Allow vercel domains
+    if (origin.includes('vercel.app') || origin.includes('vercel.com')) {
+      return callback(null, true);
+    }
+    
+    // Add your production domain here
+    const allowedDomains = [
+      'https://discovery-adcet.vercel.app',
+      'https://discovery-rouge.vercel.app',
+      // Add more domains as needed
+    ];
+    
+    if (allowedDomains.some(domain => origin.startsWith(domain))) {
+      return callback(null, true);
+    }
+    
+    // Default allow in production
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
