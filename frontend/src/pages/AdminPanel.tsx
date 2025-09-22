@@ -103,11 +103,6 @@ const AdminPanel: React.FC = () => {
 
   // Use environment variable for API base URL with better fallback logic
   const getApiBaseUrl = () => {
-    // First check for explicit environment variable
-    if (import.meta.env.VITE_API_BASE_URL) {
-      return import.meta.env.VITE_API_BASE_URL;
-    }
-    
     // Development mode detection
     if (import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return 'http://localhost:3000/api';

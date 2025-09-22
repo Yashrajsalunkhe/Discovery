@@ -27,6 +27,9 @@ export interface AdminExportRequest extends Request {
   };
 }
 
+// Predefined admin password
+const ADMIN_PASSWORD = 'admin123discovery';
+
 // Admin authentication middleware
 export const authenticateAdmin = (req: Request, res: Response, next: any) => {
   console.log('Admin authentication middleware called');
@@ -42,9 +45,9 @@ export const authenticateAdmin = (req: Request, res: Response, next: any) => {
   
   const token = authHeader.substring(7); // Remove 'Bearer ' prefix
   console.log('Token received:', token ? 'Token present' : 'No token');
-  console.log('Expected admin password exists:', !!process.env.ADMIN_PASSWORD);
+  console.log('Expected admin password:', ADMIN_PASSWORD);
   
-  if (token !== process.env.ADMIN_PASSWORD) {
+  if (token !== ADMIN_PASSWORD) {
     console.log('Invalid admin credentials');
     return res.status(401).json({ success: false, error: 'Invalid admin credentials' });
   }
@@ -58,7 +61,7 @@ export const adminLogin = async (req: AdminAuthRequest, res: Response) => {
   try {
     console.log('Admin login attempt');
     console.log('Request body:', req.body);
-    console.log('Environment ADMIN_PASSWORD exists:', !!process.env.ADMIN_PASSWORD);
+    console.log('Using hardcoded admin password');
     
     const { password } = req.body;
     
@@ -67,7 +70,7 @@ export const adminLogin = async (req: AdminAuthRequest, res: Response) => {
       return res.status(400).json({ success: false, error: 'Password is required' });
     }
     
-    if (password !== process.env.ADMIN_PASSWORD) {
+    if (password !== ADMIN_PASSWORD) {
       console.log('Invalid password provided');
       return res.status(401).json({ success: false, error: 'Invalid admin password' });
     }
