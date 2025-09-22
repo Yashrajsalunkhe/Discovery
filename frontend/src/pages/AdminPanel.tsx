@@ -101,15 +101,20 @@ const AdminPanel: React.FC = () => {
   
   const { toast } = useToast();
 
-  // Use environment variable for API base URL with better fallback logic
+  // Use environment variable for API base URL with proper fallback
   const getApiBaseUrl = () => {
-    // Development mode detection
-    if (import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    // If explicitly set in environment, use it
+    if (import.meta.env.VITE_API_BASE_URL) {
+      return import.meta.env.VITE_API_BASE_URL;
+    }
+    
+    // Development mode - use localhost
+    if (import.meta.env.DEV) {
       return 'http://localhost:3000/api';
     }
     
-    // Production mode - temporarily disabled for deployment
-    return null; // This will trigger maintenance mode
+    // Production mode - use relative path
+    return '/api';
   };
 
   const API_BASE = getApiBaseUrl();
@@ -118,37 +123,6 @@ const AdminPanel: React.FC = () => {
   console.log('Environment dev:', import.meta.env.DEV);
   console.log('Current hostname:', window.location.hostname);
   console.log('Using API_BASE:', API_BASE);
-
-  // Maintenance mode check
-  if (!API_BASE) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-slate-900 border-slate-800">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center mb-4">
-              <UsersIcon className="w-8 h-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Admin Panel
-            </CardTitle>
-            <CardDescription className="text-slate-400">
-              Currently under maintenance
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <Alert>
-              <AlertDescription>
-                The admin panel is temporarily unavailable. Please check back later or contact the development team.
-              </AlertDescription>
-            </Alert>
-            <div className="text-sm text-slate-500">
-              For urgent matters, please contact support directly.
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -189,8 +163,6 @@ const AdminPanel: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ password }),
-        // Add credentials for CORS
-        credentials: 'same-origin',
       });
 
       console.log('Login response status:', response.status);
@@ -290,7 +262,6 @@ const AdminPanel: React.FC = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        credentials: 'same-origin',
       });
 
       console.log('Response status:', response.status);
@@ -351,7 +322,6 @@ const AdminPanel: React.FC = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        credentials: 'same-origin',
       });
 
       console.log('Stats response status:', response.status);
@@ -395,7 +365,6 @@ const AdminPanel: React.FC = () => {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
-        credentials: 'same-origin',
       });
 
       if (response.ok) {
