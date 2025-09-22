@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft } from "lucide-react";
 import { getAllEvents, type Event } from "@/data/events";
 import { Footer } from "@/components/Footer";
+import { calculateTeamFee, formatCurrency, type FeeBreakdown } from "@/utils/feeCalculation";
 
 // Team member schema
 const teamMemberSchema = z.object({
@@ -94,7 +95,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [participationType, setParticipationType] = useState<"solo" | "team">("solo");
   const [teamSize, setTeamSize] = useState<number>(1);
-  const [totalFee, setTotalFee] = useState<number>(0);
+  const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown | null>(null);
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
   const { toast } = useToast();
 
@@ -148,14 +149,14 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
   // Calculate total fee based on participation type and team size
   useEffect(() => {
+    const calculatedFee = calculateTeamFee(participationType, teamSize, 100);
+    setFeeBreakdown(calculatedFee);
+    
     if (participationType === "solo") {
-      setTotalFee(100);
       setTeamSize(1);
       form.setValue("teamSize", 1);
       form.setValue("teamMembers", []);
     } else {
-      const fee = teamSize * 100;
-      setTotalFee(fee);
       form.setValue("teamSize", teamSize);
       
       // Adjust team members array
@@ -280,15 +281,19 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         participationType: values.participationType,
         teamSize: values.teamSize || 1,
         teamMembers: values.teamMembers || [],
-        totalFee
+        totalFee: feeBreakdown?.totalAmount || 0,
+        baseFee: feeBreakdown?.baseFee || 0,
+        processingCharges: feeBreakdown?.processingCharges || 0
       };
 
-      // Create Razorpay order
+      // Create Razorpay order with team details for automatic calculation
       const orderRes = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          amount: totalFee * 100, // Convert to paise
+          participationType: values.participationType,
+          teamSize: values.teamSize || 1,
+          baseFeePerMember: 100,
           currency: "INR", 
           receipt: `receipt_${Date.now()}` 
         })
@@ -300,6 +305,8 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       }
 
       const orderId = orderResult.order?.id;
+      const backendFeeBreakdown = orderResult.feeBreakdown;
+      
       if (!orderId) {
         throw new Error('Order creation failed');
       }
@@ -307,7 +314,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       // Razorpay payment options
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: totalFee * 100,
+        amount: backendFeeBreakdown?.totalAmountInPaise || feeBreakdown?.totalAmountInPaise || 0,
         currency: "INR",
         name: "Discovery ADCET 2025",
         description: `Registration for ${registrationData.selectedEvent}`,
@@ -409,7 +416,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
             <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30 mb-6">
               <p className="text-lg font-semibold flex items-center justify-center gap-1">
                 <IndianRupee className="h-5 w-5" />
-                Total Fee: ₹{totalFee}/-
+                Total Fee: {formatCurrency(feeBreakdown?.totalAmount || 0)}
               </p>
             </div>
             <p className="text-sm text-muted-foreground mb-6">
@@ -726,7 +733,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                                 onClick={() => handleTeamSizeChange(size)}
                                 disabled={size > selectedEvent.maxTeamSize}
                               >
-                                {size} Members (₹{size * 100})
+                                {size} Members ({formatCurrency(calculateTeamFee('team', size, 100).totalAmount)})
                               </Button>
                             ))}
                           </div>
@@ -739,7 +746,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                       </div>
                     )}
 
-                    {/* Fee Display */}
+                    {/* Fee Display with Breakdown */}
                     <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30">
                       <div className="flex items-center justify-between">
                         <div>
@@ -753,13 +760,33 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         <div className="text-right">
                           <p className="text-2xl font-bold text-primary flex items-center gap-1">
                             <IndianRupee className="h-5 w-5" />
-                            {totalFee}/-
+                            {feeBreakdown?.totalAmount?.toFixed(2) || '0.00'}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             ₹100/- per member
                           </p>
                         </div>
                       </div>
+                      
+                      {/* Fee Breakdown */}
+                      {feeBreakdown && (
+                        <div className="mt-3 pt-3 border-t border-primary/20">
+                          <div className="space-y-1 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Event Fee:</span>
+                              <span>{formatCurrency(feeBreakdown.baseFee)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Processing Charges:</span>
+                              <span>{formatCurrency(feeBreakdown.processingCharges)}</span>
+                            </div>
+                            <div className="flex justify-between font-medium pt-1 border-t border-primary/20">
+                              <span>Total Payable:</span>
+                              <span>{formatCurrency(feeBreakdown.totalAmount)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Payment Notice */}
@@ -771,9 +798,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                           </svg>
                         </div>
                         <div>
-                          <h4 className="text-sm font-semibold text-orange-800">Payment Required</h4>
+                          <h4 className="text-sm font-semibold text-orange-800">Payment Information</h4>
                           <p className="text-sm text-orange-700 mt-1">
-                            Registration will only be confirmed after successful payment. You will be redirected to a secure payment gateway to complete the transaction.
+                            Registration will only be confirmed after successful payment. The processing charges shown above include payment gateway fees to ensure you receive the exact event fee amount. You will be redirected to a secure payment gateway to complete the transaction.
                           </p>
                         </div>
                       </div>
@@ -886,7 +913,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                       <>
                         <UserPlus className="mr-2 h-4 w-4" />
                         <span className="hidden xs:inline">Proceed to Payment</span>
-                        <span className="xs:hidden">Payment</span> (₹{totalFee}/-)
+                        <span className="xs:hidden">Payment</span> ({formatCurrency(feeBreakdown?.totalAmount || 0)})
                       </>
                     )}
                   </Button>

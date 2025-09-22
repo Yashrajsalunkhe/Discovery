@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import Razorpay from 'razorpay';
+import { calculateTotalWithRazorpayFees, calculateTeamFee } from './feeCalculation.js';
 
 export const orderRazorpay: RequestHandler = async (req, res, next) => {
     // Validate Razorpay credentials
@@ -17,32 +18,60 @@ export const orderRazorpay: RequestHandler = async (req, res, next) => {
     });
     
     try {
-        const { amount, currency, receipt } = req.body;
+        const { amount, currency, receipt, baseFee, participationType, teamSize, baseFeePerMember } = req.body;
         
         // Validate required fields
-        if (!amount || !currency || !receipt) {
+        if (!currency || !receipt) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Missing required fields: amount, currency, receipt' 
+                error: 'Missing required fields: currency, receipt' 
             });
         }
 
-        // Validate amount
-        if (typeof amount !== 'number' || amount <= 0) {
+        let finalAmount: number;
+        let feeBreakdown;
+
+        // If baseFee is provided, use it directly
+        if (baseFee && typeof baseFee === 'number' && baseFee > 0) {
+            feeBreakdown = calculateTotalWithRazorpayFees(baseFee);
+            finalAmount = feeBreakdown.totalAmountInPaise;
+        }
+        // If team details are provided, calculate fee
+        else if (participationType && teamSize) {
+            feeBreakdown = calculateTeamFee(
+                participationType,
+                teamSize,
+                baseFeePerMember || 100
+            );
+            finalAmount = feeBreakdown.totalAmountInPaise;
+        }
+        // Fallback to direct amount (backward compatibility)
+        else if (amount && typeof amount === 'number' && amount > 0) {
+            finalAmount = amount;
+            // Create breakdown for response
+            const amountInRupees = amount / 100;
+            const calculatedBreakdown = calculateTotalWithRazorpayFees(amountInRupees / 1.0236); // Reverse calculate
+            feeBreakdown = calculatedBreakdown;
+        }
+        else {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Invalid amount. Must be a positive number' 
+                error: 'Please provide either baseFee, team details (participationType, teamSize), or amount' 
             });
         }
 
         const options = {
-            amount: amount,
+            amount: finalAmount,
             currency: currency,
             receipt: receipt,
             payment_capture: 1 // Auto capture
         };
 
-        console.log('Creating Razorpay order with options:', { ...options, amount: `${amount/100} ${currency}` });
+        console.log('Creating Razorpay order with options:', { 
+            ...options, 
+            amount: `${finalAmount/100} ${currency}`,
+            feeBreakdown 
+        });
         
         const order = await razorpay.orders.create(options);
         
@@ -55,7 +84,11 @@ export const orderRazorpay: RequestHandler = async (req, res, next) => {
         }
 
         console.log('Order created successfully:', order.id);
-        res.status(200).json({ success: true, order });
+        res.status(200).json({ 
+            success: true, 
+            order,
+            feeBreakdown 
+        });
         
     } catch (error: any) {
         console.error('Razorpay order creation error:', {
