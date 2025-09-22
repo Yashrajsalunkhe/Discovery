@@ -13,18 +13,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-<<<<<<< HEAD
-import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft, Check, ChevronsUpDown, Search } from "lucide-react";
+import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, ArrowLeft, Check, ChevronsUpDown, Download } from "lucide-react";
 import { getAllEvents, type Event } from "@/data/events";
 import { Footer } from "@/components/Footer";
 import { calculateTeamFee, formatCurrency, type FeeBreakdown } from "@/utils/feeCalculation";
-import { cn } from "@/lib/utils";
-=======
-import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft, Download } from "lucide-react";
-import { getAllEvents, type Event } from "@/data/events";
-import { Footer } from "@/components/Footer";
 import { downloadRuleBook } from "@/utils/downloadUtils";
->>>>>>> 05e7c59 (Final changes 5.0)
+import { cn } from "@/lib/utils";
 
 // Team member schema
 const teamMemberSchema = z.object({
@@ -962,8 +956,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         </div>
                       </div>
                     )}
-<<<<<<< HEAD
-=======
 
                     {/* Fee Display */}
                     <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30">
@@ -1007,7 +999,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         <div className="text-right">
                           <p className="text-2xl font-bold text-primary flex items-center gap-1">
                             <IndianRupee className="h-5 w-5" />
-                            {totalFee}/-
+                            {formatCurrency(feeBreakdown?.totalAmount || 0)}/-
                           </p>
                           <p className="text-xs text-muted-foreground">
                             ₹100/- per member
@@ -1032,7 +1024,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                         </div>
                       </div>
                     </div>
->>>>>>> 05e7c59 (Final changes 5.0)
                   </div>
                 </div>
 
