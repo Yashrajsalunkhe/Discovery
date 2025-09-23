@@ -23,7 +23,14 @@ transporter = nodemailer.createTransport({
   auth: {
     user: emailUser,
     pass: emailPass
-  }
+  },
+  // Gmail specific settings to avoid authentication issues
+  secure: true,
+  port: 465,
+  requireTLS: true,
+  connectionTimeout: 60000,
+  greetingTimeout: 30000,
+  socketTimeout: 60000
 });
 
 transporter.verify((error, success) => {

@@ -196,8 +196,8 @@ export const registerUser = async (req: Request, res: Response) => {
       throw new Error('Failed to save registration after multiple attempts');
     }
     
-    // Send welcome email
-    await sendWelcomeEmail(
+    // Send welcome email (non-blocking - don't fail registration if email fails)
+    sendWelcomeEmail(
       saved.leaderEmail,
       saved.registrationId.toString(),
       saved.leaderName,
@@ -205,7 +205,9 @@ export const registerUser = async (req: Request, res: Response) => {
       saved.leaderMobile,
       saved.selectedEvent,
       saved.leaderCollege
-    );
+    ).catch(emailError => {
+      console.error('Email sending failed, but registration was successful:', emailError);
+    });
     
     res.status(201).json({ success: true, message: 'Registration successful' });
   } catch (error) {
