@@ -1,56 +1,67 @@
 import styles from './DepartmentGrid.module.css';
+import { eventsByDepartment } from '../data/events';
 
 interface Department {
   id: string;
   name: string;
   eventCount: number;
+  eventNames: string[];
 }
 
 const departments: Department[] = [
   {
     id: "aids",
     name: "AI & Data Science",
-    eventCount: 3
+    eventCount: 3,
+    eventNames: eventsByDepartment.aids?.map(event => event.name) || []
   },
   {
     id: "mechanical", 
     name: "Mechanical Engineering",
-    eventCount: 3
+    eventCount: 3,
+    eventNames: eventsByDepartment.mechanical?.map(event => event.name) || []
   },
   {
     id: "electrical",
     name: "Electrical Engineering", 
-    eventCount: 3
+    eventCount: 3,
+    eventNames: eventsByDepartment.electrical?.map(event => event.name) || []
   },
   {
     id: "civil",
     name: "Civil Engineering",
-    eventCount: 3
+    eventCount: 3,
+    eventNames: eventsByDepartment.civil?.map(event => event.name) || []
   },
   {
     id: "cse",
     name: "Computer Science Engineering",
-    eventCount: 3
+    eventCount: 3,
+    eventNames: eventsByDepartment.cse?.map(event => event.name) || []
   },
   {
     id: "aeronautical",
     name: "Aeronautical Engineering",
-    eventCount: 3
+    eventCount: 3,
+    eventNames: eventsByDepartment.aeronautical?.map(event => event.name) || []
   },
   {
     id: "iot",
     name: "IoT & Cyber Security",
-    eventCount: 3
+    eventCount: 3,
+    eventNames: eventsByDepartment.iot?.map(event => event.name) || []
   },
   {
     id: "bba",
     name: "Business Administration",
-    eventCount: 1
+    eventCount: 1,
+    eventNames: eventsByDepartment.bba?.map(event => event.name) || []
   },
   {
     id: "food",
     name: "Food Technology",
-    eventCount: 2
+    eventCount: 2,
+    eventNames: eventsByDepartment.food?.map(event => event.name) || []
   }
 ];
 
@@ -85,6 +96,14 @@ export const DepartmentGrid = ({ onDepartmentSelect }: DepartmentGridProps) => {
                     <span className={styles.agCoursesItemDate}>
                       {dept.eventCount}
                     </span>
+                  </div>
+                  <div className={styles.eventNamesList}>
+                    <div className={styles.eventNamesTitle}>Event Names:</div>
+                    <ul>
+                      {dept.eventNames.map((eventName, idx) => (
+                        <li key={idx} title={eventName}>• {eventName}</li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               </div>

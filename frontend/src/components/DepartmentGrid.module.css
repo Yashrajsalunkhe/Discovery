@@ -44,11 +44,13 @@
   overflow: hidden;
   position: relative;
   transition: all 0.3s ease;
+  min-height: 280px; /* Increased height to accommodate event names */
 }
 
 @media (max-width: 768px) {
   .agCoursesItemLink {
     padding: 25px 18px;
+    min-height: 320px; /* Slightly more height on mobile for better spacing */
   }
 }
 
@@ -63,24 +65,24 @@
 }
 
 .agCoursesItemTitle {
-  min-height: 80px;
-  margin: 0 0 20px;
+  min-height: 60px; /* Reduced height to make room for event names */
+  margin: 0 0 15px; /* Reduced bottom margin */
   overflow: hidden;
   font-weight: bold;
-  font-size: 26px;
+  font-size: 24px; /* Slightly smaller font */
   color: #FFF;
   z-index: 2;
   position: relative;
-  line-height: 1.3;
+  line-height: 1.2; /* Tighter line height */
   display: flex;
   align-items: center;
 }
 
 @media (max-width: 768px) {
   .agCoursesItemTitle {
-    font-size: 22px;
-    min-height: 70px;
-    margin: 0 0 15px;
+    font-size: 20px; /* Smaller on mobile */
+    min-height: 50px;
+    margin: 0 0 12px;
   }
 }
 
@@ -95,6 +97,46 @@
   font-weight: bold;
   color: #f9b234;
   transition: color 0.5s ease;
+}
+
+/* Event names styling */
+.eventNamesList {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #e0e0e0;
+  z-index: 2;
+  position: relative;
+}
+
+.eventNamesList .eventNamesTitle {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #ffffff;
+}
+
+.eventNamesList ul {
+  font-size: 12px;
+  line-height: 1.4;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.eventNamesList li {
+  padding: 1px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .eventNamesList {
+    font-size: 13px;
+  }
+  
+  .eventNamesList ul {
+    font-size: 11px;
+    max-height: 90px;
+  }
 }
 
 .agCoursesItemBg {
