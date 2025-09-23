@@ -292,11 +292,11 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
               <CardContent>
                 <div className="space-y-3">
                   {event.disqualification.map((disqual, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div key={index} className="flex items-start gap-3 p-3 bg-red-950/30 border border-red-800/50 rounded-lg">
                       <span className="flex-shrink-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
                         {index + 1}
                       </span>
-                      <span className="text-foreground">{disqual}</span>
+                      <span className="text-red-100">{disqual}</span>
                     </div>
                   ))}
                 </div>
