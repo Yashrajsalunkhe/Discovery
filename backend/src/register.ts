@@ -197,6 +197,7 @@ export const registerUser = async (req: Request, res: Response) => {
     }
     
     // Send welcome email (non-blocking - don't fail registration if email fails)
+    console.log('Attempting to send welcome email to:', saved.leaderEmail);
     sendWelcomeEmail(
       saved.leaderEmail,
       saved.registrationId.toString(),
@@ -205,8 +206,14 @@ export const registerUser = async (req: Request, res: Response) => {
       saved.leaderMobile,
       saved.selectedEvent,
       saved.leaderCollege
-    ).catch(emailError => {
-      console.error('Email sending failed, but registration was successful:', emailError);
+    ).then(() => {
+      console.log('Welcome email sent successfully to:', saved.leaderEmail);
+    }).catch(emailError => {
+      console.error('CRITICAL: Email sending failed for registration:', saved.registrationId);
+      console.error('Email:', saved.leaderEmail);
+      console.error('Error details:', emailError);
+      console.error('Stack:', emailError.stack);
+      // Email failure should not affect registration success
     });
     
     res.status(201).json({ success: true, message: 'Registration successful' });

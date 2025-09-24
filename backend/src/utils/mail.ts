@@ -305,28 +305,28 @@ export async function sendWelcomeEmail(
         </div>
     </div>
 </body>
-</html>`,
-    attachments: [
-      {
-        filename: 'discovery-logo.png',
-        path: path.join(__dirname, '../../../frontend/public/logo.png'),
-        cid: 'discovery-logo'
-      }
-    ]
+</html>`
   };
 
   while (attempt < maxRetries) {
     try {
+      console.log(`Email send attempt ${attempt + 1} for ${to}`);
       const info = await transporter.sendMail(mailOptions);
-      console.log('Email sent successfully:', info.messageId);
+      console.log('Email sent successfully:', info.messageId, 'to:', to);
       return;
     } catch (error) {
       attempt++;
-      console.error(`Email send attempt ${attempt} failed:`, error);
+      console.error(`Email send attempt ${attempt} failed for ${to}:`, error);
+      
       if (attempt >= maxRetries) {
+        console.error(`FINAL FAILURE: Failed to send email to ${to} after ${maxRetries} attempts`);
         throw new Error(`Failed to send email after ${maxRetries} attempts: ${error}`);
       }
-      await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+      
+      // Exponential backoff
+      const delay = 2000 * attempt;
+      console.log(`Retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 }
