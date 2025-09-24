@@ -59,7 +59,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
             {event.name === "Paper Presentation" && event.ruleBookFile && (
               <Button variant="outline" onClick={handleDownloadRuleBook} className="hidden sm:flex hover:bg-primary/10">
                 <Download className="h-4 w-4 mr-2" />
-                Download Rule Book
+                Download Templet
               </Button>
             )}
             {onRegister && (
