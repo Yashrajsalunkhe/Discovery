@@ -40,7 +40,8 @@ const paperPresentationRules: string[] = [
   "Maximum of 5 participants per team.",
   "Entry fee: ₹100 per participant.",
   "Participants must choose topics from the provided group/topic list and submit a one-page abstract by the designated deadline (soft copy to group faculty coordinators).",
-  "Abstract submission is mandatory; approved teams must submit the full paper in IEEE format (PDF), maximum 10 pages including figures, tables and references.",
+  "Full Paper submission is mandatory; approved teams must submit the full paper as per provided Template (PDF), maximum 10 pages including figures, tables and references.",
+  "20% plagiarism is allowed.",
   "PowerPoint presentations should be provided on a pen drive or can be sent via email before the event.",
   "Each team will be allotted 10 minutes for presentation followed by a question-and-answer session.",
   "All participants must bring college ID cards and event registration receipts on the day of the event."
