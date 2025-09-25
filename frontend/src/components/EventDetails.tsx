@@ -48,14 +48,14 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
   return (
     <section className="pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-sm sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between gap-4 mb-8">
-          <Button variant="ghost" onClick={onBack} className="hover:bg-primary/20">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <Button variant="ghost" onClick={onBack} className="hover:bg-primary/20 w-fit">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Events
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             {event.name === "Paper Presentation" && event.ruleBookFile && (
               <Button variant="outline" onClick={handleDownloadRuleBook} className="hidden sm:flex hover:bg-primary/10">
                 <Download className="h-4 w-4 mr-2" />
@@ -63,7 +63,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
               </Button>
             )}
             {onRegister && (
-              <Button onClick={onRegister} className="bg-primary hover:bg-primary/90">
+              <Button onClick={onRegister} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                 <UserPlus className="h-4 w-4 mr-2" />
                 Register Now
               </Button>
@@ -496,11 +496,11 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-muted/30 rounded-lg gap-1 sm:gap-0">
                   <span className="font-medium">Abstract Submission Deadline</span>
                   <span className="text-primary font-semibold">7th October 2025</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-muted/30 rounded-lg gap-1 sm:gap-0">
                   <span className="font-medium">Event Date</span>
                   <span className="text-primary font-semibold">11th October 2025</span>
                 </div>
