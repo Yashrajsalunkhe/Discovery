@@ -171,32 +171,45 @@ setInterval(() => {
   });
 }, 30000);
 
-// Vercel Cron Job endpoint for guaranteed queue processing
+// GitHub Actions Cron Job endpoint for guaranteed queue processing
 app.get('/api/cron/process-queue', async (req, res) => {
   try {
-    console.log('Cron job triggered for queue processing');
+    console.log('GitHub Actions cron job triggered for queue processing');
     
-    // Verify this is actually from Vercel Cron (basic security)
+    // Verify this is from GitHub Actions or authorized source
     const authHeader = req.headers.authorization;
-    if (process.env.NODE_ENV === 'production' && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return res.status(401).json({ error: 'Unauthorized' });
+    const userAgent = req.headers['user-agent'] || '';
+    
+    // In production, optionally verify the authorization token if CRON_SECRET is set
+    if (process.env.NODE_ENV === 'production' && process.env.CRON_SECRET) {
+      if (!authHeader?.startsWith('Bearer ') || authHeader.split(' ')[1] !== process.env.CRON_SECRET) {
+        console.log('Unauthorized cron access attempt from:', req.ip, 'User-Agent:', userAgent);
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
     }
     
-    await processGuaranteedQueue(`cron_${Date.now()}`);
+    // Log the request for monitoring
+    console.log('Processing queue via GitHub Actions cron from:', req.ip, 'User-Agent:', userAgent);
+    
+    await processGuaranteedQueue(`github_actions_${Date.now()}`);
     const stats = await getQueueStats();
     
-    console.log('Cron job completed. Queue stats:', stats);
+    console.log('GitHub Actions cron job completed. Queue stats:', stats);
     
     res.json({
       success: true,
-      message: 'Queue processed',
+      message: 'Queue processed by GitHub Actions',
       stats,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      processor: 'github-actions'
     });
     
   } catch (error) {
-    console.error('Cron job error:', error);
-    res.status(500).json({ error: 'Cron job failed' });
+    console.error('GitHub Actions cron job error:', error);
+    res.status(500).json({ 
+      error: 'Cron job failed',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 

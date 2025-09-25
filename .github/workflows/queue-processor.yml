@@ -1,0 +1,89 @@
+name: Queue Processing Cron Job
+
+on:
+  schedule:
+    # Run every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  process-queue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    
+    steps:
+    - name: Get Deployment URL
+      id: get-url
+      run: |
+        # Use your production URL
+        echo "url=https://discovery.adcet.ac.in" >> $GITHUB_OUTPUT
+
+    - name: Process Registration Queue
+      id: process
+      run: |
+        echo "Processing queue at: ${{ steps.get-url.outputs.url }}"
+        
+        response=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
+          -X GET "${{ steps.get-url.outputs.url }}/api/cron/process-queue" \
+          -H "User-Agent: GitHub-Actions-Queue-Processor/1.0" \
+          -H "Content-Type: application/json" \
+          --max-time 45)
+        
+        # Extract HTTP status and body
+        http_status=$(echo "$response" | grep "HTTP_STATUS:" | cut -d: -f2)
+        body=$(echo "$response" | sed '/HTTP_STATUS:/d')
+        
+        echo "HTTP Status: $http_status"
+        echo "Response: $body"
+        
+        if [ "$http_status" -eq 200 ]; then
+          echo "✅ Queue processing successful"
+          echo "$body" | jq -r '.stats // empty' || echo "Stats not available"
+        else
+          echo "❌ Queue processing failed with status $http_status"
+          echo "Response: $body"
+          exit 1
+        fi
+
+    - name: Fallback Health Check
+      if: failure()
+      run: |
+        echo "🔄 Queue processing failed, checking system health..."
+        
+        health_response=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
+          -X GET "${{ steps.get-url.outputs.url }}/api/health" \
+          --max-time 10)
+        
+        health_status=$(echo "$health_response" | grep "HTTP_STATUS:" | cut -d: -f2)
+        health_body=$(echo "$health_response" | sed '/HTTP_STATUS:/d')
+        
+        echo "Health Check Status: $health_status"
+        echo "Health Response: $health_body"
+        
+        if [ "$health_status" -eq 200 ]; then
+          echo "✅ System is healthy, queue processing issue may be temporary"
+        else
+          echo "🚨 System health check also failed - may require manual intervention"
+        fi
+
+    - name: Manual Queue Trigger (Fallback)
+      if: failure()
+      run: |
+        echo "🔄 Attempting manual queue processing trigger..."
+        
+        manual_response=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
+          -X POST "${{ steps.get-url.outputs.url }}/api/queue/process" \
+          -H "Content-Type: application/json" \
+          --max-time 15)
+        
+        manual_status=$(echo "$manual_response" | grep "HTTP_STATUS:" | cut -d: -f2)
+        manual_body=$(echo "$manual_response" | sed '/HTTP_STATUS:/d')
+        
+        echo "Manual Trigger Status: $manual_status"
+        echo "Manual Response: $manual_body"
+        
+        if [ "$manual_status" -eq 200 ]; then
+          echo "✅ Manual queue processing trigger successful"
+        else
+          echo "❌ Manual trigger also failed - system may need attention"
+        fi
