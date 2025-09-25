@@ -2,6 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 import dotenv from 'dotenv';
 import { Request, Response } from 'express';
 import { sendWelcomeEmail } from './utils/mail.js';
+import { getNextRegistrationId } from './utils/atomicCounter.js';
+import { guaranteedQueueWrite, processGuaranteedQueue } from './utils/guaranteedQueue.js';
 
 dotenv.config();
 
@@ -30,11 +32,14 @@ export async function connectToMongoDB(): Promise<typeof mongoose> {
             socketTimeoutMS: 60000,
             connectTimeoutMS: 60000,
             heartbeatFrequencyMS: 300000,
-            maxPoolSize: 10,
-            minPoolSize: 2,
+            maxPoolSize: 20, 
+            minPoolSize: 5,  
             retryWrites: true,
             retryReads: true,
-            w: 'majority'
+            w: 'majority',
+            // Enhanced connection options
+            maxIdleTimeMS: 300000,
+            waitQueueTimeoutMS: 30000
           });
           global.mongooseConnection!.conn = instance;
           console.log('Connected to MongoDB database: discovery_adcet');
@@ -106,14 +111,59 @@ const registrationSchema = new Schema<RegistrationDoc>({
 
 export const Registration = mongoose.model<RegistrationDoc>('Registration', registrationSchema, 'registrations');
 
-// Function to get the next registration ID
-async function getNextRegistrationId(): Promise<number> {
-  const lastRegistration = await Registration.findOne({}, {}, { sort: { 'registrationId': -1 } });
-  if (!lastRegistration || !lastRegistration.registrationId) {
-    return 1001; // Start from 1001 for easy identification
+// Enhanced registration function with atomic operations, transactions, and retry logic
+export const saveRegistrationWithRetry = async (registrationData: any, maxRetries = 5): Promise<RegistrationDoc> => {
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const session = await mongoose.startSession();
+    
+    try {
+      let saved: RegistrationDoc;
+      
+      await session.withTransaction(async () => {
+        // Get atomic registration ID
+        const registrationId = await getNextRegistrationId();
+        
+        const registration = new Registration({
+          ...registrationData,
+          registrationId
+        });
+        
+        // Save within transaction
+        const result = await registration.save({ session });
+        saved = result;
+        
+        console.log(`Registration saved successfully on attempt ${attempt}:`, registrationId);
+      }, {
+        readPreference: 'primary',
+        readConcern: { level: 'local' },
+        writeConcern: { w: 'majority', j: true }
+      });
+      
+      return saved!;
+      
+    } catch (error: any) {
+      lastError = error;
+      console.error(`Registration save attempt ${attempt}/${maxRetries} failed:`, error.message);
+      
+      // If it's a duplicate key error and not the last attempt, retry with exponential backoff
+      if (error.code === 11000 && attempt < maxRetries) {
+        const waitTime = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Cap at 5 seconds
+        console.log(`Retrying in ${waitTime}ms...`);
+        await new Promise(res => setTimeout(res, waitTime));
+        continue;
+      }
+      
+      // For other errors or final attempt, throw immediately
+      throw error;
+    } finally {
+      await session.endSession();
+    }
   }
-  return lastRegistration.registrationId + 1;
-}
+  
+  throw lastError!;
+};
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -172,51 +222,96 @@ export const registerUser = async (req: Request, res: Response) => {
       totalFee: Number(totalFee)
     };
     
-    // Generate next registration ID
-    const registrationId = await getNextRegistrationId();
-    
-    const registration = new Registration({
-      ...normalizedData,
-      registrationId
-    });
-    let saved: RegistrationDoc | undefined;
-    
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    // 🔒 GUARANTEED APPROACH: First save to persistent queue
+    try {
+      // Step 1: GUARANTEED write to queue (this MUST succeed for successful payment)
+      const queueId = await guaranteedQueueWrite(paymentId, orderId, signature, normalizedData);
+      console.log(`✅ Payment ${paymentId} guaranteed in queue with ID: ${queueId}`);
+      
+      // Step 2: Try immediate processing (best case - user gets instant response)
       try {
-        saved = await registration.save();
-        break;
-      } catch (saveErr) {
-        console.error(`Registration save attempt ${attempt} failed:`, saveErr);
-        if (attempt === 3) throw saveErr;
-        await new Promise(res => setTimeout(res, 1000 * attempt));
+        const saved = await saveRegistrationWithRetry(normalizedData, 3); // Quick attempt with fewer retries
+        
+        // Mark as completed in queue
+        const { PendingRegistration } = await import('./utils/guaranteedQueue.js');
+        await PendingRegistration.updateOne(
+          { paymentId },
+          { 
+            $set: { 
+              status: 'completed', 
+              completedAt: new Date() 
+            } 
+          }
+        );
+        
+        console.log(`🚀 INSTANT SUCCESS: Payment ${paymentId} processed immediately as registration ${saved.registrationId}`);
+        
+        // Send welcome email (non-blocking)
+        sendWelcomeEmail(
+          saved.leaderEmail,
+          saved.registrationId.toString(),
+          saved.leaderName,
+          saved.leaderYear,
+          saved.leaderMobile,
+          saved.selectedEvent,
+          saved.leaderCollege
+        ).catch(emailError => {
+          console.error('Email failed for registration:', saved.registrationId, emailError);
+        });
+        
+        return res.status(201).json({ 
+          success: true, 
+          message: 'Registration completed successfully',
+          registrationId: saved.registrationId,
+          processed: 'immediately'
+        });
+        
+      } catch (immediateError: any) {
+        console.log(`⏳ Payment ${paymentId} queued for background processing (immediate processing failed):`, immediateError.message);
+        
+        // Start background processing (non-blocking)
+        processGuaranteedQueue().catch(err => {
+          console.error('Background processing error:', err);
+        });
+        
+        return res.status(202).json({ 
+          success: true, 
+          message: 'Payment received and queued for processing. You will receive confirmation email shortly.',
+          queueId,
+          processed: 'queued'
+        });
+      }
+      
+    } catch (queueError) {
+      // CRITICAL: If we can't even queue a successful payment, this is a major system failure
+      console.error(`🔴 CRITICAL SYSTEM FAILURE: Cannot guarantee payment ${paymentId}:`, queueError);
+      
+      // Last-ditch effort - try direct save with maximum retries
+      try {
+        const saved = await saveRegistrationWithRetry(normalizedData, 10);
+        console.log(`🆘 EMERGENCY SAVE SUCCESS: Payment ${paymentId} saved via emergency path as registration ${saved.registrationId}`);
+        
+        return res.status(201).json({ 
+          success: true, 
+          message: 'Registration completed via emergency processing',
+          registrationId: saved.registrationId,
+          processed: 'emergency'
+        });
+        
+      } catch (emergencyError) {
+        console.error(`💀 TOTAL SYSTEM FAILURE: Payment ${paymentId} cannot be processed:`, emergencyError);
+        
+        // Return error but with clear message that payment issue needs manual resolution
+        return res.status(500).json({ 
+          success: false, 
+          error: 'System temporarily unavailable. Your payment is safe - please contact support with your payment ID for manual processing.',
+          paymentId,
+          orderId,
+          code: 'SYSTEM_FAILURE_MANUAL_INTERVENTION_REQUIRED'
+        });
       }
     }
     
-    if (!saved) {
-      throw new Error('Failed to save registration after multiple attempts');
-    }
-    
-    // Send welcome email (non-blocking - don't fail registration if email fails)
-    console.log('Attempting to send welcome email to:', saved.leaderEmail);
-    sendWelcomeEmail(
-      saved.leaderEmail,
-      saved.registrationId.toString(),
-      saved.leaderName,
-      saved.leaderYear,
-      saved.leaderMobile,
-      saved.selectedEvent,
-      saved.leaderCollege
-    ).then(() => {
-      console.log('Welcome email sent successfully to:', saved.leaderEmail);
-    }).catch(emailError => {
-      console.error('CRITICAL: Email sending failed for registration:', saved.registrationId);
-      console.error('Email:', saved.leaderEmail);
-      console.error('Error details:', emailError);
-      console.error('Stack:', emailError.stack);
-      // Email failure should not affect registration success
-    });
-    
-    res.status(201).json({ success: true, message: 'Registration successful' });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ success: false, error: 'Failed to register user' });
