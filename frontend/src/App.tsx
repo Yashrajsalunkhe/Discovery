@@ -7,6 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
+import QueueMonitoringDashboard from "./components/QueueMonitoringDashboard";
 import { RegistrationForm } from "./components/RegistrationForm";
 import { Footer } from "./components/Footer";
 
@@ -41,6 +42,17 @@ const App = () => (
             </div>
           } />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/queuedata" element={
+            <div className="min-h-screen bg-gray-50 p-6">
+              <div className="max-w-7xl mx-auto">
+                <div className="mb-6">
+                  <h1 className="text-3xl font-bold text-gray-900">Queue Monitoring Dashboard</h1>
+                  <p className="text-gray-600">Monitor registration queue status and processing</p>
+                </div>
+                <QueueMonitoringDashboard />
+              </div>
+            </div>
+          } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
