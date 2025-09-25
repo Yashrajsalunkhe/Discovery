@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import mongoose from 'mongoose';
 import { registerUser } from './register.js';
 import { checkDuplicate } from './search.js';
 import { orderRazorpay } from './utils/razorpay.js';
@@ -121,13 +122,50 @@ app.post('/api/admin/queue/:id/retry', authenticateAdmin, retryQueueItem);
 app.get('/api/admin/queue/stats', authenticateAdmin, getProcessingStats);
 
 // Monitoring Routes
-app.get('/api/health', (req, res) => {
-  res.json({
+app.get('/api/health', async (req, res) => {
+  const healthCheck = {
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    memory: process.memoryUsage()
-  });
+    memory: process.memoryUsage(),
+    database: {
+      status: 'unknown',
+      connection: mongoose.connection.readyState,
+      message: ''
+    }
+  };
+
+  // Check database connectivity
+  try {
+    const { ensureMongoConnection, getConnectionStatus } = await import('./utils/mongoHealth.js');
+    const isConnected = await ensureMongoConnection(2); // Quick check with 2 retries
+    
+    if (isConnected) {
+      healthCheck.database.status = 'connected';
+      healthCheck.database.message = `Connected (${getConnectionStatus()})`;
+      
+      // Quick database operation test
+      try {
+        await mongoose.connection.db?.admin().ping();
+        healthCheck.database.message += ' - Ping successful';
+      } catch (pingError) {
+        healthCheck.database.status = 'degraded';
+        healthCheck.database.message += ` - Ping failed: ${pingError}`;
+      }
+    } else {
+      healthCheck.status = 'error';
+      healthCheck.database.status = 'disconnected';
+      healthCheck.database.message = `Disconnected (${getConnectionStatus()})`;
+    }
+  } catch (dbError) {
+    healthCheck.status = 'error';
+    healthCheck.database.status = 'error';
+    healthCheck.database.message = `Database check failed: ${dbError}`;
+  }
+
+  // Set appropriate HTTP status
+  const statusCode = healthCheck.status === 'ok' ? 200 : 503;
+  res.status(statusCode).json(healthCheck);
 });
 
 app.get('/api/metrics', (req, res) => {

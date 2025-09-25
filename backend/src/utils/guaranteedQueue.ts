@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { ensureMongoConnection, getConnectionStatus } from './mongoHealth.js';
 
 export interface PendingRegistrationDoc extends Document {
   _id: mongoose.Types.ObjectId;
@@ -60,60 +61,39 @@ export const PendingRegistration = mongoose.model<PendingRegistrationDoc>(
 /**
  * Guaranteed write to pending queue - this MUST succeed
  */
-export const guaranteedQueueWrite = async (
+export async function guaranteedQueueWrite(
   paymentId: string,
   orderId: string, 
   signature: string,
-  registrationData: any,
-  maxRetries = 10
-): Promise<string> => {
-  let lastError: Error = new Error('Unknown error');
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const pendingReg = new PendingRegistration({
-        paymentId,
-        orderId,
-        signature,
-        registrationData,
-        status: 'pending'
-      });
-
-      // Use mongoose connection with write concern
-      const saved = await pendingReg.save();
-      
-      // Verify the save with a read-back
-      const verified = await PendingRegistration.findById(saved._id);
-      if (!verified) {
-        throw new Error('Save verification failed - document not found after save');
-      }
-
-      console.log(`Payment ${paymentId} queued successfully for processing`);
-      return saved._id.toString();
-      
-    } catch (error: any) {
-      lastError = error;
-      console.error(`Queue write attempt ${attempt}/${maxRetries} failed for payment ${paymentId}:`, error.message);
-      
-      // For duplicate key (payment already queued), that's actually success
-      if (error.code === 11000 && error.message.includes('paymentId')) {
-        console.log(`Payment ${paymentId} already queued - that's OK`);
-        const existing = await PendingRegistration.findOne({ paymentId });
-        return existing!._id.toString();
-      }
-      
-      if (attempt < maxRetries) {
-        // Exponential backoff with jitter
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1) + Math.random() * 1000, 30000);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
+  registrationData: any
+): Promise<boolean> {
+  try {
+    // Ensure MongoDB connection is healthy
+    const isConnected = await ensureMongoConnection();
+    if (!isConnected) {
+      console.error('❌ MongoDB connection health check failed before queue write');
+      return false;
     }
-  }
 
-  // CRITICAL: If we can't even save to the queue, we have a major problem
-  console.error(`CRITICAL FAILURE: Cannot queue payment ${paymentId} after ${maxRetries} attempts`);
-  throw new Error(`Failed to guarantee payment persistence: ${lastError.message}`);
-};
+    const queueItem = new PendingRegistration({
+      paymentId,
+      orderId,
+      signature,
+      registrationData,
+      status: 'pending',
+      attempts: 0,
+      maxAttempts: 5,
+      createdAt: new Date()
+    });
+
+    await queueItem.save();
+    console.log(`✅ Payment ${paymentId} queued for guaranteed processing`);
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to write to guaranteed queue:', error);
+    return false;
+  }
+}
 
 /**
  * Process pending registrations with guaranteed completion
@@ -122,6 +102,16 @@ export const processGuaranteedQueue = async (instanceId: string = `proc_${Date.n
   const maxProcessingTime = 5 * 60 * 1000; // 5 minutes max per item
   
   try {
+    // Ensure MongoDB connection is healthy before processing
+    const isConnected = await ensureMongoConnection();
+    if (!isConnected) {
+      const error = `MongoDB connection health check failed - status: ${getConnectionStatus()}`;
+      console.error('❌', error);
+      throw new Error(error);
+    }
+    
+    console.log('✅ MongoDB connection verified for queue processing');
+    
     // Find items to process (not currently locked or lock expired)
     const now = new Date();
     const cutoff = new Date(now.getTime() - maxProcessingTime);
@@ -153,6 +143,7 @@ export const processGuaranteedQueue = async (instanceId: string = `proc_${Date.n
 
   } catch (error) {
     console.error('Queue processing error:', error);
+    throw error; // Re-throw to let caller handle
   }
 };
 
@@ -266,36 +257,58 @@ const processIndividualRegistration = async (
  * Get queue statistics
  */
 export const getQueueStats = async () => {
-  const stats = await PendingRegistration.aggregate([
-    {
-      $group: {
-        _id: '$status',
-        count: { $sum: 1 }
-      }
+  try {
+    // Ensure MongoDB connection is healthy before getting stats
+    const isConnected = await ensureMongoConnection();
+    if (!isConnected) {
+      const error = `MongoDB connection health check failed - status: ${getConnectionStatus()}`;
+      console.error('❌', error);
+      throw new Error(error);
     }
-  ]);
+    
+    const stats = await PendingRegistration.aggregate([
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
 
-  const result: any = {
-    pending: 0,
-    processing: 0,
-    completed: 0,
-    failed: 0
-  };
+    const result: any = {
+      pending: 0,
+      processing: 0,
+      completed: 0,
+      failed: 0
+    };
 
-  stats.forEach(stat => {
-    result[stat._id] = stat.count;
-  });
+    stats.forEach(stat => {
+      result[stat._id] = stat.count;
+    });
 
-  // Add some additional metrics
-  const oldestPending = await PendingRegistration.findOne(
-    { status: 'pending' },
-    { createdAt: 1 },
-    { sort: { createdAt: 1 } }
-  );
+    // Add some additional metrics
+    const oldestPending = await PendingRegistration.findOne(
+      { status: 'pending' },
+      { createdAt: 1 },
+      { sort: { createdAt: 1 } }
+    );
 
-  return {
-    ...result,
-    total: result.pending + result.processing + result.completed + result.failed,
-    oldestPendingAge: oldestPending ? Date.now() - oldestPending.createdAt.getTime() : 0
-  };
+    return {
+      ...result,
+      total: result.pending + result.processing + result.completed + result.failed,
+      oldestPendingAge: oldestPending ? Date.now() - oldestPending.createdAt.getTime() : 0
+    };
+  } catch (error) {
+    console.error('Error getting queue stats:', error);
+    // Return safe defaults if database is unavailable
+    return {
+      pending: 0,
+      processing: 0,
+      completed: 0,
+      failed: 0,
+      total: 0,
+      oldestPendingAge: 0,
+      error: error instanceof Error ? error.message : 'Database unavailable'
+    };
+  }
 };

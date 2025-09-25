@@ -2,88 +2,107 @@ name: Queue Processing Cron Job
 
 on:
   schedule:
-    # Run every 5 minutes
-    - cron: '*/5 * * * *'
+    # Run every 3 minutes  
+    - cron: '*/3 * * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
   process-queue:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 4  # Increased timeout for MongoDB operations
     
     steps:
-    - name: Get Deployment URL
-      id: get-url
-      run: |
-        # Use your production URL
-        echo "url=https://discovery.adcet.ac.in" >> $GITHUB_OUTPUT
-
     - name: Process Registration Queue
       id: process
       run: |
-        echo "Processing queue at: ${{ steps.get-url.outputs.url }}"
+        echo "🔄 Starting queue processing at $(date -u)"
         
-        response=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
-          -X GET "${{ steps.get-url.outputs.url }}/api/cron/process-queue" \
+        response=$(curl -s -w "\nHTTP_STATUS:%{http_code}\nTOTAL_TIME:%{time_total}\n" \
+          -X POST "https://discovery.adcet.ac.in/api/process-queue" \
           -H "User-Agent: GitHub-Actions-Queue-Processor/1.0" \
           -H "Content-Type: application/json" \
-          --max-time 45)
+          -d '{"source": "github-actions", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' \
+          --max-time 180 \
+          --retry 2 \
+          --retry-delay 5)
         
-        # Extract HTTP status and body
+        # Extract response components
         http_status=$(echo "$response" | grep "HTTP_STATUS:" | cut -d: -f2)
-        body=$(echo "$response" | sed '/HTTP_STATUS:/d')
+        total_time=$(echo "$response" | grep "TOTAL_TIME:" | cut -d: -f2)
+        body=$(echo "$response" | sed '/HTTP_STATUS:/d' | sed '/TOTAL_TIME:/d')
         
-        echo "HTTP Status: $http_status"
-        echo "Response: $body"
+        echo "📊 HTTP Status: $http_status"
+        echo "⏱️  Response Time: ${total_time}s" 
+        echo "📝 Response Body: $body"
         
         if [ "$http_status" -eq 200 ]; then
           echo "✅ Queue processing successful"
-          echo "$body" | jq -r '.stats // empty' || echo "Stats not available"
+          
+          # Parse JSON response for detailed stats
+          if echo "$body" | jq . >/dev/null 2>&1; then
+            processed=$(echo "$body" | jq -r '.processed // "unknown"')
+            errors=$(echo "$body" | jq -r '.errors // [] | length')
+            echo "📈 Items processed: $processed"
+            echo "❌ Errors encountered: $errors"
+            
+            # Check for database issues in response
+            if echo "$body" | jq -r '.errors[]?' 2>/dev/null | grep -i "timeout\|connection\|mongo" >/dev/null; then
+              echo "⚠️  Database connectivity issues detected"
+            fi
+          fi
         else
           echo "❌ Queue processing failed with status $http_status"
-          echo "Response: $body"
+          echo "🔍 Response: $body"
+          
+          # Analyze error patterns
+          if echo "$body" | grep -i "timeout" >/dev/null; then
+            echo "🕐 Timeout detected - possible database connectivity issue"
+          fi
+          if echo "$body" | grep -i "mongodb\|mongoose\|buffering" >/dev/null; then
+            echo "🗄️  MongoDB-related error detected"
+          fi
+          
           exit 1
         fi
 
-    - name: Fallback Health Check
+    - name: System Health Check
       if: failure()
       run: |
         echo "🔄 Queue processing failed, checking system health..."
         
         health_response=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
-          -X GET "${{ steps.get-url.outputs.url }}/api/health" \
+          -X GET "https://discovery.adcet.ac.in/api/health" \
           --max-time 10)
         
         health_status=$(echo "$health_response" | grep "HTTP_STATUS:" | cut -d: -f2)
         health_body=$(echo "$health_response" | sed '/HTTP_STATUS:/d')
         
-        echo "Health Check Status: $health_status"
-        echo "Health Response: $health_body"
+        echo "🏥 Health Status: $health_status"
+        echo "📊 Health Response: $health_body"
         
         if [ "$health_status" -eq 200 ]; then
           echo "✅ System is healthy, queue processing issue may be temporary"
         else
-          echo "🚨 System health check also failed - may require manual intervention"
+          echo "🚨 System health check failed - may require intervention"
         fi
 
-    - name: Manual Queue Trigger (Fallback)
+    - name: Database Connection Test
       if: failure()
       run: |
-        echo "🔄 Attempting manual queue processing trigger..."
+        echo "� Testing database connectivity..."
         
-        manual_response=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
-          -X POST "${{ steps.get-url.outputs.url }}/api/queue/process" \
-          -H "Content-Type: application/json" \
-          --max-time 15)
+        db_test=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
+          -X GET "https://discovery.adcet.ac.in/api/queue/stats" \
+          --max-time 30)
         
-        manual_status=$(echo "$manual_response" | grep "HTTP_STATUS:" | cut -d: -f2)
-        manual_body=$(echo "$manual_response" | sed '/HTTP_STATUS:/d')
+        db_status=$(echo "$db_test" | grep "HTTP_STATUS:" | cut -d: -f2)
+        db_body=$(echo "$db_test" | sed '/HTTP_STATUS:/d')
         
-        echo "Manual Trigger Status: $manual_status"
-        echo "Manual Response: $manual_body"
+        echo "🗄️  Database Test Status: $db_status"
+        echo "📈 Stats Response: $db_body"
         
-        if [ "$manual_status" -eq 200 ]; then
-          echo "✅ Manual queue processing trigger successful"
+        if [ "$db_status" -eq 200 ]; then
+          echo "✅ Database connection working"
         else
-          echo "❌ Manual trigger also failed - system may need attention"
+          echo "❌ Database connection issues confirmed"
         fi
