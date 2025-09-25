@@ -622,15 +622,31 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Coding_Compi.png",
-      description: "Individual coding challenge focusing on advanced algorithms and data structures. Solve complex programming problems across multiple rounds, testing your logical thinking, optimization skills, and coding proficiency under time constraints."
-      ,
+      description: "Individual competitive programming challenge in C and C++. Progress through three strategic rounds testing your knowledge from basic concepts to advanced problem-solving with Data Structures and Algorithms.",
       rules: [
-        "Contest have 3 round, problems are given at the time of round.",
-        "Each round 2 problems are given.",
-        "If any plagiarism is found, participant will be disqualified.",
-        "Single participant.",
-        "Every round must be of 30 min.",
-        "Entry Fee: Rs. 100/- Per Participant."
+        "All rounds conducted exclusively in C and C++ programming languages.",
+        "Individual participation only - no team entries allowed.",
+        "Progression through three consecutive rounds required.",
+        "If any plagiarism is found, participant will be disqualified immediately.",
+        "Entry Fee: ₹100 per participant."
+      ],
+      specifications: [
+        "🎯 Round 1: MCQ Challenge (30 minutes)",
+        "• Multiple Choice Questions on basic C and C++ programming concepts",
+        "• Foundation-level assessment of programming knowledge",
+        "• Duration: 30 minutes",
+        "",
+        "🚀 Round 2: Basic DSA (45 minutes)", 
+        "• Fundamental Data Structures and Algorithms in C/C++",
+        "• Coverage up to Linked List level concepts",
+        "• Problem-solving with basic algorithmic thinking",
+        "• Duration: 45 minutes",
+        "",
+        "⚡ Round 3: Advanced DSA (45 minutes)",
+        "• Medium to hard difficulty problem-solving challenges",
+        "• Advanced topics including Graphs and Basic Dynamic Programming",
+        "• Complex algorithmic implementation in C/C++",
+        "• Duration: 45 minutes"
       ],
       coordinators: {
         faculty: { name: "Ms. Smita Dhanaji Patil", phone: "7498695865", email: "Sdp_aids@adect.in" },

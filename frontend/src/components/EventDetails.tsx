@@ -20,6 +20,7 @@ import {
 import { Event } from "@/data/events";
 import { downloadRuleBook } from "@/utils/downloadUtils";
 import { useToast } from "@/hooks/use-toast";
+import { CodingCompetitionRounds } from "./CodingCompetitionRounds";
 
 interface EventDetailsProps {
   event: Event;
@@ -47,8 +48,8 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
   };
 
   return (
-    <section className="pt-20 pb-8 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-[95vw] sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto">
+    <section className="pt-20 pb-8 sm:pt-32 sm:pb-20 px-2 sm:px-6 lg:px-8 min-h-screen flex justify-center">
+      <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto">`
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <Button variant="ghost" onClick={onBack} className="hover:bg-primary/20 w-fit">
@@ -140,26 +141,30 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Bot/Rocket Specifications */}
           {event.specifications && event.specifications.length > 0 && (
-            <Card className="festival-card mx-0 sm:mx-0">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                  <Target className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  Specifications
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {event.specifications.map((spec, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
-                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
-                        {index + 1}
-                      </span>
-                      <span className="text-foreground text-sm sm:text-base leading-relaxed">{spec}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            event.id === "coding-competition" ? (
+              <CodingCompetitionRounds specifications={event.specifications} />
+            ) : (
+              <Card className="festival-card mx-0 sm:mx-0">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Target className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                    Specifications
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {event.specifications.map((spec, index) => (
+                      <div key={index} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
+                        <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
+                          {index + 1}
+                        </span>
+                        <span className="text-foreground text-sm sm:text-base leading-relaxed">{spec}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )
           )}
 
           {/* Construction Guidelines */}
