@@ -47,8 +47,8 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
   };
 
   return (
-    <section className="pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-sm sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto">
+    <section className="pt-20 pb-8 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[95vw] sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <Button variant="ghost" onClick={onBack} className="hover:bg-primary/20 w-fit">
@@ -59,7 +59,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
             {event.name === "Paper Presentation" && event.ruleBookFile && (
               <Button variant="outline" onClick={handleDownloadRuleBook} className="hidden sm:flex hover:bg-primary/10">
                 <Download className="h-4 w-4 mr-2" />
-                Download Templet
+                Download Template
               </Button>
             )}
             {onRegister && (
@@ -72,42 +72,44 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
         </div>
 
         {/* Event Title */}
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gradient">
+        <div className="text-center mb-8 sm:mb-12 animate-fade-in">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-gradient px-1">
             {event.name}
           </h1>
-          <p className="text-xl text-muted-foreground mb-6">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-4 sm:mb-6 px-1">
             {event.department}
           </p>
           
           {/* Key Info */}
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <Badge variant="secondary" className="flex items-center gap-2 px-4 py-2 text-base">
-              <Users className="h-4 w-4" />
-              {event.minTeamSize && event.minTeamSize > 1 
-                ? `${event.minTeamSize}-${event.maxTeamSize} Participants` 
-                : `Max ${event.maxTeamSize} ${event.maxTeamSize === 1 ? 'Participant' : 'Participants'}`
-              }
+          <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 sm:gap-4 mb-6 sm:mb-8 px-1">
+            <Badge variant="secondary" className="flex items-center justify-center gap-2 px-3 py-2 text-sm sm:text-base mx-auto sm:mx-0 w-fit">
+              <Users className="h-4 w-4 flex-shrink-0" />
+              <span className="text-center">
+                {event.minTeamSize && event.minTeamSize > 1 
+                  ? `${event.minTeamSize}-${event.maxTeamSize} Participants` 
+                  : `Max ${event.maxTeamSize} ${event.maxTeamSize === 1 ? 'Participant' : 'Participants'}`
+                }
+              </span>
             </Badge>
-            <Badge variant="outline" className="flex items-center gap-2 px-4 py-2 text-base text-primary border-primary/30">
-              <DollarSign className="h-4 w-4" />
-              ₹{event.entryFee}/- per participant
+            <Badge variant="outline" className="flex items-center justify-center gap-2 px-3 py-2 text-sm sm:text-base text-primary border-primary/30 mx-auto sm:mx-0 w-fit">
+              <DollarSign className="h-4 w-4 flex-shrink-0" />
+              <span>₹{event.entryFee}/- per participant</span>
             </Badge>
           </div>
         </div>
 
-        <div className="grid gap-8">
+        <div className="grid gap-6 sm:gap-8">
           {/* Description */}
           {event.description && (
-            <Card className="festival-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
+            <Card className="festival-card mx-0 sm:mx-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                   Event Description
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
                   {event.description}
                 </p>
               </CardContent>
@@ -116,19 +118,19 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Topics */}
           {event.topics && event.topics.length > 0 && (
-            <Card className="festival-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
+            <Card className="festival-card mx-0 sm:mx-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <Target className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                   Topics (for Paper Presentation)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {event.topics.map((topic, index) => (
                     <div key={index} className="flex items-start gap-2 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
                       <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-sm text-foreground">{topic}</span>
+                      <span className="text-sm text-foreground leading-relaxed">{topic}</span>
                     </div>
                   ))}
                 </div>
@@ -138,10 +140,10 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Bot/Rocket Specifications */}
           {event.specifications && event.specifications.length > 0 && (
-            <Card className="festival-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
+            <Card className="festival-card mx-0 sm:mx-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <Target className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                   Specifications
                 </CardTitle>
               </CardHeader>
@@ -149,10 +151,10 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                 <div className="space-y-3">
                   {event.specifications.map((spec, index) => (
                     <div key={index} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
-                      <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
                         {index + 1}
                       </span>
-                      <span className="text-foreground">{spec}</span>
+                      <span className="text-foreground text-sm sm:text-base leading-relaxed">{spec}</span>
                     </div>
                   ))}
                 </div>
@@ -162,10 +164,10 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Construction Guidelines */}
           {event.constructionGuidelines && event.constructionGuidelines.length > 0 && (
-            <Card className="festival-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
+            <Card className="festival-card mx-0 sm:mx-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <Target className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                   Construction Guidelines
                 </CardTitle>
               </CardHeader>
@@ -173,10 +175,10 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                 <div className="space-y-3">
                   {event.constructionGuidelines.map((guideline, index) => (
                     <div key={index} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
-                      <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
                         {index + 1}
                       </span>
-                      <span className="text-foreground">{guideline}</span>
+                      <span className="text-foreground text-sm sm:text-base leading-relaxed">{guideline}</span>
                     </div>
                   ))}
                 </div>
@@ -186,10 +188,10 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Rules */}
           {event.rules && event.rules.length > 0 && (
-            <Card className="festival-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
+            <Card className="festival-card mx-0 sm:mx-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                   Rules & Guidelines
                 </CardTitle>
               </CardHeader>
@@ -197,10 +199,10 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                 <div className="space-y-3">
                   {event.rules.map((rule, index) => (
                     <div key={index} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
-                      <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
                         {index + 1}
                       </span>
-                      <span className="text-foreground">{rule}</span>
+                      <span className="text-foreground text-sm sm:text-base leading-relaxed">{rule}</span>
                     </div>
                   ))}
                 </div>
@@ -210,7 +212,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Gameplay */}
           {event.gameplay && event.gameplay.length > 0 && (
-            <Card className="festival-card">
+            <Card className="festival-card mx-0 sm:mx-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="h-5 w-5" />
@@ -234,7 +236,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Testing Procedure */}
           {event.testingProcedure && event.testingProcedure.length > 0 && (
-            <Card className="festival-card">
+            <Card className="festival-card mx-0 sm:mx-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="h-5 w-5" />
@@ -258,7 +260,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Safety Regulations */}
           {event.safetyRegulations && event.safetyRegulations.length > 0 && (
-            <Card className="festival-card">
+            <Card className="festival-card mx-0 sm:mx-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-orange-500" />
@@ -282,7 +284,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Disqualification */}
           {event.disqualification && event.disqualification.length > 0 && (
-            <Card className="festival-card">
+            <Card className="festival-card mx-0 sm:mx-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-red-500" />
@@ -306,7 +308,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Themes (for Ideathon) */}
           {event.themes && event.themes.length > 0 && (
-            <Card className="festival-card">
+            <Card className="festival-card mx-0 sm:mx-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="h-5 w-5" />
@@ -330,7 +332,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Team Composition */}
           {event.teamComposition && event.teamComposition.length > 0 && (
-            <Card className="festival-card">
+            <Card className="festival-card mx-0 sm:mx-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
@@ -354,7 +356,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Submission Guidelines */}
           {event.submissionGuidelines && event.submissionGuidelines.length > 0 && (
-            <Card className="festival-card">
+            <Card className="festival-card mx-0 sm:mx-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="h-5 w-5" />
@@ -378,7 +380,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* General Instructions */}
           {event.generalInstructions && event.generalInstructions.length > 0 && (
-            <Card className="festival-card">
+            <Card className="festival-card mx-0 sm:mx-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="h-5 w-5" />
@@ -403,20 +405,20 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
           {/* Mobile Download Rule Book Button - Only for Paper Presentation */}
           {event.name === "Paper Presentation" && event.ruleBookFile && (
             <div className="sm:hidden"> {/* Only show on mobile */}
-              <Card className="festival-card border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5">
-                <CardContent className="pt-6">
-                  <div className="text-center space-y-4">
+              <Card className="festival-card border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 mx-0 sm:mx-0">
+                <CardContent className="pt-4 sm:pt-6">
+                  <div className="text-center space-y-3">
                     <h3 className="text-lg font-semibold text-primary">Need the Template?</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground px-2">
                       Download the complete paper submission guidelines
                     </p>
                     <Button 
                       onClick={handleDownloadRuleBook} 
                       size="lg" 
                       variant="outline"
-                      className="w-full border-primary/30 hover:bg-primary/10 text-primary"
+                      className="w-full border-primary/30 hover:bg-primary/10 text-primary py-2"
                     >
-                      <Download className="h-5 w-5 mr-2" />
+                      <Download className="h-4 w-4 mr-2" />
                       Download Template
                     </Button>
                   </div>
@@ -427,33 +429,33 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Coordinators */}
           {event.coordinators && (
-            <Card className="festival-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
+            <Card className="festival-card mx-0 sm:mx-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                   Event Coordinators
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {/* Faculty Coordinator */}
                   {event.coordinators.faculty && (
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-secondary">
-                        <GraduationCap className="h-5 w-5" />
-                        <span className="font-semibold">Faculty Coordinator</span>
+                        <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                        <span className="font-semibold text-sm sm:text-base">Faculty Coordinator</span>
                       </div>
-                      <div className="bg-muted/30 p-4 rounded-lg space-y-2">
-                        <h4 className="font-semibold text-foreground">
+                      <div className="bg-muted/30 p-3 sm:p-4 rounded-lg space-y-2">
+                        <h4 className="font-semibold text-foreground text-sm sm:text-base">
                           {event.coordinators.faculty.name}
                         </h4>
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <Phone className="h-4 w-4" />
-                          <span>{event.coordinators.faculty.phone}</span>
+                          <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm break-all">{event.coordinators.faculty.phone}</span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <Mail className="h-4 w-4" />
-                          <span className="break-all">{event.coordinators.faculty.email}</span>
+                          <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm break-all">{event.coordinators.faculty.email}</span>
                         </div>
                       </div>
                     </div>
@@ -463,20 +465,20 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                   {event.coordinators.student && (
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-accent">
-                        <User className="h-5 w-5" />
-                        <span className="font-semibold">Student Coordinator</span>
+                        <User className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                        <span className="font-semibold text-sm sm:text-base">Student Coordinator</span>
                       </div>
-                      <div className="bg-muted/30 p-4 rounded-lg space-y-2">
-                        <h4 className="font-semibold text-foreground">
+                      <div className="bg-muted/30 p-3 sm:p-4 rounded-lg space-y-2">
+                        <h4 className="font-semibold text-foreground text-sm sm:text-base">
                           {event.coordinators.student.name}
                         </h4>
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <Phone className="h-4 w-4" />
-                          <span>{event.coordinators.student.phone}</span>
+                          <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm break-all">{event.coordinators.student.phone}</span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <Mail className="h-4 w-4" />
-                          <span className="break-all">{event.coordinators.student.email}</span>
+                          <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm break-all">{event.coordinators.student.email}</span>
                         </div>
                       </div>
                     </div>
@@ -487,10 +489,10 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
           )}
 
           {/* Important Dates */}
-          <Card className="festival-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+          <Card className="festival-card mx-0 sm:mx-0">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 Important Dates
               </CardTitle>
             </CardHeader>
@@ -510,19 +512,19 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Registration Call to Action */}
           {onRegister && (
-            <Card className="festival-card border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5">
-              <CardContent className="pt-6">
-                <div className="text-center space-y-4">
-                  <h3 className="text-2xl font-bold text-primary">Ready to Participate?</h3>
-                  <p className="text-muted-foreground">
+            <Card className="festival-card border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 mx-0 sm:mx-0">
+              <CardContent className="pt-4 sm:pt-6">
+                <div className="text-center space-y-3 sm:space-y-4">
+                  <h3 className="text-xl sm:text-2xl font-bold text-primary">Ready to Participate?</h3>
+                  <p className="text-muted-foreground text-sm sm:text-base px-2">
                     Register now to secure your spot in this exciting event!
                   </p>
                   <Button 
                     onClick={onRegister} 
                     size="lg" 
-                    className="bg-primary hover:bg-primary/90 text-lg px-8 py-3"
+                    className="bg-primary hover:bg-primary/90 text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto"
                   >
-                    <UserPlus className="h-5 w-5 mr-2" />
+                    <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                     Register for {event.name}
                   </Button>
                 </div>
