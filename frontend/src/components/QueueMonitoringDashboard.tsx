@@ -45,12 +45,8 @@ const QueueMonitoringDashboard: React.FC = () => {
         setStats(statsData);
       }
 
-      // Fetch items if admin
-      const itemsResponse = await fetch(`/api/admin/queue?status=${selectedStatus === 'all' ? '' : selectedStatus}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-        }
-      });
+      // Fetch items from public endpoint (no admin auth required)
+      const itemsResponse = await fetch(`/api/queue/details?status=${selectedStatus === 'all' ? '' : selectedStatus}`);
       
       if (itemsResponse.ok) {
         const itemsData = await itemsResponse.json();
@@ -66,26 +62,36 @@ const QueueMonitoringDashboard: React.FC = () => {
 
   const triggerProcessing = async () => {
     try {
-      await fetch('/api/queue/process', { method: 'POST' });
-      setTimeout(fetchData, 2000); // Refresh after 2 seconds
+      setIsLoading(true);
+      const response = await fetch('/api/queue/process', { method: 'POST' });
+      const result = await response.json();
+      
+      if (response.ok) {
+        console.log('Queue processing completed:', result);
+        
+        // Show processing results if any items were processed
+        if (result.processed && (result.processed.pending > 0 || result.processed.failed > 0)) {
+          alert(`Queue processing completed!\n\nProcessed items:\n- Pending: ${result.processed.pending}\n- Failed retries: ${result.processed.failed}`);
+        } else {
+          alert('Queue processing completed successfully!\nNo items required processing.');
+        }
+        
+        // Refresh data immediately after successful processing
+        await fetchData();
+      } else {
+        console.error('Queue processing failed:', result.error);
+        alert(`Processing failed: ${result.message || result.error}`);
+      }
     } catch (error) {
       console.error('Failed to trigger processing:', error);
+      alert('Failed to trigger queue processing. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const retryItem = async (id: string) => {
-    try {
-      await fetch(`/api/admin/queue/${id}/retry`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-        }
-      });
-      fetchData();
-    } catch (error) {
-      console.error('Failed to retry item:', error);
-    }
-  };
+  // Retry functionality removed for public access
+  // Admin retry is available in the admin panel
 
   const getStatusBadgeVariant = (status: string): "destructive" | "default" | "outline" | "secondary" => {
     switch (status) {
@@ -177,7 +183,7 @@ const QueueMonitoringDashboard: React.FC = () => {
         </select>
         
         <Button onClick={triggerProcessing} disabled={isLoading}>
-          Process Queue Now
+          {isLoading ? 'Processing...' : 'Process Queue Now'}
         </Button>
         
         <Button onClick={fetchData} variant="outline" disabled={isLoading}>
@@ -201,7 +207,7 @@ const QueueMonitoringDashboard: React.FC = () => {
                   <th className="text-left p-2">Event</th>
                   <th className="text-left p-2">Attempts</th>
                   <th className="text-left p-2">Age</th>
-                  <th className="text-left p-2">Actions</th>
+                  <th className="text-left p-2">Error Details</th>
                 </tr>
               </thead>
               <tbody>
@@ -223,15 +229,13 @@ const QueueMonitoringDashboard: React.FC = () => {
                     <td className="p-2">{item.attempts}</td>
                     <td className="p-2">{formatAge(item.createdAt)}</td>
                     <td className="p-2">
-                      {item.status === 'failed' && (
-                        <Button size="sm" onClick={() => retryItem(item._id)}>
-                          Retry
-                        </Button>
-                      )}
                       {item.errorMessage && (
                         <div className="text-xs text-red-500 mt-1 max-w-48 truncate" title={item.errorMessage}>
                           {item.errorMessage}
                         </div>
+                      )}
+                      {item.status === 'failed' && !item.errorMessage && (
+                        <div className="text-xs text-red-500">Failed</div>
                       )}
                     </td>
                   </tr>

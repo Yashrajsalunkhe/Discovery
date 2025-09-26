@@ -52,6 +52,7 @@ const corsOptions = {
     const allowedDomains = [
       'https://discovery-adcet.vercel.app',
       'https://discovery-rouge.vercel.app',
+      'https://discovery.adcet.ac.in'
       // Add more domains as needed
     ];
     
@@ -210,16 +211,101 @@ app.get('/api/queue/stats', async (req, res) => {
   }
 });
 
+// Public Queue Details Route (no admin auth required)
+app.get('/api/queue/details', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const status = req.query.status as string;
+    const skip = (page - 1) * limit;
+
+    // Build filter
+    const filter: any = {};
+    if (status && ['pending', 'processing', 'completed', 'failed'].includes(status)) {
+      filter.status = status;
+    }
+
+    // Import PendingRegistration model
+    const { PendingRegistration } = await import('./utils/guaranteedQueue.js');
+
+    // Get items with pagination
+    const items = await PendingRegistration.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select({
+        paymentId: 1,
+        orderId: 1,
+        status: 1,
+        attempts: 1,
+        createdAt: 1,
+        lastAttemptAt: 1,
+        completedAt: 1,
+        errorMessage: 1,
+        'registrationData.leaderEmail': 1,
+        'registrationData.leaderName': 1,
+        'registrationData.selectedEvent': 1
+      });
+
+    const total = await PendingRegistration.countDocuments(filter);
+    const stats = await getQueueStats();
+
+    res.json({
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      },
+      stats
+    });
+
+  } catch (error) {
+    console.error('Queue details error:', error);
+    res.status(500).json({ error: 'Failed to get queue details' });
+  }
+});
+
 app.post('/api/queue/process', async (req, res) => {
   try {
-    console.log('Manual queue processing triggered');
-    processGuaranteedQueue(`manual_${Date.now()}`).catch(err => {
-      console.error('Manual processing error:', err);
+    console.log('🚀 Manual queue processing triggered');
+    
+    // Ensure MongoDB connection before processing
+    await connectToMongoDB();
+    console.log('✅ MongoDB connection established for queue processing');
+    
+    // Get initial stats
+    const initialStats = await getQueueStats();
+    console.log('📊 Initial queue stats:', initialStats);
+    
+    // Process the queue and wait for completion to provide better feedback
+    const instanceId = `manual_${Date.now()}`;
+    console.log(`🔄 Starting queue processing with instance ID: ${instanceId}`);
+    await processGuaranteedQueue(instanceId);
+    
+    // Get updated stats after processing
+    const finalStats = await getQueueStats();
+    console.log('📊 Final queue stats:', finalStats);
+    
+    console.log('✅ Manual queue processing completed successfully');
+    res.json({ 
+      success: true, 
+      message: 'Queue processing completed successfully',
+      initialStats,
+      finalStats,
+      processed: {
+        pending: Math.max(0, initialStats.pending - finalStats.pending),
+        failed: Math.max(0, initialStats.failed - finalStats.failed)
+      }
     });
-    res.json({ success: true, message: 'Queue processing started' });
   } catch (error) {
-    console.error('Queue process trigger error:', error);
-    res.status(500).json({ error: 'Failed to start queue processing' });
+    console.error('❌ Queue process trigger error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to process queue',
+      message: error instanceof Error ? error.message : 'Unknown error occurred'
+    });
   }
 });
 
