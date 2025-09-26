@@ -7,6 +7,11 @@ import { guaranteedQueueWrite, processGuaranteedQueue } from './utils/guaranteed
 
 dotenv.config();
 
+// Disable buffering globally to prevent timeout issues in serverless
+mongoose.set('bufferCommands', false);
+mongoose.set('bufferMaxEntries', 0);
+mongoose.set('debug', process.env.MONGOOSE_DEBUG === 'true');
+
 declare global {
   var mongooseConnection: {
     conn: typeof mongoose | null;
@@ -23,36 +28,35 @@ export async function connectToMongoDB(): Promise<typeof mongoose> {
   }
   if (!global.mongooseConnection.promise) {
     global.mongooseConnection.promise = (async (): Promise<typeof mongoose> => {
-      // Disable buffering to prevent timeout issues
-      mongoose.set('bufferCommands', false);
-      mongoose.set('debug', process.env.MONGOOSE_DEBUG === 'true');
       
       while (true) {
         try {
           const instance = await mongoose.connect(process.env.MONGO_URI as string, {
             dbName: 'discovery_adcet',
-            serverSelectionTimeoutMS: 15000, // 15 seconds - reduced for faster failure
-            socketTimeoutMS: 20000, // 20 seconds 
-            connectTimeoutMS: 15000, // 15 seconds
-            heartbeatFrequencyMS: 300000,
-            maxPoolSize: 10,  // Reduced pool size for serverless
-            minPoolSize: 2,   // Minimum connections
+            serverSelectionTimeoutMS: 10000, // 10 seconds - faster failure detection
+            socketTimeoutMS: 15000, // 15 seconds - reduced from 20s
+            connectTimeoutMS: 10000, // 10 seconds - reduced from 15s
+            heartbeatFrequencyMS: 300000, // 5 minutes
+            maxPoolSize: 5,   // Reduced pool size for serverless
+            minPoolSize: 1,   // Minimum connections for serverless
+            maxIdleTimeMS: 180000, // 3 minutes - shorter for serverless
+            waitQueueTimeoutMS: 3000, // 3 second wait for connection from pool
             retryWrites: true,
             retryReads: true,
             w: 'majority',
-            // Additional serverless-friendly options
-            maxIdleTimeMS: 300000,
-            waitQueueTimeoutMS: 5000, // 5 second wait for connection from pool
-            // Force close connections that may be stale
+            // Serverless optimizations
             compressors: 'none', // Disable compression for faster connection
-            readPreference: 'primary'
+            readPreference: 'primary',
+            // Add buffering control
+            bufferCommands: false,
+            bufferMaxEntries: 0
           });
           global.mongooseConnection!.conn = instance;
           console.log('✅ Connected to MongoDB database: discovery_adcet');
           return instance;
         } catch (err) {
-          console.error('❌ MongoDB connection failed, retrying in 3s', err);
-          await new Promise(res => setTimeout(res, 3000)); // Reduced retry delay
+          console.error('❌ MongoDB connection failed, retrying in 2s', err);
+          await new Promise(res => setTimeout(res, 2000)); // Reduced retry delay
         }
       }
     })();

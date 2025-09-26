@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { ensureMongoConnection } from './mongoHealth.js';
 
 interface CounterDoc extends Document {
   _id: string;
@@ -14,6 +15,12 @@ export const Counter = mongoose.model<CounterDoc>('Counter', counterSchema, 'cou
 
 export async function getNextRegistrationId(): Promise<number> {
   try {
+    // Ensure MongoDB connection before operation
+    const isConnected = await ensureMongoConnection();
+    if (!isConnected) {
+      throw new Error('MongoDB connection failed for counter operation');
+    }
+
     // Use findOneAndUpdate with upsert for atomic increment
     const result = await Counter.findOneAndUpdate(
       { _id: 'registrationId' },
@@ -22,7 +29,9 @@ export async function getNextRegistrationId(): Promise<number> {
         new: true, 
         upsert: true,
         // Use write concern for consistency
-        writeConcern: { w: 'majority', j: true }
+        writeConcern: { w: 'majority', j: true },
+        // Add timeout to prevent hanging
+        maxTimeMS: 5000
       }
     );
     
@@ -40,8 +49,15 @@ export async function getNextRegistrationId(): Promise<number> {
  */
 export async function initializeCounterSafely(): Promise<void> {
   try {
+    // Ensure MongoDB connection before operation
+    const isConnected = await ensureMongoConnection();
+    if (!isConnected) {
+      console.error('MongoDB connection failed for counter initialization');
+      return;
+    }
+
     // Check if counter already exists
-    const existingCounter = await Counter.findById('registrationId');
+    const existingCounter = await Counter.findById('registrationId').maxTimeMS(5000);
     if (existingCounter) {
       console.log('Counter already initialized at:', existingCounter.sequence_value);
       return;

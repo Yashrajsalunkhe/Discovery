@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import { registerUser } from './register.js';
+import { registerUser, connectToMongoDB } from './register.js';
 import { checkDuplicate } from './search.js';
 import { orderRazorpay } from './utils/razorpay.js';
 import { verifyPayment } from './utils/payment-verification.js';
@@ -26,6 +26,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+// Disable buffering globally to prevent timeout issues in serverless
+mongoose.set('bufferCommands', false);
+mongoose.set('bufferMaxEntries', 0);
 
 const app = express();
 
@@ -81,6 +85,24 @@ app.use((req, res, next) => {
 // Additional OPTIONS handling for CORS preflight
 app.options('*', cors(corsOptions));
 
+// MongoDB connection middleware - ensure connection before any DB operations
+app.use(async (req, res, next) => {
+  // Only initialize connection for API routes that need database
+  if (req.path.startsWith('/api/') && req.path !== '/api/health') {
+    try {
+      await connectToMongoDB();
+    } catch (error) {
+      console.error('Failed to connect to MongoDB:', error);
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Database connection failed',
+        message: 'Service temporarily unavailable. Please try again in a moment.'
+      });
+    }
+  }
+  next();
+});
+
 // Health check route
 app.get('/', (req, res) => {
   res.json({
@@ -90,7 +112,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Initialize counter safely on first request (only runs once)
+// Initialize counter safely on first registration request (only runs once)
 let counterInitialized = false;
 app.use(async (req, res, next) => {
   if (!counterInitialized && req.path.includes('/api/register')) {
@@ -98,7 +120,7 @@ app.use(async (req, res, next) => {
       await initializeCounterSafely();
       counterInitialized = true;
     } catch (error) {
-      console.error('Counter initialization failed:', error);
+      console.error('Counter initialization error:', error);
       // Continue anyway - system has fallbacks
     }
   }
@@ -203,11 +225,29 @@ app.post('/api/queue/process', async (req, res) => {
 });
 
 // Auto-process queue every 30 seconds (for Vercel, this runs when there's traffic)
-setInterval(() => {
-  processGuaranteedQueue().catch(err => {
-    console.error('Auto queue processing error:', err);
-  });
-}, 30000);
+// Only start auto-processing after ensuring connection
+let autoProcessingStarted = false;
+const startAutoProcessing = () => {
+  if (autoProcessingStarted) return;
+  autoProcessingStarted = true;
+  
+  setInterval(async () => {
+    try {
+      await connectToMongoDB();
+      await processGuaranteedQueue();
+    } catch (err) {
+      console.error('Auto queue processing error:', err);
+    }
+  }, 30000);
+};
+
+// Start auto-processing on first successful database operation
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/') && req.path !== '/api/health') {
+    startAutoProcessing();
+  }
+  next();
+});
 
 // GitHub Actions Cron Job endpoint for guaranteed queue processing
 app.get('/api/cron/process-queue', async (req, res) => {
