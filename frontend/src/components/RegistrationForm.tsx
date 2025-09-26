@@ -98,6 +98,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const [teamSize, setTeamSize] = useState<number>(1);
   const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown | null>(null);
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
+  
+  // Enhanced payment states
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating-order' | 'payment-processing' | 'confirming-registration' | 'success' | 'failed'>('idle');
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [eventSelectOpen, setEventSelectOpen] = useState(false);
   const teamMembersRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -349,6 +353,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
   const onSubmit = async (values: RegistrationFormValues) => {
     setIsSubmitting(true);
+    setPaymentStatus('creating-order');
+    setPaymentError(null);
+    
     try {
       // If Paper Presentation is selected, find the correct event based on department
       let finalEventDetails = selectedEvent;
@@ -395,15 +402,17 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
       const orderResult = await orderRes.json();
       if (!orderResult.success) {
-        throw new Error('Order creation failed');
+        throw new Error(orderResult.error || 'Order creation failed');
       }
 
       const orderId = orderResult.order?.id;
       const backendFeeBreakdown = orderResult.feeBreakdown;
       
       if (!orderId) {
-        throw new Error('Order creation failed');
+        throw new Error('Order creation failed - no order ID received');
       }
+
+      setPaymentStatus('payment-processing');
 
       // Razorpay payment options
       const options = {
@@ -421,6 +430,12 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         },
         handler: async (razorpayResponse: any) => {
           try {
+            setPaymentStatus('confirming-registration');
+            toast({
+              title: "Payment Successful!",
+              description: "Confirming your registration... Please wait.",
+            });
+
             // Submit registration after successful payment
             const registerRes = await fetch("/api/register", {
               method: "POST",
@@ -435,23 +450,28 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
             const result = await registerRes.json();
             if (result.success) {
+              setPaymentStatus('success');
               setIsSubmitted(true);
               toast({
                 title: "Registration Successful!",
-                description: "Your registration has been submitted. You will receive a confirmation email shortly.",
+                description: "Your registration has been confirmed. You will receive a confirmation email shortly.",
               });
             } else {
+              setPaymentStatus('failed');
+              setPaymentError(result.error || "Registration failed after successful payment. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id);
               toast({
                 title: "Registration Failed",
-                description: result.error || "There was an error submitting your registration.",
+                description: "Payment was successful but registration failed. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id,
                 variant: "destructive",
               });
             }
           } catch (err) {
             console.error('Registration error:', err);
+            setPaymentStatus('failed');
+            setPaymentError("Registration failed after successful payment. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id);
             toast({
               title: "Registration Failed",
-              description: "There was an error submitting your registration. Please try again.",
+              description: "Payment was successful but registration failed. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id,
               variant: "destructive",
             });
           } finally {
@@ -461,8 +481,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         modal: {
           ondismiss: () => {
             setIsSubmitting(false);
+            setPaymentStatus('idle');
+            setPaymentError("Payment was cancelled. Please try again to complete your registration.");
             toast({
-              title: "Payment Required",
+              title: "Payment Cancelled",
               description: "Payment is mandatory to complete registration. Please try again.",
               variant: "destructive",
             });
@@ -477,9 +499,12 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       const razorpay = new (window as any).Razorpay(options);
       razorpay.on('payment.failed', (response: any) => {
         setIsSubmitting(false);
+        setPaymentStatus('failed');
+        const errorMessage = response.error?.description || 'Payment failed. Please try again.';
+        setPaymentError(errorMessage);
         toast({
           title: "Payment Failed",
-          description: response.error?.description || 'Payment failed. Please try again.',
+          description: errorMessage + " Please verify your payment details and try again.",
           variant: "destructive",
         });
       });
@@ -489,15 +514,18 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
     } catch (error) {
       console.error('Error:', error);
       setIsSubmitting(false);
+      setPaymentStatus('failed');
+      const errorMessage = error instanceof Error ? error.message : "There was an error processing your request. Please try again.";
+      setPaymentError(errorMessage);
       toast({
         title: "Error",
-        description: "There was an error processing your request. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
   };
 
-  if (isSubmitted) {
+  if (isSubmitted && paymentStatus === 'success') {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center">
@@ -506,18 +534,31 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
             <h2 className="text-2xl font-bold text-green-600 mb-2">Registration Successful!</h2>
             <p className="text-muted-foreground mb-4">
               Thank you for registering{eventTitle ? ` for ${eventTitle}` : ""}. 
+              Your payment has been confirmed and registration is complete.
             </p>
-            <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30 mb-6">
-              <p className="text-lg font-semibold flex items-center justify-center gap-1">
-                <IndianRupee className="h-5 w-5" />
+            <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200 mb-6">
+              <p className="text-lg font-semibold flex items-center justify-center gap-1 text-green-700">
+                <CheckCircle className="h-5 w-5" />
+                Payment Confirmed
+              </p>
+              <p className="text-sm text-green-600 mt-1">
                 Total Fee: {formatCurrency(feeBreakdown?.totalAmount || 0)}
               </p>
             </div>
             <p className="text-sm text-muted-foreground mb-6">
-              You will receive a confirmation email with payment details and further instructions shortly.
+              You will receive a confirmation email with payment receipt and further instructions shortly.
             </p>
             <div className="space-y-2">
-              <Button onClick={() => setIsSubmitted(false)} variant="outline" className="w-full">
+              <Button 
+                onClick={() => {
+                  setIsSubmitted(false);
+                  setPaymentStatus('idle');
+                  setPaymentError(null);
+                  form.reset();
+                }} 
+                variant="outline" 
+                className="w-full"
+              >
                 Register Another Participant
               </Button>
               {onBack && (
@@ -545,7 +586,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           </div>
         )}
         
-        <Card>
+        <Card className="relative">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center mb-4">
               <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-primary mr-2" />
@@ -561,6 +602,24 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Loading Overlay for Payment Processing */}
+            {(paymentStatus === 'payment-processing' || paymentStatus === 'confirming-registration') && (
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
+                <div className="text-center space-y-4">
+                  <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+                  <div>
+                    <p className="text-lg font-semibold">
+                      {paymentStatus === 'payment-processing' && 'Processing Payment...'}
+                      {paymentStatus === 'confirming-registration' && 'Confirming Registration...'}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {paymentStatus === 'payment-processing' && 'Please complete the payment in the popup window'}
+                      {paymentStatus === 'confirming-registration' && 'Please wait while we confirm your registration'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 
@@ -979,6 +1038,33 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                   </div>
                 )}
 
+                {/* Payment Error Display */}
+                {paymentError && (
+                  <div className="bg-destructive/10 border border-destructive/30 p-4 rounded-lg">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-6 h-6 rounded-full bg-destructive/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-destructive text-sm font-bold">!</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-destructive mb-1">Payment Issue</h3>
+                        <p className="text-sm text-destructive/80 mb-3">{paymentError}</p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setPaymentError(null);
+                            setPaymentStatus('idle');
+                          }}
+                          className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                        >
+                          Try Again
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Fee Display with Breakdown */}
                 <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30">
                   <div className="flex items-center justify-between">
@@ -1060,7 +1146,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Submitting...
+                        {paymentStatus === 'creating-order' && 'Creating Order...'}
+                        {paymentStatus === 'payment-processing' && 'Processing Payment...'}
+                        {paymentStatus === 'confirming-registration' && 'Confirming Registration...'}
+                        {paymentStatus === 'idle' && 'Submitting...'}
                       </>
                     ) : (
                       <>
