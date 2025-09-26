@@ -9,7 +9,6 @@ dotenv.config();
 
 // Disable buffering globally to prevent timeout issues in serverless
 mongoose.set('bufferCommands', false);
-mongoose.set('bufferMaxEntries', 0);
 mongoose.set('debug', process.env.MONGOOSE_DEBUG === 'true');
 
 declare global {
@@ -48,8 +47,7 @@ export async function connectToMongoDB(): Promise<typeof mongoose> {
             compressors: 'none', // Disable compression for faster connection
             readPreference: 'primary',
             // Add buffering control
-            bufferCommands: false,
-            bufferMaxEntries: 0
+            bufferCommands: false
           });
           global.mongooseConnection!.conn = instance;
           console.log('✅ Connected to MongoDB database: discovery_adcet');

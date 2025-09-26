@@ -29,7 +29,6 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // Disable buffering globally to prevent timeout issues in serverless
 mongoose.set('bufferCommands', false);
-mongoose.set('bufferMaxEntries', 0);
 
 const app = express();
 
