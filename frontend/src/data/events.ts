@@ -203,6 +203,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "robo-race",
       name: "Robo Race",
       department: "Mechanical Engineering",
+      minTeamSize: 2,
       maxTeamSize: 2,
       entryFee: 100,
       image: "/event-images/Robo_race.png",

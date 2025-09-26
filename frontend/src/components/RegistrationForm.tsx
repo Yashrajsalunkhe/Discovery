@@ -916,9 +916,21 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                               className="flex gap-6"
                             >
                               <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="solo" id="solo" />
-                                <Label htmlFor="solo" className="cursor-pointer">
+                                <RadioGroupItem 
+                                  value="solo" 
+                                  id="solo" 
+                                  disabled={(selectedEvent?.minTeamSize || 1) > 1}
+                                />
+                                <Label 
+                                  htmlFor="solo" 
+                                  className={`cursor-pointer ${(selectedEvent?.minTeamSize || 1) > 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
                                   Solo (₹100)
+                                  {(selectedEvent?.minTeamSize || 1) > 1 && (
+                                    <span className="text-xs text-muted-foreground block">
+                                      Not available for this event
+                                    </span>
+                                  )}
                                 </Label>
                               </div>
                               <div className="flex items-center space-x-2">
