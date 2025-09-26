@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import { getApiBaseUrl } from '@/utils/api';
 
 interface QueueStats {
   pending: number;
@@ -39,14 +40,14 @@ const QueueMonitoringDashboard: React.FC = () => {
       setIsLoading(true);
       
       // Fetch stats
-      const statsResponse = await fetch('/api/queue/stats');
+      const statsResponse = await fetch(`${getApiBaseUrl()}/queue/stats`);
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
         setStats(statsData);
       }
 
       // Fetch items if admin
-      const itemsResponse = await fetch(`/api/admin/queue?status=${selectedStatus === 'all' ? '' : selectedStatus}`, {
+      const itemsResponse = await fetch(`${getApiBaseUrl()}/admin/queue?status=${selectedStatus === 'all' ? '' : selectedStatus}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
@@ -66,7 +67,7 @@ const QueueMonitoringDashboard: React.FC = () => {
 
   const triggerProcessing = async () => {
     try {
-      await fetch('/api/queue/process', { method: 'POST' });
+      await fetch(`${getApiBaseUrl()}/queue/process`, { method: 'POST' });
       setTimeout(fetchData, 2000); // Refresh after 2 seconds
     } catch (error) {
       console.error('Failed to trigger processing:', error);
@@ -75,7 +76,7 @@ const QueueMonitoringDashboard: React.FC = () => {
 
   const retryItem = async (id: string) => {
     try {
-      await fetch(`/api/admin/queue/${id}/retry`, {
+      await fetch(`${getApiBaseUrl()}/admin/queue/${id}/retry`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`

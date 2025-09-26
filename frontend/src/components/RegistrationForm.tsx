@@ -18,6 +18,7 @@ import { getAllEvents, type Event } from "@/data/events";
 import { Footer } from "@/components/Footer";
 import { calculateTeamFee, formatCurrency, type FeeBreakdown } from "@/utils/feeCalculation";
 import { cn } from "@/lib/utils";
+import { getApiBaseUrl } from '@/utils/api';
 
 // Team member schema
 const teamMemberSchema = z.object({
@@ -388,7 +389,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       };
 
       // Create Razorpay order with team details for automatic calculation
-      const orderRes = await fetch("/api/order", {
+      const orderRes = await fetch(`${getApiBaseUrl()}/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -437,7 +438,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
             });
 
             // Submit registration after successful payment
-            const registerRes = await fetch("/api/register", {
+            const registerRes = await fetch(`${getApiBaseUrl()}/register`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

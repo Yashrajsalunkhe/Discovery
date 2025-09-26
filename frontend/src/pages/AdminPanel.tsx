@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import * as fileSaver from 'file-saver';
+import { getApiBaseUrl } from '@/utils/api';
 
 interface TeamMember {
   name: string;
@@ -101,22 +102,7 @@ const AdminPanel: React.FC = () => {
   
   const { toast } = useToast();
 
-  // Use environment variable for API base URL with better fallback logic
-  const getApiBaseUrl = () => {
-    // First check for explicit environment variable
-    if (import.meta.env.VITE_API_BASE_URL) {
-      return import.meta.env.VITE_API_BASE_URL;
-    }
-    
-    // Development mode detection
-    if (import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return 'http://localhost:3000/api';
-    }
-    
-    // Production mode - use relative path which will be routed to backend by Vercel
-    return '/api';
-  };
-
+  // Use centralized API base URL
   const API_BASE = getApiBaseUrl();
 
   console.log('Environment mode:', import.meta.env.MODE);
