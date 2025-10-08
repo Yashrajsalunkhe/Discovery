@@ -108,8 +108,13 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
   const allEvents = getAllEvents();
 
-  // Filter events to show only one Paper Presentation option
+  // Filter events to show only one Paper Presentation option and exclude Box Cricket
   const filteredEvents = allEvents.filter((event, index, arr) => {
+    // Exclude Box Cricket League from registration
+    if (event.name === "Box Cricket League" || event.name === "Box Cricket L") {
+      return false;
+    }
+    
     if (event.name === "Paper Presentation") {
       // Only show the first Paper Presentation event
       return arr.findIndex(e => e.name === "Paper Presentation") === index;
