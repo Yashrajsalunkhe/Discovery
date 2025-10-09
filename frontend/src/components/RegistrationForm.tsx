@@ -108,13 +108,27 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
   const allEvents = getAllEvents();
 
-  // Filter events to show only one Paper Presentation option and exclude Box Cricket
+  // Filter events to show only one Paper Presentation option and exclude closed events
   const filteredEvents = allEvents.filter((event, index, arr) => {
     // Exclude Box Cricket League from registration
     if (event.name === "Box Cricket League" || event.name === "Box Cricket L") {
       return false;
     }
     
+    // Exclude closed events from registration
+    const closedEvents = [
+      "CAD Conqueror",
+      "Code 2 Compete", 
+      "Coding Competition",
+      "Paper Glider: Flight Challenge",
+      "Real Flight Simulator",
+      "SETU"
+    ];
+    
+    if (closedEvents.includes(event.name)) {
+      return false;
+    }
+
     if (event.name === "Paper Presentation") {
       // Only show the first Paper Presentation event
       return arr.findIndex(e => e.name === "Paper Presentation") === index;
