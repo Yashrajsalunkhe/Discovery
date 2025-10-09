@@ -99,6 +99,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown | null>(null);
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
   
+  // Registration closure state
+  const [registrationsClosed] = useState(true); // Set to true to close registrations
+  
   // Enhanced payment states
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating-order' | 'payment-processing' | 'confirming-registration' | 'success' | 'failed'>('idle');
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -620,6 +623,22 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
               Fill out the registration form step by step to complete your registration.
             </CardDescription>
           </CardHeader>
+          
+          {/* Registration Closed Message */}
+          {registrationsClosed && (
+            <div className="mx-6 mt-6 mb-4">
+              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 text-center">
+                <div className="text-6xl mb-4">🚫</div>
+                <h3 className="text-2xl font-bold text-red-800 mb-3">
+                  Registrations Are Now Closed
+                </h3>
+                <p className="text-red-600 text-lg">
+                  Thank you for your interest in Discovery 2K25. Online registrations have ended.
+                </p>
+              </div>
+            </div>
+          )}
+          
           <CardContent>
             {/* Loading Overlay for Payment Processing */}
             {(paymentStatus === 'payment-processing' || paymentStatus === 'confirming-registration') && (
@@ -640,7 +659,8 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
               </div>
             )}
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <div className={registrationsClosed ? "opacity-50 pointer-events-none" : ""}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 
                 {/* Leader Details Section */}
                 <div className="bg-muted/30 p-6 rounded-lg border-2 border-primary/20">
@@ -1171,7 +1191,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                   )}
                   <Button
                     type="submit"
-                    disabled={isSubmitting || !selectedEvent}
+                    disabled={isSubmitting || !selectedEvent || registrationsClosed}
                     className="flex-1"
                   >
                     {isSubmitting ? (
@@ -1192,6 +1212,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                   </Button>
                 </div>
               </form>
+              </div>
             </Form>
           </CardContent>
         </Card>
