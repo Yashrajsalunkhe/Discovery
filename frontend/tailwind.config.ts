@@ -22,8 +22,12 @@ export default {
     },
     extend: {
       fontFamily: {
-        orbitron: ["Orbitron", "monospace"],
-        poppins: ["Poppins", "sans-serif"],
+        display: ["'Unbounded'", "sans-serif"],
+        body: ["'IBM Plex Sans'", "sans-serif"],
+        mono: ["'IBM Plex Mono'", "monospace"],
+        // Keep old aliases for any existing components that still reference them
+        orbitron: ["'Unbounded'", "sans-serif"],
+        poppins: ["'IBM Plex Sans'", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -59,12 +63,27 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Mission-control accent tokens
+        ink: "var(--ink)",
+        "ink-soft": "var(--ink-soft)",
+        panel: "var(--panel)",
+        "panel-2": "var(--panel-2)",
+        line: "var(--line)",
+        paper: "var(--paper)",
+        "paper-dim": "var(--paper-dim)",
+        "paper-mute": "var(--paper-mute)",
+        cobalt: "var(--cobalt)",
+        "cobalt-dim": "var(--cobalt-dim)",
+        brass: "var(--brass)",
+        "brass-dim": "var(--brass-dim)",
+        crimson: "var(--crimson)",
+        // Keep neon aliases for any components that haven't migrated yet
         neon: {
-          blue: "hsl(var(--neon-blue))",
-          purple: "hsl(var(--neon-purple))",
-          pink: "hsl(var(--neon-pink))",
-          orange: "hsl(var(--neon-orange))",
-          green: "hsl(var(--neon-green))",
+          blue: "var(--cobalt)",
+          purple: "hsl(280 100% 70%)",
+          pink: "hsl(320 100% 70%)",
+          orange: "hsl(30 100% 60%)",
+          green: "hsl(120 100% 50%)",
         },
       },
       borderRadius: {
@@ -97,10 +116,6 @@ export default {
           "0%": { opacity: "0", transform: "scale(0.9)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
-        "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(180 100% 50% / 0.3)" },
-          "50%": { boxShadow: "0 0 40px hsl(180 100% 50% / 0.6)" },
-        },
         "float": {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-10px)" },
@@ -113,7 +128,6 @@ export default {
         "slide-in-left": "slide-in-left 0.6s ease-out",
         "slide-in-right": "slide-in-right 0.6s ease-out",
         "scale-in": "scale-in 0.4s ease-out",
-        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
       },
     },

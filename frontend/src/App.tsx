@@ -9,7 +9,7 @@ import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
 import QueueMonitoringDashboard from "./components/QueueMonitoringDashboard";
 import { RegistrationForm } from "./components/RegistrationForm";
-import { Footer } from "./components/Footer";
+import { Navbar, FooterLanding } from "./components/landing";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,7 +38,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/register" element={
             <div className="min-h-screen flex flex-col">
+              <Navbar />
               <RegistrationForm />
+              <FooterLanding />
             </div>
           } />
           <Route path="/admin" element={<AdminPanel />} />

@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DISCOVERY 2K26 — National-Level Technical Festival · ADCET, Ashta</title>
+<meta name="description" content="Discovery 2K26 — ADCET's national-level technical festival. One day, 24+ competitions, every engineering department on the field.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+/* ============================================================
+   TOKENS
+============================================================ */
+:root{
+  --ink:       #0A0C10;
+  --ink-soft:  #0D1015;
+  --panel:     #12151B;
+  --panel-2:   #191D25;
+  --line:      #262B35;
+  --line-soft: rgba(237,234,226,0.08);
+  --paper:     #EDEAE2;
+  --paper-dim: #97A0AC;
+  --paper-mute:#5E6672;
+  --cobalt:    #3D6BFF;
+  --cobalt-dim:#1C2C63;
+  --brass:     #E8B923;
+  --brass-dim: #4A3D14;
+  --crimson:   #E14B4B;
+
+  --f-display: 'Unbounded', sans-serif;
+  --f-body:    'IBM Plex Sans', sans-serif;
+  --f-mono:    'IBM Plex Mono', monospace;
+
+  --edge: 1px solid var(--line);
+  --container: 1240px;
+}
+
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+
+html{
+  scroll-behavior:smooth;
+  background:var(--ink);
+}
+
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* grain overlay — full page, subtle, no blur/glass */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:999;
+  pointer-events:none;
+  opacity:0.05;
+  mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+img,svg{ display:block; max-width:100%; }
+a{ color:inherit; text-decoration:none; }
+ul{ list-style:none; }
+button{ font:inherit; color:inherit; background:none; border:none; cursor:pointer; }
+
+::selection{ background:var(--brass); color:var(--ink); }
+
+.wrap{
+  max-width:var(--container);
+  margin:0 auto;
+  padding:0 32px;
+}
+
+.eyebrow{
+  font-family:var(--f-mono);
+  font-size:12.5px;
+  letter-spacing:0.14em;
+  color:var(--paper-dim);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.eyebrow .dot{
+  width:6px; height:6px; border-radius:50%;
+  background:var(--brass);
+  box-shadow:0 0 0 3px var(--brass-dim);
+}
+
+/* ============================================================
+   NAV
+============================================================ */
+.nav{
+  position:fixed; top:0; left:0; right:0;
+  z-index:500;
+  padding:22px 0;
+  transition:background .35s ease,border-color .35s ease,padding .35s ease;
+  border-bottom:1px solid transparent;
+}
+.nav.is-scrolled{
+  background:rgba(10,12,16,0.92);
+  border-bottom:1px solid var(--line);
+  padding:14px 0;
+}
+.nav .wrap{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.nav-mark{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:16px;
+  letter-spacing:0.02em;
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+}
+.nav-mark span{ color:var(--brass); }
+.nav-links{
+  display:flex;
+  gap:34px;
+  font-family:var(--f-mono);
+  font-size:13px;
+  letter-spacing:0.06em;
+  color:var(--paper-dim);
+}
+.nav-links a{
+  position:relative;
+  padding:4px 0;
+  transition:color .2s ease;
+}
+.nav-links a::after{
+  content:"";
+  position:absolute; left:0; right:100%; bottom:0;
+  height:1px; background:var(--brass);
+  transition:right .28s cubic-bezier(.65,0,.35,1);
+}
+.nav-links a:hover{ color:var(--paper); }
+.nav-links a:hover::after{ right:0; }
+
+.nav-cta{
+  display:flex; align-items:center; gap:18px;
+}
+.btn-nav-register{
+  font-family:var(--f-mono);
+  font-size:12.5px;
+  letter-spacing:0.06em;
+  color:var(--ink);
+  background:var(--paper);
+  padding:9px 18px;
+  border:1px solid var(--paper);
+  transition:background .2s ease,color .2s ease,border-color .2s ease;
+}
+.btn-nav-register:hover{ background:var(--brass); border-color:var(--brass); }
+
+.nav-burger{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  width:26px;
+}
+.nav-burger span{ display:block; height:1.5px; background:var(--paper); }
+
+.mobile-menu{
+  position:fixed; inset:0;
+  background:var(--ink);
+  z-index:900;
+  display:flex; flex-direction:column;
+  justify-content:center;
+  padding:32px;
+  transform:translateY(-100%);
+  transition:transform .5s cubic-bezier(.65,0,.35,1);
+}
+.mobile-menu.is-open{ transform:translateY(0); }
+.mobile-menu a{
+  font-family:var(--f-display);
+  font-size:38px;
+  font-weight:600;
+  padding:14px 0;
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:16px;
+}
+.mobile-menu a span{ font-family:var(--f-mono); font-size:14px; color:var(--brass); }
+.mobile-close{
+  position:absolute; top:26px; right:28px;
+  font-family:var(--f-mono); font-size:13px; letter-spacing:.1em;
+  color:var(--paper-dim);
+}
+
+@media (max-width:860px){
+  .nav-links,.nav-cta .btn-nav-register{ display:none; }
+  .nav-burger{ display:flex; }
+}
+
+/* ============================================================
+   HERO
+============================================================ */
+.hero{
+  position:relative;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding-top:120px;
+  overflow:hidden;
+  border-bottom:var(--edge);
+  background:
+    linear-gradient(var(--ink),var(--ink)) padding-box,
+    repeating-linear-gradient(0deg, var(--line-soft) 0 1px, transparent 1px 88px),
+    repeating-linear-gradient(90deg, var(--line-soft) 0 1px, transparent 1px 88px);
+}
+
+.radar{
+  position:absolute;
+  top:50%; right:-6%;
+  width:min(58vw,760px);
+  height:min(58vw,760px);
+  transform:translateY(-50%);
+  z-index:0;
+  opacity:0.9;
+}
+.radar-ring{
+  position:absolute; border-radius:50%;
+  border:1px solid var(--line);
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+}
+.radar-ring.r1{ width:22%; height:22%; }
+.radar-ring.r2{ width:44%; height:44%; }
+.radar-ring.r3{ width:66%; height:66%; }
+.radar-ring.r4{ width:88%; height:88%; border-color:var(--line-soft); }
+.radar-sweep{
+  position:absolute; top:50%; left:50%;
+  width:88%; height:88%;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(61,107,255,0.55), rgba(61,107,255,0) 26%);
+  animation:sweep 6s linear infinite;
+  -webkit-mask-image:radial-gradient(circle,rgba(0,0,0,1) 0%,rgba(0,0,0,1) 100%);
+}
+@keyframes sweep{ to{ transform:translate(-50%,-50%) rotate(360deg); } }
+.radar-blip{
+  position:absolute;
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--brass);
+  box-shadow:0 0 0 6px rgba(232,185,35,0.14);
+}
+.radar-blip::after{
+  content:attr(data-label);
+  position:absolute;
+  top:-22px; left:50%;
+  transform:translateX(-50%);
+  font-family:var(--f-mono);
+  font-size:10.5px;
+  letter-spacing:.06em;
+  color:var(--paper-dim);
+  white-space:nowrap;
+}
+@media (prefers-reduced-motion:reduce){ .radar-sweep{ animation:none; } }
+@media (max-width:900px){ .radar{ opacity:0.35; right:-30%; } }
+
+/* ============================================================
+   SEAM DIVIDER
+============================================================ */
+.seam{
+  position:relative;
+  height:74px;
+  background:var(--panel);
+  border-top:var(--edge);
+  border-bottom:var(--edge);
+  overflow:hidden;
+}
+.seam::before{
+  content:"";
+  position:absolute;
+  top:0; left:-10%;
+  width:120%; height:200%;
+  background:var(--ink);
+  transform:skewY(-2.2deg);
+  transform-origin:top left;
+}
+.seam-label{
+  position:relative;
+  z-index:1;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--f-mono);
+  font-size:11.5px;
+  letter-spacing:.16em;
+  color:var(--paper-mute);
+}
+
+.hero-inner{
+  position:relative; z-index:2;
+  padding-bottom:64px;
+}
+
+.hero-kicker{
+  display:flex; align-items:center; gap:18px;
+  margin-bottom:26px;
+  flex-wrap:wrap;
+}
+.hero-coords{
+  font-family:var(--f-mono);
+  font-size:12.5px;
+  letter-spacing:.1em;
+  color:var(--paper-mute);
+  border-left:1px solid var(--line);
+  padding-left:18px;
+}
+
+.hero-title{
+  font-family:var(--f-display);
+  font-weight:800;
+  line-height:0.86;
+  letter-spacing:-0.01em;
+  font-size:clamp(3.4rem, 10.5vw, 9.5rem);
+  color:var(--paper);
+}
+.hero-title .line{ overflow:hidden; display:block; }
+.hero-title .line span{ display:inline-block; will-change:transform; }
+.hero-title .accent{ color:transparent; -webkit-text-stroke:1.5px var(--paper); }
+.hero-title .num{ color:var(--brass); -webkit-text-stroke:0; }
+
+.hero-sub{
+  max-width:520px;
+  margin-top:28px;
+  font-size:17px;
+  line-height:1.65;
+  color:var(--paper-dim);
+}
+.hero-sub b{ color:var(--paper); font-weight:600; }
+
+.hero-actions{
+  display:flex; align-items:center; gap:22px;
+  margin-top:44px;
+  flex-wrap:wrap;
+}
+.btn-primary{
+  font-family:var(--f-mono);
+  font-size:13px;
+  letter-spacing:.06em;
+  background:var(--brass);
+  color:var(--ink);
+  padding:16px 30px;
+  border:1px solid var(--brass);
+  position:relative;
+  overflow:hidden;
+  transition:color .25s ease;
+}
+.btn-primary span{ position:relative; z-index:2; }
+.btn-primary::before{
+  content:"";
+  position:absolute; inset:0;
+  background:var(--paper);
+  transform:translateX(-101%);
+  transition:transform .3s cubic-bezier(.65,0,.35,1);
+}
+.btn-primary:hover::before{ transform:translateX(0); }
+
+.btn-ghost{
+  font-family:var(--f-mono);
+  font-size:13px;
+  letter-spacing:.06em;
+  color:var(--paper);
+  padding:16px 6px;
+  border-bottom:1px solid var(--line);
+  transition:border-color .25s ease,color .25s ease;
+}
+.btn-ghost:hover{ border-color:var(--cobalt); color:var(--cobalt); }
+
+.hero-foot{
+  position:relative; z-index:2;
+  border-top:var(--edge);
+}
+.hero-foot .wrap{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+}
+.countdown-cell{
+  padding:22px 32px;
+  border-right:1px solid var(--line);
+  text-align:left;
+}
+.countdown-cell:last-child{ border-right:none; }
+.countdown-num{
+  font-family:var(--f-mono);
+  font-size:clamp(1.6rem,3.2vw,2.4rem);
+  font-weight:600;
+  color:var(--paper);
+  font-variant-numeric:tabular-nums;
+}
+.countdown-label{
+  font-family:var(--f-mono);
+  font-size:11px;
+  letter-spacing:.12em;
+  color:var(--paper-mute);
+  margin-top:4px;
+}
+@media (max-width:700px){
+  .hero-foot .wrap{ grid-template-columns:repeat(2,1fr); }
+  .countdown-cell:nth-child(2){ border-right:none; }
+}
+
+/* ============================================================
+   TICKER
+============================================================ */
+.ticker{
+  border-bottom:var(--edge);
+  background:var(--panel);
+  overflow:hidden;
+  white-space:nowrap;
+  padding:14px 0;
+}
+.ticker-track{
+  display:inline-flex;
+  animation:ticker 26s linear infinite;
+}
+.ticker-track span{
+  font-family:var(--f-mono);
+  font-size:13px;
+  letter-spacing:.1em;
+  color:var(--paper-dim);
+  padding:0 22px;
+  display:inline-flex;
+  align-items:center;
+  gap:22px;
+}
+.ticker-track span b{ color:var(--brass); font-weight:600; }
+.ticker-track span::after{
+  content:"—"; color:var(--line);
+}
+@keyframes ticker{ to{ transform:translateX(-50%); } }
+@media (prefers-reduced-motion:reduce){ .ticker-track{ animation-play-state:paused; } }
+
+/* ============================================================
+   SECTION SHELL / FILE TABS
+============================================================ */
+.section{
+  position:relative;
+  padding:120px 0;
+  border-bottom:var(--edge);
+}
+.section-alt{ background:var(--ink-soft); }
+
+.file-tab{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:var(--f-mono);
+  font-size:12.5px;
+  letter-spacing:.12em;
+  color:var(--brass);
+  border:1px solid var(--brass-dim);
+  padding:6px 12px;
+  margin-bottom:28px;
+}
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:40px;
+  margin-bottom:64px;
+  flex-wrap:wrap;
+}
+.section-title{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:clamp(2rem,4.4vw,3.4rem);
+  line-height:1.05;
+  letter-spacing:-0.01em;
+  max-width:640px;
+}
+.section-note{
+  max-width:340px;
+  font-size:15px;
+  color:var(--paper-dim);
+  line-height:1.65;
+  padding-bottom:6px;
+}
+
+/* ============================================================
+   BRIEFING
+============================================================ */
+.briefing-grid{
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:0;
+  border:var(--edge);
+}
+.briefing-copy{
+  padding:48px;
+  border-right:var(--edge);
+}
+.briefing-copy p{
+  font-size:17px;
+  line-height:1.75;
+  color:var(--paper-dim);
+  max-width:560px;
+}
+.briefing-copy p + p{ margin-top:18px; }
+.briefing-copy strong{ color:var(--paper); font-weight:600; }
+
+.briefing-orgs{
+  display:flex; gap:10px; margin-top:34px; flex-wrap:wrap;
+}
+.org-stamp{
+  font-family:var(--f-mono);
+  font-size:11.5px;
+  letter-spacing:.08em;
+  color:var(--paper-dim);
+  border:1px solid var(--line);
+  padding:7px 12px;
+}
+
+.briefing-stats{
+  display:flex;
+  flex-direction:column;
+}
+.stat-row{
+  padding:26px 40px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:20px;
+}
+.stat-row:last-child{ border-bottom:none; }
+.stat-num{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:2.6rem;
+  color:var(--paper);
+  white-space:nowrap;
+}
+.stat-label{
+  font-family:var(--f-mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:var(--paper-mute);
+  text-align:right;
+}
+
+.redact{ position:relative; display:inline-block; }
+.redact-bar{
+  position:absolute; inset:2px -2px;
+  background:var(--paper);
+  transform-origin:right center;
+}
+
+@media (max-width:860px){
+  .briefing-grid{ grid-template-columns:1fr; }
+  .briefing-copy{ border-right:none; border-bottom:var(--edge); }
+}
+
+/* ============================================================
+   TRACKS
+============================================================ */
+.track-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  border-top:var(--edge);
+  border-left:var(--edge);
+}
+.track-card{
+  border-right:var(--edge);
+  border-bottom:var(--edge);
+  padding:34px 30px;
+  clip-path:inset(0 0 0 0);
+  transition:background .3s ease;
+  position:relative;
+}
+.track-card:hover{ background:var(--panel); }
+.track-card:hover .track-icon{ border-color:var(--cobalt); color:var(--cobalt); }
+.track-icon{
+  width:46px; height:46px;
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--paper-dim);
+  margin-bottom:22px;
+  transition:border-color .25s ease,color .25s ease;
+}
+.track-icon svg{ width:22px; height:22px; }
+.track-code{
+  font-family:var(--f-mono);
+  font-size:11px;
+  letter-spacing:.1em;
+  color:var(--paper-mute);
+  margin-bottom:8px;
+}
+.track-name{
+  font-family:var(--f-display);
+  font-weight:600;
+  font-size:1.28rem;
+  margin-bottom:14px;
+}
+.track-events{
+  display:flex; flex-wrap:wrap; gap:8px;
+}
+.track-events span{
+  font-family:var(--f-mono);
+  font-size:11.5px;
+  color:var(--paper-dim);
+  border:1px solid var(--line);
+  padding:5px 10px;
+}
+.department-layout{
+  max-width:var(--container);
+  margin:0 auto;
+  padding:18px 32px 0;
+}
+.department-shell{
+  background:linear-gradient(180deg, rgba(18,21,27,0.98), rgba(10,12,16,0.96));
+  border:1px solid var(--line);
+  border-radius:28px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04);
+  overflow:hidden;
+}
+.department-list{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+  padding:18px;
+  background:
+    radial-gradient(circle at top left, rgba(61,107,255,0.12), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(232,185,35,0.09), transparent 26%),
+    var(--ink);
+}
+.department-button{
+  position:relative;
+  min-height:210px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  padding:20px 18px 16px;
+  background:linear-gradient(180deg, rgba(18,21,27,0.96), rgba(14,16,22,0.98));
+  border:1px solid var(--line);
+  border-radius:20px;
+  text-align:left;
+  overflow:hidden;
+  transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.department-button::before{
+  content:"";
+  position:absolute;
+  inset:0 auto auto 0;
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg, rgba(232,185,35,0.14), transparent 46%);
+  opacity:0;
+  transition:opacity .25s ease;
+}
+.department-button:nth-child(3n+2)::before{ background:linear-gradient(135deg, rgba(61,107,255,0.18), transparent 46%); }
+.department-button:nth-child(3n)::before{ background:linear-gradient(135deg, rgba(225,75,75,0.14), transparent 46%); }
+.department-button:hover,
+.department-button.is-active{
+  background:linear-gradient(180deg, rgba(25,29,37,0.98), rgba(18,21,27,0.98));
+  border-color:rgba(232,185,35,0.6);
+  transform:translateY(-4px);
+  box-shadow:0 16px 28px rgba(0,0,0,0.2);
+}
+.department-button:hover::before,
+.department-button.is-active::before{ opacity:1; }
+.department-index,.department-count{position:relative;z-index:1;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;color:var(--paper-mute)}
+.department-count{color:var(--brass)}
+.department-name{position:relative;z-index:1;font-family:var(--f-display);font-size:1.15rem;font-weight:600;line-height:1.25;max-width:88%}
+.department-events{
+  display:none;
+  padding:0 18px 18px;
+  min-height:430px;
+  background:linear-gradient(180deg, rgba(9,11,15,0.96), rgba(15,18,24,0.97));
+}
+.department-layout.is-events .department-list{display:none}
+.department-layout.is-events .department-events{display:block}
+.department-events-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:24px;
+  margin:0 0 18px;
+  padding:22px 18px 18px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(19,23,31,0.9), rgba(17,20,26,0.75));
+}
+.department-events-kicker{color:var(--brass);font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;margin-bottom:10px}
+.department-events-title{font-family:var(--f-display);font-size:clamp(1.3rem,2vw,1.9rem);line-height:1.15}
+.department-events-count{color:var(--paper-mute);font-family:var(--f-mono);font-size:11px;white-space:nowrap}
+.event-list{display:grid;gap:12px;padding:0 18px}
+.event-button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:15px 16px;
+  background:rgba(17,20,26,0.8);
+  border:1px solid var(--line);
+  border-radius:14px;
+  text-align:left;
+  color:var(--paper-dim);
+  transition:background .2s ease,border-color .2s ease,color .2s ease,transform .2s ease;
+}
+.event-button > span:first-child{ max-width:78%; }
+.event-button::after{content:"→";color:var(--paper-mute);font-family:var(--f-mono);font-size:16px}
+.event-button:hover,.event-button.is-active{
+  background:linear-gradient(180deg, rgba(25,29,37,0.98), rgba(17,20,25,0.98));
+  border-color:rgba(232,185,35,0.65);
+  color:var(--paper);
+  transform:translateX(2px);
+}
+.event-button.is-active::after{color:var(--brass)}
+.event-detail{
+  margin-top:18px;
+  padding:0 18px 18px;
+}
+.event-detail .back-button{margin-bottom:22px}
+.back-button{
+  font-family:var(--f-mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  color:var(--paper-dim);
+  padding:8px 0 10px;
+  border-bottom:1px solid var(--line);
+  transition:color .2s ease,border-color .2s ease;
+}
+.back-button:hover{color:var(--brass);border-color:var(--brass)}
+.department-layout.is-detail .department-events-head,.department-layout.is-detail .event-list{display:none}
+.department-layout.is-detail .event-detail{margin-top:0;padding:18px 18px 26px;min-height:300px}
+.event-detail-title{font-family:var(--f-display);font-size:1.6rem;margin-bottom:10px}
+.event-detail-summary{color:var(--paper-dim);font-size:15px;max-width:620px;line-height:1.7}
+.event-detail-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:22px;
+  margin-top:20px;
+  color:var(--paper-mute);
+  font-family:var(--f-mono);
+  font-size:11px;
+  letter-spacing:.04em;
+}
+.event-detail-meta span{ display:flex; gap:8px; align-items:center; }
+.event-detail-meta strong{color:var(--paper-dim);font-weight:500}
+@media (max-width:860px){
+  .department-layout{padding:12px 16px 0}
+  .department-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px}
+  .department-button{min-height:170px;padding:18px 16px}
+  .department-events{padding:0 12px 12px}
+  .department-events-head{padding:18px 14px 16px}
+  .event-list{padding:0 12px}
+  .event-detail{padding:0 12px 12px}
+}
+
+/* ============================================================
+   SCHEDULE
+============================================================ */
+.schedule{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:60px;
+}
+.schedule-side{ position:sticky; top:140px; align-self:start; }
+.mission-clock{
+  font-family:var(--f-mono);
+  font-size:12px;
+  letter-spacing:.1em;
+  color:var(--paper-mute);
+  line-height:2;
+}
+
+.timeline{ position:relative; padding-left:40px; }
+.timeline-line{
+  position:absolute; left:6px; top:6px; bottom:6px;
+  width:1px;
+  background:var(--line);
+}
+.timeline-line-fill{
+  position:absolute; left:0; top:0;
+  width:1px; height:100%;
+  background:var(--brass);
+  transform:scaleY(0);
+  transform-origin:top;
+}
+.timeline-item{
+  position:relative;
+  padding-bottom:52px;
+}
+.timeline-item:last-child{ padding-bottom:0; }
+.timeline-dot{
+  position:absolute; left:-40px; top:4px;
+  width:13px; height:13px;
+  border-radius:50%;
+  background:var(--ink);
+  border:2px solid var(--line);
+}
+.timeline-time{
+  font-family:var(--f-mono);
+  font-size:12.5px;
+  letter-spacing:.08em;
+  color:var(--brass);
+  margin-bottom:8px;
+}
+.timeline-title{
+  font-family:var(--f-display);
+  font-weight:600;
+  font-size:1.4rem;
+  margin-bottom:8px;
+}
+.timeline-desc{
+  color:var(--paper-dim);
+  font-size:14.5px;
+  max-width:460px;
+  line-height:1.6;
+}
+
+@media (max-width:860px){
+  .schedule{ grid-template-columns:1fr; gap:30px; }
+  .schedule-side{ position:static; }
+}
+
+/* ============================================================
+   WHY / PERKS
+============================================================ */
+.perks{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--line);
+  border:var(--edge);
+}
+.perk-cell{
+  background:var(--ink);
+  padding:38px 32px;
+}
+.perk-cell:nth-child(3n+2){ background:var(--ink-soft); }
+.perk-index{
+  font-family:var(--f-display);
+  font-weight:800;
+  font-size:3.2rem;
+  line-height:1;
+  color:transparent;
+  -webkit-text-stroke:1px var(--line);
+  margin-bottom:14px;
+}
+.perk-title{
+  font-family:var(--f-display);
+  font-weight:600;
+  font-size:1.15rem;
+  margin-bottom:10px;
+}
+.perk-desc{
+  font-size:14px;
+  color:var(--paper-dim);
+  line-height:1.6;
+}
+@media (max-width:860px){ .perks{ grid-template-columns:1fr; } }
+
+/* ============================================================
+   REGISTER CTA
+============================================================ */
+.cta{
+  padding:140px 0;
+  border-bottom:var(--edge);
+  position:relative;
+  overflow:hidden;
+}
+.cta-grid-bg{
+  position:absolute; inset:0;
+  background:
+    repeating-linear-gradient(0deg, var(--line-soft) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(90deg, var(--line-soft) 0 1px, transparent 1px 64px);
+  z-index:0;
+}
+.cta .wrap{ position:relative; z-index:1; text-align:center; }
+.cta-title{
+  font-family:var(--f-display);
+  font-weight:800;
+  font-size:clamp(2.4rem,6vw,5rem);
+  line-height:1.02;
+  max-width:900px;
+  margin:0 auto;
+}
+.cta-title .brass{ color:var(--brass); }
+.cta-sub{
+  margin:26px auto 0;
+  max-width:460px;
+  color:var(--paper-dim);
+  font-size:16px;
+}
+.cta-actions{
+  display:flex; justify-content:center; gap:22px;
+  margin-top:44px;
+  flex-wrap:wrap;
+}
+.cta-deadline{
+  margin-top:36px;
+  font-family:var(--f-mono);
+  font-size:12.5px;
+  letter-spacing:.1em;
+  color:var(--paper-mute);
+}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+footer{ padding:80px 0 34px; }
+.foot-top{
+  display:grid;
+  grid-template-columns:1.4fr 1fr 1fr 1fr;
+  gap:40px;
+  padding-bottom:64px;
+  border-bottom:var(--edge);
+}
+.foot-brand{ max-width:280px; }
+.foot-mark{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:20px;
+  margin-bottom:16px;
+}
+.foot-mark span{ color:var(--brass); }
+.foot-desc{ color:var(--paper-dim); font-size:14px; line-height:1.65; }
+.foot-heading{
+  font-family:var(--f-mono);
+  font-size:11.5px;
+  letter-spacing:.12em;
+  color:var(--paper-mute);
+  margin-bottom:18px;
+}
+.foot-col a,.foot-col p{
+  display:block;
+  color:var(--paper-dim);
+  font-size:14.5px;
+  line-height:2.1;
+  transition:color .2s ease;
+}
+.foot-col a:hover{ color:var(--brass); }
+.foot-bottom{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-top:28px;
+  flex-wrap:wrap;
+  gap:14px;
+}
+.foot-legal{
+  font-family:var(--f-mono);
+  font-size:11.5px;
+  color:var(--paper-mute);
+  letter-spacing:.04em;
+}
+.foot-stamps{ display:flex; gap:8px; }
+.stamp{
+  font-family:var(--f-mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  border:1px solid var(--line);
+  padding:6px 10px;
+  color:var(--paper-dim);
+  transition:border-color .2s ease,color .2s ease;
+}
+.stamp:hover{ border-color:var(--brass); color:var(--brass); }
+
+@media (max-width:860px){
+  .foot-top{ grid-template-columns:1fr 1fr; }
+}
+@media (max-width:560px){
+  .foot-top{ grid-template-columns:1fr; }
+  .wrap{ padding:0 20px; }
+  .section{ padding:88px 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a href="#top" class="nav-mark">DISCOVERY<span>2K26</span></a>
+    <div class="nav-links">
+      <a href="#briefing">01 · Briefing</a>
+      <a href="#tracks">02 · Tracks</a>
+      <a href="#schedule">03 · Schedule</a>
+      <a href="#why">04 · Why Attend</a>
+      <a href="#register">05 · Register</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#register" class="btn-nav-register">Register a Team</a>
+      <button class="nav-burger" id="burgerBtn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose">CLOSE — ✕</button>
+  <a href="#briefing"><span>01</span>Briefing</a>
+  <a href="#tracks"><span>02</span>Tracks</a>
+  <a href="#schedule"><span>03</span>Schedule</a>
+  <a href="#why"><span>04</span>Why Attend</a>
+  <a href="#register"><span>05</span>Register</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="radar" id="radar">
+    <div class="radar-ring r1"></div>
+    <div class="radar-ring r2"></div>
+    <div class="radar-ring r3"></div>
+    <div class="radar-ring r4"></div>
+    <div class="radar-sweep" id="radarSweep"></div>
+    <div class="radar-blip" data-label="AI/DS" style="top:30%;left:62%;"></div>
+    <div class="radar-blip" data-label="MECH" style="top:64%;left:28%;"></div>
+    <div class="radar-blip" data-label="E&amp;TC" style="top:22%;left:24%;"></div>
+    <div class="radar-blip" data-label="CIVIL" style="top:70%;left:66%;"></div>
+    <div class="radar-blip" data-label="ROBOTICS" style="top:48%;left:82%;"></div>
+  </div>
+
+  <div class="wrap hero-inner">
+    <div class="hero-kicker">
+      <div class="eyebrow"><span class="dot"></span>TRANSMISSION LIVE — REGISTRATIONS OPEN</div>
+      <div class="hero-coords">16.95°N · 74.40°E — ADCET, ASHTA</div>
+    </div>
+
+    <h1 class="hero-title" id="heroTitle">
+      <span class="line" data-line><span>DISCOVERY</span></span>
+      <span class="line" data-line><span class="accent">20</span><span class="num">26</span></span>
+    </h1>
+
+    <p class="hero-sub">
+      One campus, one day, <b>24+ competitions</b> run by every engineering department at ADCET. Built by students, judged by industry, open to every college that wants in.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#register" class="btn-primary"><span>Register a Team</span></a>
+      <a href="#tracks" class="btn-ghost">View All Events</a>
+    </div>
+  </div>
+
+  <div class="hero-foot">
+    <div class="wrap">
+      <div class="countdown-cell"><div class="countdown-num" id="cdDays">00</div><div class="countdown-label">DAYS</div></div>
+      <div class="countdown-cell"><div class="countdown-num" id="cdHours">00</div><div class="countdown-label">HOURS</div></div>
+      <div class="countdown-cell"><div class="countdown-num" id="cdMins">00</div><div class="countdown-label">MINUTES</div></div>
+      <div class="countdown-cell"><div class="countdown-num" id="cdSecs">00</div><div class="countdown-label">SECONDS</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ TICKER ============ -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span><b>24+ EVENTS</b></span><span><b>10 DEPARTMENTS</b></span><span>ONE DAY ON CAMPUS</span><span>ADCET, ASHTA</span><span>NATIONAL LEVEL</span>
+    <span><b>24+ EVENTS</b></span><span><b>10 DEPARTMENTS</b></span><span>ONE DAY ON CAMPUS</span><span>ADCET, ASHTA</span><span>NATIONAL LEVEL</span>
+  </div>
+</div>
+
+<!-- ============ BRIEFING ============ -->
+<section class="section" id="briefing">
+  <div class="wrap">
+    <div class="file-tab">FILE 01 — BRIEFING</div>
+    <div class="section-head">
+      <h2 class="section-title">What Discovery actually is, in plain terms.</h2>
+      <p class="section-note">No filler track, no filler round. Every event on this campus is run and judged by the department it belongs to.</p>
+    </div>
+
+    <div class="briefing-grid" data-reveal>
+      <div class="briefing-copy">
+        <p><strong>Discovery 2K26</strong> is ADCET's national-level technical festival — a single day where Computer, AI &amp; DS, Mechanical, Civil, E&amp;TC, Electrical and Robotics all run their own competitions in parallel, on the same campus, in front of the same judges from industry.</p>
+        <p>It's organized end-to-end by students — the same clubs that run the department's year-round technical work — with faculty mentors backing every track. Outside teams are welcome on every event; there is no home-team advantage built into the judging.</p>
+        <div class="briefing-orgs">
+          <div class="org-stamp">AISA</div>
+          <div class="org-stamp">NEXUS CLUB</div>
+          <div class="org-stamp">TECHASTRA CLUB</div>
+        </div>
+      </div>
+      <div class="briefing-stats">
+        <div class="stat-row"><div class="stat-num">24+</div><div class="stat-label">COMPETITIONS<br>ACROSS 10 DEPARTMENTS</div></div>
+        <div class="stat-row"><div class="stat-num">1</div><div class="stat-label">CAMPUS<br>ONE-DAY FORMAT</div></div>
+        <div class="stat-row"><div class="stat-num redact"><span class="redact-bar" data-redact></span>₹1L+</div><div class="stat-label">IN PRIZES<br>ACROSS ALL TRACKS</div></div>
+        <div class="stat-row"><div class="stat-num">All</div><div class="stat-label">PARTICIPANTS<br>CERTIFIED</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRACKS ============ -->
+<section class="section section-alt" id="tracks">
+  <div class="wrap">
+    <div class="file-tab">FILE 02 — DEPARTMENTS</div>
+    <div class="section-head">
+      <h2 class="section-title">Choose a department. Find your event.</h2>
+      <p class="section-note">Select a department to see its events, then select an event for the format and focus.</p>
+    </div>
+  </div>
+
+  <div class="department-layout" data-department-app>
+    <div class="department-shell">
+      <div class="department-list" role="tablist" aria-label="Departments"></div>
+      <div class="department-events">
+        <div class="department-events-head"><div><div class="department-events-kicker" data-department-code></div><h3 class="department-events-title" data-department-title></h3></div><div class="department-events-count" data-department-count></div></div>
+        <div class="event-list" data-event-list role="tablist" aria-label="Department events"></div>
+        <div class="event-detail" data-event-detail aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="track-grid" data-track-grid aria-hidden="true" style="display:none">
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg></div>
+      <div class="track-code">STATION 01 / CSE</div>
+      <div class="track-name">Computer Engineering</div>
+      <div class="track-events"><span>Code Sprint</span><span>Bug Hunt</span><span>Web Wars</span></div>
+    </div>
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v6M12 13l-5.5 4M12 13l5.5 4"/></svg></div>
+      <div class="track-code">STATION 02 / AI&amp;DS</div>
+      <div class="track-name">AI &amp; Data Science</div>
+      <div class="track-events"><span>AI Build-a-thon</span><span>Data Dive</span></div>
+    </div>
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></svg></div>
+      <div class="track-code">STATION 03 / E&amp;TC</div>
+      <div class="track-name">Electronics &amp; Telecom</div>
+      <div class="track-events"><span>Circuit Break</span><span>IoT Sprint</span></div>
+    </div>
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg></div>
+      <div class="track-code">STATION 04 / MECH</div>
+      <div class="track-name">Mechanical Engineering</div>
+      <div class="track-events"><span>CAD Clash</span><span>Design Sprint</span></div>
+    </div>
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 18V9l5-4 5 4v9M13 18V9l5-4 5 4v9M3 18h18M8 18v-5M18 18v-5"/></svg></div>
+      <div class="track-code">STATION 05 / CIVIL</div>
+      <div class="track-name">Civil Engineering</div>
+      <div class="track-events"><span>Bridge It</span><span>Structura</span></div>
+    </div>
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="9" width="14" height="10" rx="1"/><path d="M9 9V6a3 3 0 0 1 6 0v3M9 14h.01M15 14h.01"/></svg></div>
+      <div class="track-code">STATION 06 / ROBO</div>
+      <div class="track-name">Robotics &amp; Automation</div>
+      <div class="track-events"><span>Bot Wars</span><span>Line Follower</span></div>
+    </div>
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+      <div class="track-code">STATION 07 / EE</div>
+      <div class="track-name">Electrical Engineering</div>
+      <div class="track-events"><span>Circuit Sim</span><span>Power Pitch</span></div>
+    </div>
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3z"/></svg></div>
+      <div class="track-code">STATION 08 / MGMT</div>
+      <div class="track-name">Management &amp; Ideation</div>
+      <div class="track-events"><span>Ideathon</span><span>Startup Pitch</span></div>
+    </div>
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div class="track-code">STATION 09 / OPEN</div>
+      <div class="track-name">Open Track</div>
+      <div class="track-events"><span>Tech Quiz</span><span>Poster Day</span></div>
+    </div>
+
+    <div class="track-card" data-track-card>
+      <div class="track-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="m15 9-2 6-6 2 2-6z"/></svg></div>
+      <div class="track-code">STATION 10 / OFF-GRID</div>
+      <div class="track-name">Treasure Hunt</div>
+      <div class="track-events"><span>Campus Hunt</span><span>Escape Protocol</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ SCHEDULE ============ -->
+<section class="section" id="schedule">
+  <div class="wrap">
+    <div class="file-tab">FILE 03 — MISSION CLOCK</div>
+    <div class="section-head">
+      <h2 class="section-title">How the day actually runs, hour by hour.</h2>
+      <p class="section-note">Times are the standard shape for the day — exact slots per track ship with your event pass.</p>
+    </div>
+
+    <div class="schedule">
+      <div class="schedule-side">
+        <div class="mission-clock">
+          DAY&nbsp;01<br>
+          ADCET CAMPUS<br>
+          GATES 08:00 IST<br>
+          CLOSE 17:00 IST
+        </div>
+      </div>
+
+      <div class="timeline" data-timeline>
+        <div class="timeline-line"><div class="timeline-line-fill" id="timelineFill"></div></div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-time">08:00</div>
+          <div class="timeline-title">Reporting &amp; Kit Distribution</div>
+          <div class="timeline-desc">Check-in, ID verification, event kits and campus maps handed out at the main gate.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-time">09:00</div>
+          <div class="timeline-title">Inaugural Ceremony</div>
+          <div class="timeline-desc">Welcome address, chief guest, and the formal flag-off for all ten stations.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-time">09:45</div>
+          <div class="timeline-title">Track Prelims — Session I</div>
+          <div class="timeline-desc">All departments run their opening rounds in parallel across their home labs and grounds.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-time">13:00</div>
+          <div class="timeline-title">Lunch Break</div>
+          <div class="timeline-desc">On-campus lunch for all registered participants and mentors.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-time">14:00</div>
+          <div class="timeline-title">Track Finals — Session II</div>
+          <div class="timeline-desc">Shortlisted teams present, build, or compete live in front of industry judges.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-time">16:30</div>
+          <div class="timeline-title">Judging &amp; Deliberation</div>
+          <div class="timeline-desc">Panels finalize scores while the main lawn opens for exhibits and demos.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-time">17:00</div>
+          <div class="timeline-title">Prize Distribution &amp; Closing</div>
+          <div class="timeline-desc">Winners announced station by station, closing address, and campus wrap.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHY ATTEND ============ -->
+<section class="section section-alt" id="why">
+  <div class="wrap">
+    <div class="file-tab">FILE 04 — WHY SHOW UP</div>
+    <div class="section-head">
+      <h2 class="section-title">What you actually walk away with.</h2>
+      <p class="section-note">Not just a certificate PDF. Six real reasons teams travel in for this.</p>
+    </div>
+  </div>
+
+  <div class="perks" data-perks>
+    <div class="perk-cell"><div class="perk-index">01</div><div class="perk-title">Cash Prizes &amp; Trophies</div><div class="perk-desc">Every track carries its own prize purse, paid out the same day.</div></div>
+    <div class="perk-cell"><div class="perk-index">02</div><div class="perk-title">Certified, No Exceptions</div><div class="perk-desc">Every registered participant leaves with a certificate — win or lose.</div></div>
+    <div class="perk-cell"><div class="perk-index">03</div><div class="perk-title">Judged by Industry</div><div class="perk-desc">Panels pull from working engineers and founders, not just faculty.</div></div>
+    <div class="perk-cell"><div class="perk-index">04</div><div class="perk-title">Cross-College Network</div><div class="perk-desc">Teams travel in from colleges across the country for this one.</div></div>
+    <div class="perk-cell"><div class="perk-index">05</div><div class="perk-title">Live Builds &amp; Exhibits</div><div class="perk-desc">The lawn stays open all day for demos, prototypes, and side projects.</div></div>
+    <div class="perk-cell"><div class="perk-index">06</div><div class="perk-title">Swag Worth Keeping</div><div class="perk-desc">Kits, merch, and campus food that doesn't taste like a fest budget.</div></div>
+  </div>
+</section>
+
+<div class="seam"><div class="seam-label">SIGNAL BOOSTED — ENTERING REGISTRATION ZONE</div></div>
+
+<!-- ============ REGISTER CTA ============ -->
+<section class="cta" id="register">
+  <div class="cta-grid-bg"></div>
+  <div class="wrap">
+    <div class="eyebrow" style="justify-content:center;margin-bottom:24px;"><span class="dot"></span>FILE 05 — REGISTRATION</div>
+    <h2 class="cta-title">Pick your station.<br>Bring your <span class="brass">team</span>.</h2>
+    <p class="cta-sub">Solo or squad, first-year or final-year — every track sets its own team size in its rulebook. Registration takes under five minutes.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn-primary"><span>Register a Team</span></a>
+      <a href="#" class="btn-ghost">Download Brochure</a>
+    </div>
+    <div class="cta-deadline">REGISTRATIONS CLOSE 48 HOURS BEFORE GATE OPEN</div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <div class="foot-mark">DISCOVERY<span>2K26</span></div>
+        <p class="foot-desc">ADCET's national-level technical festival. One campus, one day, every department running live.</p>
+      </div>
+      <div class="foot-col">
+        <div class="foot-heading">SECTIONS</div>
+        <a href="#briefing">Briefing</a>
+        <a href="#tracks">Tracks</a>
+        <a href="#schedule">Schedule</a>
+        <a href="#why">Why Attend</a>
+      </div>
+      <div class="foot-col">
+        <div class="foot-heading">ORGANIZED BY</div>
+        <p>AISA — Technical Cell</p>
+        <p>Nexus Club, ADCET</p>
+        <p>TechAstra Club, ADCET</p>
+      </div>
+      <div class="foot-col">
+        <div class="foot-heading">CONTACT</div>
+        <a href="mailto:discovery@adcet.ac.in">discovery@adcet.ac.in</a>
+        <p>ADCET, Ashta, Sangli — 416301</p>
+        <p>16.95°N · 74.40°E</p>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div class="foot-legal">DISCOVERY 2K26 — ADCET, ASHTA. ALL ROUNDS RUN ON CAMPUS.</div>
+      <div class="foot-stamps">
+        <span class="stamp">INSTAGRAM</span>
+        <span class="stamp">LINKEDIN</span>
+        <span class="stamp">WHATSAPP</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Department and event explorer ---------- */
+  var departments = [
+    { code:"AI&amp;DS", name:"AI &amp; Data Science", events:[["Paper Presentation","Present a research idea or technical study with clarity and evidence.","Presentation","Research &amp; communication"],["BGMI Dominator","Coordinate your squad, make smart calls and outplay the competition.","Team battle","Strategy &amp; teamwork"],["Coding Competition","Solve timed programming problems with efficient, reliable code.","Timed challenge","Logic &amp; problem solving"]]},
+    { code:"MECH", name:"Mechanical Engineering", events:[["Paper Presentation","Share a technical concept, experiment or innovation with a focused presentation.","Presentation","Technical communication"],["Robo Race","Build and drive a robot through a demanding course against the clock.","Live race","Robotics &amp; control"],["CAD Conqueror","Turn a design brief into an accurate, practical CAD model under time pressure.","Design challenge","CAD &amp; engineering design"]]},
+    { code:"EE", name:"Electrical Engineering", events:[["Paper Presentation","Explain an electrical engineering idea, application or emerging technology.","Presentation","Research &amp; communication"],["Circuit Builder","Design and assemble a working circuit that meets the given challenge conditions.","Build challenge","Circuits &amp; troubleshooting"],["Troubleshooting","Diagnose faults quickly and restore a circuit to working order.","Practical challenge","Analysis &amp; precision"]]},
+    { code:"CIVIL", name:"Civil Engineering", events:[["Paper Presentation","Present a civil engineering study or solution with sound technical reasoning.","Presentation","Research &amp; communication"],["AKRUTI","Create a thoughtful built-environment concept balancing function, form and feasibility.","Design challenge","Planning &amp; creativity"],["SETU","Apply structural thinking to design and build a dependable bridge model.","Build challenge","Structures &amp; teamwork"]]},
+    { code:"CSE", name:"Computer Science Engineering", events:[["Paper Presentation","Present a computing research idea, project or technology with a clear argument.","Presentation","Research &amp; communication"],["Code 2 Compete","Compete through algorithmic problems that reward speed, correctness and clean thinking.","Timed challenge","Algorithms &amp; programming"],["B-Plan","Pitch a viable technology-led business idea from problem discovery to execution.","Pitch challenge","Entrepreneurship &amp; strategy"]]},
+    { code:"AERO", name:"Aeronautical Engineering", events:[["Paper Presentation","Communicate an aviation or aerospace concept with technical depth and visual clarity.","Presentation","Research &amp; communication"],["Paper Glider: Flight Challenge","Fold, tune and launch a paper aircraft for maximum flight performance.","Flight challenge","Aerodynamics &amp; experimentation"],["Real Flight Simulator","Put aviation knowledge and decision-making to the test in a realistic simulator.","Simulation","Flight operations &amp; control"]]},
+    { code:"IOT&amp;CS", name:"IoT &amp; Cyber Security", events:[["Paper Presentation","Present an idea or study at the intersection of connected devices and security.","Presentation","Research &amp; communication"],["Ideathon","Develop and pitch an original solution to a real-world problem in a rapid ideation sprint.","Idea sprint","Innovation &amp; pitching"],["Box Cricket League","Bring fast teamwork and competitive energy to a compact cricket format.","Team league","Teamwork &amp; sportsmanship"]]},
+    { code:"BBA", name:"Business Administration", events:[["Paper Presentation","Make a persuasive, evidence-backed presentation on a business or management topic.","Presentation","Analysis &amp; communication"]]},
+    { code:"FOOD", name:"Food Technology", events:[["Functional Food","Explore food products designed to deliver benefits beyond basic nutrition.","Concept challenge","Nutrition &amp; innovation"],["New Product Development","Take a food idea from concept to a compelling, practical product proposal.","Product challenge","Development &amp; market thinking"]]}
+  ];
+  var departmentApp = document.querySelector("[data-department-app]");
+  if(departmentApp){
+    var departmentList = departmentApp.querySelector(".department-list"), eventList = departmentApp.querySelector("[data-event-list]"), departmentCode = departmentApp.querySelector("[data-department-code]"), departmentTitle = departmentApp.querySelector("[data-department-title]"), departmentCount = departmentApp.querySelector("[data-department-count]"), eventDetail = departmentApp.querySelector("[data-event-detail]"), selectedDepartment = 0;
+    function renderEvent(index){
+      var event = departments[selectedDepartment].events[index];
+      eventList.querySelectorAll(".event-button").forEach(function(button, buttonIndex){ var active = buttonIndex === index; button.classList.toggle("is-active",active); button.setAttribute("aria-selected",active); });
+      departmentApp.classList.add("is-detail");
+      eventDetail.innerHTML = '<button class="back-button" type="button" data-back-events>&lt;- BACK TO EVENTS</button><div class="department-events-kicker">'+departments[selectedDepartment].name+'</div><h4 class="event-detail-title">'+event[0]+'</h4><p class="event-detail-summary">'+event[1]+'</p><div class="event-detail-meta"><span>FORMAT <strong>'+event[2]+'</strong></span><span>FOCUS <strong>'+event[3]+'</strong></span></div>';
+    }
+    function renderDepartment(index){
+      if(index < 0){
+        departmentList.innerHTML = departments.map(function(item,itemIndex){ return '<button class="department-button" type="button" role="tab" aria-selected="false" data-department-index="'+itemIndex+'"><span class="department-index">0'+(itemIndex+1)+'</span><span class="department-name">'+item.name+'</span><span class="department-count">'+item.events.length+' EVT</span></button>'; }).join("");
+        departmentApp.classList.remove("is-events","is-detail");
+        return;
+      }
+      var department = departments[index]; selectedDepartment = index;
+      departmentList.innerHTML = departments.map(function(item,itemIndex){ return '<button class="department-button'+(itemIndex === index ? ' is-active' : '')+'" type="button" role="tab" aria-selected="'+(itemIndex === index)+'" data-department-index="'+itemIndex+'"><span class="department-index">0'+(itemIndex+1)+'</span><span class="department-name">'+item.name+'</span><span class="department-count">'+item.events.length+' EVT</span></button>'; }).join("");
+      departmentCode.innerHTML = "DEPARTMENT "+String(index+1).padStart(2,"0")+" / "+department.code; departmentTitle.innerHTML = department.name; departmentCount.textContent = department.events.length+(department.events.length === 1 ? " EVENT" : " EVENTS");
+      departmentApp.classList.add("is-events"); departmentApp.classList.remove("is-detail");
+      eventList.innerHTML = department.events.map(function(event,eventIndex){ return '<button class="event-button" type="button" role="tab" aria-selected="false" data-event-index="'+eventIndex+'"><span>'+event[0]+'</span><span class="department-count">VIEW</span></button>'; }).join("");
+    }
+    departmentList.addEventListener("click",function(event){ var button = event.target.closest("[data-department-index]"); if(button){ renderDepartment(Number(button.dataset.departmentIndex)); } });
+    eventList.addEventListener("click",function(event){ var button = event.target.closest("[data-event-index]"); if(button){ renderEvent(Number(button.dataset.eventIndex)); } });
+    eventDetail.addEventListener("click",function(event){ if(event.target.closest("[data-back-events]")){ departmentApp.classList.remove("is-detail"); } });
+    renderDepartment(-1);
+  }
+
+  /* ---------- Nav scroll state ---------- */
+  var nav = document.getElementById("nav");
+  window.addEventListener("scroll", function(){
+    if(window.scrollY > 40){ nav.classList.add("is-scrolled"); }
+    else{ nav.classList.remove("is-scrolled"); }
+  });
+
+  /* ---------- Mobile menu ---------- */
+  var burger = document.getElementById("burgerBtn");
+  var mobileMenu = document.getElementById("mobileMenu");
+  var mobileClose = document.getElementById("mobileClose");
+  if(burger){
+    burger.addEventListener("click", function(){ mobileMenu.classList.add("is-open"); });
+    mobileClose.addEventListener("click", function(){ mobileMenu.classList.remove("is-open"); });
+    mobileMenu.querySelectorAll("a").forEach(function(a){
+      a.addEventListener("click", function(){ mobileMenu.classList.remove("is-open"); });
+    });
+  }
+
+  /* ---------- Countdown ---------- */
+  var target = new Date("2026-10-17T09:00:00+05:30").getTime();
+  var dEl=document.getElementById("cdDays"), hEl=document.getElementById("cdHours"),
+      mEl=document.getElementById("cdMins"), sEl=document.getElementById("cdSecs");
+  function pad(n){ return String(n).padStart(2,"0"); }
+  function tick(){
+    var now = Date.now();
+    var diff = Math.max(0, target-now);
+    var d = Math.floor(diff/86400000);
+    var h = Math.floor((diff%86400000)/3600000);
+    var m = Math.floor((diff%3600000)/60000);
+    var s = Math.floor((diff%60000)/1000);
+    if(dEl){ dEl.textContent=pad(d); hEl.textContent=pad(h); mEl.textContent=pad(m); sEl.textContent=pad(s); }
+  }
+  tick(); setInterval(tick,1000);
+
+  /* ---------- Hero title split-reveal ---------- */
+  document.querySelectorAll("[data-line] > span").forEach(function(span){
+    var txt = span.innerHTML;
+    span.innerHTML = "";
+    var words = txt.split(/(<span class="accent">.*?<\/span>|<span class="num">.*?<\/span>)/).filter(Boolean);
+    // fallback: simple whole-span reveal if parsing gets complex
+    span.innerHTML = txt;
+  });
+
+  /* ---------- GSAP setup ---------- */
+  if(window.gsap){
+    gsap.registerPlugin(ScrollTrigger);
+
+    var mm = gsap.matchMedia();
+
+    mm.add("(prefers-reduced-motion: no-preference)", function(){
+
+      /* Hero load timeline */
+      var tl = gsap.timeline({ defaults:{ ease:"power3.out" } });
+      tl.from(".hero-kicker", { y:16, autoAlpha:0, duration:0.6 })
+        .from("[data-line] > span", { yPercent:110, duration:0.9, stagger:0.12, ease:"power4.out" }, "-=0.2")
+        .from(".hero-sub", { y:16, autoAlpha:0, duration:0.6 }, "-=0.35")
+        .from(".hero-actions", { y:16, autoAlpha:0, duration:0.6 }, "-=0.4")
+        .from(".hero-foot .countdown-cell", { autoAlpha:0, y:10, duration:0.5, stagger:0.08 }, "-=0.3")
+        .from(".radar", { autoAlpha:0, scale:0.9, duration:1, ease:"power2.out" }, "-=1");
+
+      /* Ticker fade in */
+      gsap.from(".ticker", { autoAlpha:0, duration:0.8, scrollTrigger:{ trigger:".ticker", start:"top 95%" } });
+
+      /* Redacted bars declassify on scroll */
+      gsap.utils.toArray("[data-redact]").forEach(function(bar){
+        gsap.to(bar, {
+          scaleX:0, duration:0.7, ease:"power3.inOut",
+          scrollTrigger:{ trigger:bar, start:"top 85%" }
+        });
+      });
+
+      /* Briefing grid reveal */
+      gsap.from("[data-reveal] .briefing-copy > *", {
+        y:24, autoAlpha:0, duration:0.7, stagger:0.1, ease:"power2.out",
+        scrollTrigger:{ trigger:"[data-reveal]", start:"top 75%" }
+      });
+      gsap.from("[data-reveal] .stat-row", {
+        x:24, autoAlpha:0, duration:0.6, stagger:0.08, ease:"power2.out",
+        scrollTrigger:{ trigger:"[data-reveal]", start:"top 75%" }
+      });
+
+      /* Track cards clip-wipe reveal */
+      gsap.utils.toArray("[data-track-card]").forEach(function(card, i){
+        gsap.fromTo(card,
+          { clipPath:"inset(0 0 0 100%)" },
+          { clipPath:"inset(0 0 0 0%)", duration:0.7, ease:"power3.out",
+            delay:(i%3)*0.08,
+            scrollTrigger:{ trigger:card, start:"top 92%" } }
+        );
+      });
+
+      /* Timeline draw */
+      var fill = document.getElementById("timelineFill");
+      if(fill){
+        gsap.to(fill, {
+          scaleY:1, ease:"none",
+          scrollTrigger:{
+            trigger:"[data-timeline]",
+            start:"top 70%",
+            end:"bottom 60%",
+            scrub:0.6
+          }
+        });
+      }
+      gsap.utils.toArray(".timeline-item").forEach(function(item){
+        gsap.from(item, {
+          x:-20, autoAlpha:0, duration:0.6, ease:"power2.out",
+          scrollTrigger:{ trigger:item, start:"top 85%" }
+        });
+      });
+
+      /* Perks stagger */
+      gsap.from("[data-perks] .perk-cell", {
+        autoAlpha:0, y:20, duration:0.6, stagger:0.06, ease:"power2.out",
+        scrollTrigger:{ trigger:"[data-perks]", start:"top 85%" }
+      });
+
+      /* CTA reveal */
+      gsap.from(".cta-title, .cta-sub, .cta-actions, .cta-deadline", {
+        y:24, autoAlpha:0, duration:0.7, stagger:0.1, ease:"power2.out",
+        scrollTrigger:{ trigger:".cta", start:"top 70%" }
+      });
+
+    });
+
+    mm.add("(prefers-reduced-motion: reduce)", function(){
+      gsap.set("[data-line] > span, .hero-kicker, .hero-sub, .hero-actions, .radar, [data-track-card], .timeline-item, [data-perks] .perk-cell, .cta-title, .cta-sub, .cta-actions, .cta-deadline", { clearProps:"all" });
+      document.querySelectorAll("[data-redact]").forEach(function(b){ b.style.transform="scaleX(0)"; });
+      var fillR = document.getElementById("timelineFill");
+      if(fillR){ fillR.style.transform="scaleY(1)"; }
+    });
+  }
+})();
+</script>
+</body>
+</html>

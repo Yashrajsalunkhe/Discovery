@@ -442,7 +442,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: backendFeeBreakdown?.totalAmountInPaise || feeBreakdown?.totalAmountInPaise || 0,
         currency: "INR",
-        name: "Discovery ADCET 2025",
+        name: "Discovery ADCET 2K26",
         description: `Registration for ${registrationData.selectedEvent}`,
         image: window.location.origin + "/event-images/temp_icon.png", // Your logo
         order_id: orderId,
@@ -521,7 +521,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           }
         },
         theme: {
-          color: "#3b82f6"
+          color: "#E8B923"
         }
       };
 
@@ -558,28 +558,28 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   if (isSubmitted && (paymentStatus === 'success' || paymentStatus === 'pending')) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md text-center">
+        <Card className="w-full max-w-md text-center border-line bg-panel">
           <CardContent className="pt-6">
-            <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold text-green-600 mb-2">
+            <CheckCircle className="mx-auto h-16 w-16 text-brass mb-4" />
+            <h2 className="text-2xl font-bold text-brass mb-2">
               {paymentStatus === 'pending' ? 'Payment Received' : 'Registration Successful!'}
             </h2>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-paper-dim mb-4">
               Thank you for registering{eventTitle ? ` for ${eventTitle}` : ""}. 
               {paymentStatus === 'pending'
                 ? 'Your payment was received successfully. Your registration is being confirmed.'
                 : 'Your payment has been confirmed and registration is complete.'}
             </p>
-            <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200 mb-6">
-              <p className="text-lg font-semibold flex items-center justify-center gap-1 text-green-700">
+            <div className="bg-brass/10 p-4 rounded-lg border border-brass/30 mb-6">
+              <p className="text-lg font-semibold flex items-center justify-center gap-1 text-brass">
                 <CheckCircle className="h-5 w-5" />
                 {paymentStatus === 'pending' ? 'Registration Pending Confirmation' : 'Payment Confirmed'}
               </p>
-              <p className="text-sm text-green-600 mt-1">
+              <p className="text-sm text-paper-dim mt-1">
                 Total Fee: {formatCurrency(feeBreakdown?.totalAmount || 0)}
               </p>
             </div>
-            <p className="text-sm text-muted-foreground mb-6">
+            <p className="text-sm text-paper-mute mb-6">
               You will receive a confirmation email with payment receipt and further instructions shortly.
             </p>
             <div className="space-y-2">
@@ -591,12 +591,12 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                   form.reset();
                 }} 
                 variant="outline" 
-                className="w-full"
+                className="w-full border-line text-paper hover:bg-panel-2"
               >
                 Register Another Participant
               </Button>
               {onBack && (
-                <Button onClick={onBack} className="w-full">
+                <Button onClick={onBack} className="w-full bg-brass text-ink hover:bg-brass/90">
                   Back to Events
                 </Button>
               )}
@@ -613,25 +613,26 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         {/* Back Button */}
         {onBack && (
           <div className="flex items-center gap-4 mb-6 sm:mb-8">
-            <Button variant="ghost" onClick={onBack} className="hover:bg-primary/20">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {eventTitle ? "Back to Events" : "Back to Home"}
-            </Button>
+            <button onClick={onBack} className="font-mono text-[11px] tracking-[.08em] text-paper-dim py-2 pb-2.5 border-b border-line hover:text-brass hover:border-brass transition-colors duration-200 flex items-center gap-2">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              {eventTitle ? "BACK TO EVENTS" : "BACK TO HOME"}
+            </button>
           </div>
         )}
         
-        <Card className="relative">
-          <CardHeader className="text-center">
+        <Card className="relative border-line bg-panel">
+          <CardHeader className="text-center border-b border-line">
+            <div className="file-tab mx-auto mb-4">REGISTRATION</div>
             <div className="flex items-center justify-center mb-4">
-              <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-primary mr-2" />
-              <CardTitle className="text-2xl sm:text-3xl font-bold">Event Registration</CardTitle>
+              <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-brass mr-2" />
+              <CardTitle className="text-2xl sm:text-3xl font-bold text-paper">Event Registration</CardTitle>
             </div>
             {eventTitle && (
-              <CardDescription className="text-base sm:text-lg">
-                Register for: <span className="font-semibold text-primary">{eventTitle}</span>
+              <CardDescription className="text-base sm:text-lg text-paper-dim">
+                Register for: <span className="font-semibold text-brass">{eventTitle}</span>
               </CardDescription>
             )}
-            <CardDescription>
+            <CardDescription className="text-paper-mute">
               Fill out the registration form step by step to complete your registration.
             </CardDescription>
           </CardHeader>
@@ -639,13 +640,13 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           {/* Registration Closed Message */}
           {registrationsClosed && (
             <div className="mx-6 mt-6 mb-4">
-              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 text-center">
+              <div className="bg-crimson/10 border-2 border-crimson/30 rounded-lg p-6 text-center">
                 <div className="text-6xl mb-4">🚫</div>
-                <h3 className="text-2xl font-bold text-red-800 mb-3">
+                <h3 className="text-2xl font-bold text-crimson mb-3">
                   Registrations Are Now Closed
                 </h3>
-                <p className="text-red-600 text-lg">
-                  Thank you for your interest in Discovery 2K25. Online registrations have ended.
+                <p className="text-crimson/80 text-lg">
+                  Thank you for your interest in Discovery 2K26. Online registrations have ended.
                 </p>
               </div>
             </div>
@@ -675,9 +676,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 
                 {/* Leader Details Section */}
-                <div className="bg-muted/30 p-6 rounded-lg border-2 border-primary/20">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <User className="h-5 w-5 text-primary" />
+                <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
+                    <User className="h-5 w-5 text-brass" />
                     Leader (Main Registrant) Details
                   </h3>
                   
@@ -805,9 +806,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                 </div>
 
                 {/* Event Selection Section */}
-                <div className="bg-muted/30 p-6 rounded-lg border-2 border-primary/20">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Award className="h-5 w-5 text-primary" />
+                <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
+                    <Award className="h-5 w-5 text-brass" />
                     Event Selection
                   </h3>
                   
@@ -944,9 +945,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                 </div>
 
                 {/* Team Size & Fees Section */}
-                <div className="bg-muted/30 p-6 rounded-lg border-2 border-primary/20">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Users className="h-5 w-5 text-primary" />
+                <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
+                    <Users className="h-5 w-5 text-brass" />
                     Team Size & Fees
                   </h3>
                   
@@ -1053,9 +1054,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
                 {/* Team Members Section - Only show if team is selected */}
                 {participationType === "team" && teamSize > 1 && (
-                  <div ref={teamMembersRef} className="bg-muted/30 p-6 rounded-lg border-2 border-primary/20">
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <Users className="h-5 w-5 text-primary" />
+                  <div ref={teamMembersRef} className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
+                      <Users className="h-5 w-5 text-brass" />
                       {selectedEvent?.name === "Box Cricket League" ? "Box Cricket Team Members (5 more required)" : "Team Member Details"}
                     </h3>
                     
@@ -1129,7 +1130,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                 )}
 
                 {/* Fee Display with Breakdown */}
-                <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/30">
+                <div className="bg-brass/5 p-4 rounded-lg border border-brass/30">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">
@@ -1140,11 +1141,11 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-primary flex items-center gap-1">
+                      <p className="text-2xl font-bold text-brass flex items-center gap-1">
                         <IndianRupee className="h-5 w-5" />
                         {feeBreakdown?.totalAmount?.toFixed(2) || '0.00'}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-paper-mute">
                         ₹100/- per member
                       </p>
                     </div>
@@ -1152,7 +1153,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                   
                   {/* Fee Breakdown */}
                   {feeBreakdown && (
-                    <div className="mt-3 pt-3 border-t border-primary/20">
+                    <div className="mt-3 pt-3 border-t border-brass/20">
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Event Fee:</span>
@@ -1162,7 +1163,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                           <span className="text-muted-foreground">Processing Charges:</span>
                           <span>{formatCurrency(feeBreakdown.processingCharges)}</span>
                         </div>
-                        <div className="flex justify-between font-medium pt-1 border-t border-primary/20">
+                        <div className="flex justify-between font-medium pt-1 border-t border-brass/20">
                           <span>Total Payable:</span>
                           <span>{formatCurrency(feeBreakdown.totalAmount)}</span>
                         </div>
@@ -1172,16 +1173,16 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                 </div>
 
                 {/* Payment Notice */}
-                <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+                <div className="bg-brass/5 border border-brass/20 p-4 rounded-lg">
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="h-5 w-5 text-brass" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-orange-800">Payment Information</h4>
-                      <p className="text-sm text-orange-700 mt-1">
+                      <h4 className="text-sm font-semibold text-brass">Payment Information</h4>
+                      <p className="text-sm text-paper-dim mt-1">
                         Registration will only be confirmed after successful payment. The processing charges shown above include payment gateway fees to ensure you receive the exact event fee amount. You will be redirected to a secure payment gateway to complete the transaction.
                       </p>
                     </div>
@@ -1204,7 +1205,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                   <Button
                     type="submit"
                     disabled={isSubmitting || !selectedEvent || registrationsClosed}
-                    className="flex-1"
+                    className="flex-1 bg-brass text-ink hover:bg-brass/90 font-mono text-[13px] tracking-[.06em]"
                   >
                     {isSubmitting ? (
                       <>

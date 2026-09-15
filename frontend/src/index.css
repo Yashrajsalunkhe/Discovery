@@ -2,253 +2,296 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Discovery 2K25 Festival Design System - Futuristic Neon Theme */
+/* ============================================================
+   DISCOVERY 2K26 — Mission-Control Design System
+   ============================================================ */
 
 @layer base {
   :root {
-    /* Dark futuristic base */
-    --background: 220 27% 8%;
-    --foreground: 0 0% 98%;
+    /* --- Ink & Surface tokens --- */
+    --ink:       #0A0C10;
+    --ink-soft:  #0D1015;
+    --panel:     #12151B;
+    --panel-2:   #191D25;
+    --line:      #262B35;
+    --line-soft: rgba(237,234,226,0.08);
 
-    /* Card surfaces with subtle transparency */
-    --card: 220 27% 12%;
-    --card-foreground: 0 0% 98%;
+    /* --- Text tokens --- */
+    --paper:     #EDEAE2;
+    --paper-dim: #97A0AC;
+    --paper-mute:#5E6672;
 
-    /* Popover elements */
-    --popover: 220 27% 10%;
-    --popover-foreground: 0 0% 98%;
+    /* --- Accent tokens --- */
+    --cobalt:    #3D6BFF;
+    --cobalt-dim:#1C2C63;
+    --brass:     #E8B923;
+    --brass-dim: #4A3D14;
+    --crimson:   #E14B4B;
 
-    /* Primary neon cyan */
-    --primary: 180 100% 50%;
-    --primary-foreground: 220 27% 8%;
+    /* --- Fonts --- */
+    --f-display: 'Unbounded', sans-serif;
+    --f-body:    'IBM Plex Sans', sans-serif;
+    --f-mono:    'IBM Plex Mono', monospace;
 
-    /* Secondary neon purple */
-    --secondary: 280 100% 70%;
-    --secondary-foreground: 220 27% 8%;
+    /* --- Layout --- */
+    --edge: 1px solid var(--line);
+    --container: 1240px;
 
-    /* Muted elements */
-    --muted: 220 27% 15%;
-    --muted-foreground: 220 9% 65%;
-
-    /* Accent neon pink */
-    --accent: 320 100% 70%;
-    --accent-foreground: 220 27% 8%;
-
-    /* Destructive neon red */
-    --destructive: 0 100% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    /* Borders and inputs */
-    --border: 220 27% 20%;
-    --input: 220 27% 15%;
-    --ring: 180 100% 50%;
-
-    /* Festival specific colors */
-    --neon-blue: 210 100% 50%;
-    --neon-purple: 280 100% 70%;
-    --neon-pink: 320 100% 70%;
-    --neon-orange: 30 100% 60%;
-    --neon-green: 120 100% 50%;
-    
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(220 27% 8%), hsl(280 100% 10%));
-    --gradient-neon: linear-gradient(45deg, hsl(180 100% 50%), hsl(280 100% 70%), hsl(320 100% 70%));
-    --gradient-card: linear-gradient(135deg, hsl(220 27% 12% / 0.8), hsl(280 100% 10% / 0.8));
-    
-    /* Shadows with neon glow */
-    --shadow-neon: 0 0 20px hsl(180 100% 50% / 0.3);
-    --shadow-card: 0 10px 30px hsl(220 27% 8% / 0.5);
-    
-    /* Animation timing */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-    --radius: 0.75rem;
+    /* --- shadcn compatibility (mapped to mission-control tokens) --- */
+    --background: 220 27% 4%;
+    --foreground: 42 25% 91%;
+    --card: 220 21% 9%;
+    --card-foreground: 42 25% 91%;
+    --popover: 220 21% 7%;
+    --popover-foreground: 42 25% 91%;
+    --primary: 226 100% 62%;
+    --primary-foreground: 220 27% 4%;
+    --secondary: 44 80% 53%;
+    --secondary-foreground: 220 27% 4%;
+    --muted: 220 18% 13%;
+    --muted-foreground: 216 12% 52%;
+    --accent: 44 80% 53%;
+    --accent-foreground: 220 27% 4%;
+    --destructive: 0 68% 58%;
+    --destructive-foreground: 42 25% 91%;
+    --border: 220 16% 18%;
+    --input: 220 18% 13%;
+    --ring: 226 100% 62%;
+    --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-
-  /* Light mode not needed for festival theme - keeping dark aesthetic */
 }
 
-/* Custom utility classes for festival effects */
-@layer utilities {
-  .text-gradient {
-    @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
-  }
-  
-  .neon-glow {
-    box-shadow: var(--shadow-neon);
-  }
-  
-  .hero-pattern {
-    background-image: 
-      radial-gradient(circle at 20% 50%, hsl(180 100% 50% / 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, hsl(280 100% 70% / 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, hsl(320 100% 70% / 0.1) 0%, transparent 50%);
-  }
-  
-  .geometric-pattern {
-    background-image: 
-      linear-gradient(45deg, hsl(180 100% 50% / 0.05) 25%, transparent 25%),
-      linear-gradient(-45deg, hsl(280 100% 70% / 0.05) 25%, transparent 25%);
-    background-size: 30px 30px;
-  }
-  
-  .festival-card {
-    @apply bg-gradient-to-br from-card/80 to-muted/60 backdrop-blur-sm border border-border/30;
-    box-shadow: var(--shadow-card);
-  }
-  
-  .hover-float {
-    @apply transition-transform duration-300;
-  }
-
-  /* New minimalistic about section utilities */
-  .delay-200 {
-    animation-delay: 200ms;
-  }
-  
-  .delay-400 {
-    animation-delay: 400ms;
-  }
-  
-  .delay-600 {
-    animation-delay: 600ms;
-  }
-
-  .glassmorphism {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
-  }
-
-  .minimal-gradient-text {
-    @apply bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent;
-  }
-
-  .subtle-glow {
-    box-shadow: 0 0 50px rgba(34, 211, 238, 0.15);
-  }
-  
-  /* Reduce animations for users who prefer reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    .hover-float {
-      @apply transition-none;
-    }
-    
-    .animate-fade-in,
-    .animate-slide-in-left,
-    .animate-slide-in-right,
-    .animate-scale-in,
-    .animate-float {
-      animation: none !important;
-    }
-  }
-  
-  /* Only enable hover effects on non-touch devices for better performance */
-  @media (hover: hover) {
-    .hover-float:hover {
-      @apply -translate-y-2 scale-[1.02];
-    }
-  }
-}
-
+/* ============================================================
+   GLOBAL RESETS & BASE STYLES
+   ============================================================ */
 @layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--ink);
+  }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--f-body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+  ::selection { background: var(--brass); color: var(--ink); }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--f-display);
+  }
+
   * {
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground font-poppins;
-    background: var(--gradient-hero);
-    min-height: 100vh;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-orbitron;
-  }
-  
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    @apply bg-background;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    @apply bg-primary/50 rounded-full;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary/70;
-  }
-  
-  .z-15 {
-    z-index: 15;
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--ink); }
+  ::-webkit-scrollbar-thumb { background: var(--brass); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { opacity: 0.8; }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+@layer utilities {
+  .wrap {
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 0 32px;
   }
 
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    /* Reduce motion on mobile for better performance */
-    .animate-float {
-      animation: none;
-    }
-    
-    /* Better touch targets */
-    button, .clickable {
-      min-height: 44px;
-      min-width: 44px;
-    }
-    
-    /* Improved text readability on small screens */
-    body {
-      font-size: 16px;
-      line-height: 1.6;
-    }
-    
-    /* Prevent horizontal scroll */
-    html, body {
-      overflow-x: hidden;
-      max-width: 100vw;
-    }
-    
-    /* Better input styling on mobile */
-    input, textarea, select {
-      font-size: 16px; /* Prevents zoom on iOS */
-    }
-    
-    /* Hide scrollbars in navbar */
-    nav {
-      overflow: hidden;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE and Edge */
-    }
-    
-    nav::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
-    }
+  /* Eyebrow label */
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.14em;
+    color: var(--paper-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--brass);
+    box-shadow: 0 0 0 3px var(--brass-dim);
   }
 
-  /* Extra small devices */
-  @media (max-width: 475px) {
-    .container {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
+  /* File tab */
+  .file-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    letter-spacing: .12em;
+    color: var(--brass);
+    border: 1px solid var(--brass-dim);
+    padding: 6px 12px;
+    margin-bottom: 28px;
   }
+
+  /* Buttons */
+  .btn-primary {
+    font-family: var(--f-mono);
+    font-size: 13px;
+    letter-spacing: .06em;
+    background: var(--brass);
+    color: var(--ink);
+    padding: 16px 30px;
+    border: 1px solid var(--brass);
+    position: relative;
+    overflow: hidden;
+    transition: color .25s ease;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+  }
+  .btn-primary span { position: relative; z-index: 2; }
+  .btn-primary::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: var(--paper);
+    transform: translateX(-101%);
+    transition: transform .3s cubic-bezier(.65,0,.35,1);
+  }
+  .btn-primary:hover::before { transform: translateX(0); }
+
+  .btn-ghost {
+    font-family: var(--f-mono);
+    font-size: 13px;
+    letter-spacing: .06em;
+    color: var(--paper);
+    padding: 16px 6px;
+    border-bottom: 1px solid var(--line);
+    transition: border-color .25s ease, color .25s ease;
+    display: inline-block;
+    cursor: pointer;
+  }
+  .btn-ghost:hover { border-color: var(--cobalt); color: var(--cobalt); }
+
+  .btn-nav-register {
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    letter-spacing: .06em;
+    color: var(--ink);
+    background: var(--paper);
+    padding: 9px 18px;
+    border: 1px solid var(--paper);
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+    display: inline-block;
+    cursor: pointer;
+  }
+  .btn-nav-register:hover { background: var(--brass); border-color: var(--brass); }
+
+  /* Section shell */
+  .section {
+    position: relative;
+    padding: 120px 0;
+    border-bottom: var(--edge);
+  }
+  .section-alt { background: var(--ink-soft); }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 40px;
+    margin-bottom: 64px;
+    flex-wrap: wrap;
+  }
+  .section-title {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 4.4vw, 3.4rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    max-width: 640px;
+  }
+  .section-note {
+    max-width: 340px;
+    font-size: 15px;
+    color: var(--paper-dim);
+    line-height: 1.65;
+    padding-bottom: 6px;
+  }
+
+  /* Org stamps */
+  .org-stamp {
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    letter-spacing: .08em;
+    color: var(--paper-dim);
+    border: 1px solid var(--line);
+    padding: 7px 12px;
+  }
+
+  /* Social stamps */
+  .stamp {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: .08em;
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    color: var(--paper-dim);
+    transition: border-color .2s ease, color .2s ease;
+    cursor: pointer;
+  }
+  .stamp:hover { border-color: var(--brass); color: var(--brass); }
+
+  /* Reduce animations for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .hover-float { transition: none; }
+  }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 0 20px; }
+    .section { padding: 88px 0; }
+  }
+}
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+@keyframes sweep { to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes ticker { to { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-sweep { animation: none !important; }
+  .ticker-track { animation-play-state: paused !important; }
 }
