@@ -27,7 +27,10 @@ export const checkDuplicate = async (req: Request, res: Response, next: NextFunc
       ]
     });
     
-    if (existing) {
+    const samePayment = existing && req.body.paymentId && existing.paymentId === req.body.paymentId;
+    const sameOrder = existing && req.body.orderId && existing.orderId === req.body.orderId;
+
+    if (existing && !samePayment && !sameOrder) {
       res.status(409).json({ 
         success: false, 
         error: 'User with this email or phone already registered for this event' 

@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 import { Request, Response } from 'express';
 import { sendWelcomeEmail } from './utils/mail.js';
 import { getNextRegistrationId } from './utils/atomicCounter.js';
-import { guaranteedQueueWrite, processGuaranteedQueue } from './utils/guaranteedQueue.js';
+import { guaranteedQueueWrite } from './utils/guaranteedQueue.js';
+import Razorpay from 'razorpay';
+import { Payment, type PaymentRegistrationContext } from './utils/payment.js';
 
 dotenv.config();
 
@@ -117,6 +119,9 @@ const registrationSchema = new Schema<RegistrationDoc>({
   createdAt: { type: Date, default: Date.now }
 });
 
+registrationSchema.index({ paymentId: 1 }, { unique: true });
+registrationSchema.index({ orderId: 1 }, { unique: true });
+
 export const Registration = mongoose.model<RegistrationDoc>('Registration', registrationSchema, 'registrations');
 
 // Enhanced registration function with atomic operations, transactions, and retry logic
@@ -172,6 +177,74 @@ export const saveRegistrationWithRetry = async (registrationData: any, maxRetrie
   
   throw lastError!;
 };
+
+export async function processPaidOrder(
+  orderId: string,
+  paymentId: string,
+  signature: string,
+  registrationData?: PaymentRegistrationContext
+): Promise<{ registrationId?: number; pending?: boolean }> {
+  await connectToMongoDB();
+  const paymentRecord = await Payment.findOne({ orderId });
+  if (!paymentRecord) throw new Error('PAYMENT_RECORD_NOT_FOUND');
+
+  const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID as string,
+    key_secret: process.env.RAZORPAY_KEY_SECRET as string
+  });
+  const [order, payment] = await Promise.all([
+    razorpay.orders.fetch(orderId),
+    razorpay.payments.fetch(paymentId)
+  ]);
+
+  if (payment.order_id !== orderId || payment.amount !== order.amount || order.amount !== paymentRecord.amount || payment.currency !== order.currency) {
+    await Payment.updateOne({ _id: paymentRecord._id }, { $set: { status: 'MISMATCHED', registrationStatus: 'FAILED' } });
+    console.error('PAYMENT_AMOUNT_MISMATCH', { orderId, paymentId });
+    throw new Error('PAYMENT_AMOUNT_MISMATCH');
+  }
+
+  if (payment.status !== 'captured' || order.status !== 'paid') {
+    await Payment.updateOne({ _id: paymentRecord._id }, { $set: { status: payment.status === 'authorized' ? 'AUTHORIZED' : 'CREATED', registrationStatus: 'PENDING' } });
+    return { pending: true };
+  }
+
+  const existing = await Registration.findOne({ $or: [{ paymentId }, { orderId }] });
+  if (existing) {
+    await Payment.updateOne({ _id: paymentRecord._id }, { $set: { paymentId, status: 'CAPTURED', registrationStatus: 'CONFIRMED', registrationId: existing.registrationId } });
+    console.log('REGISTRATION_ALREADY_EXISTS', { orderId, paymentId, registrationId: existing.registrationId });
+    return { registrationId: existing.registrationId };
+  }
+
+  const context = paymentRecord.registrationData || registrationData;
+  if (!context) {
+    await Payment.updateOne({ _id: paymentRecord._id }, { $set: { status: 'CAPTURED', registrationStatus: 'PENDING', paymentId } });
+    return { pending: true };
+  }
+
+  const claimed = await Payment.findOneAndUpdate(
+    { _id: paymentRecord._id, registrationStatus: 'PENDING' },
+    { $set: { paymentId, status: 'CAPTURED', registrationStatus: 'PROCESSING' } },
+    { new: true }
+  );
+  if (!claimed) {
+    const confirmed = await Registration.findOne({ $or: [{ paymentId }, { orderId }] });
+    return confirmed ? { registrationId: confirmed.registrationId } : { pending: true };
+  }
+
+  try {
+    const saved = await saveRegistrationWithRetry({ ...context, paymentId, orderId, signature: signature || `webhook:${paymentId}` }, 5);
+    await Payment.updateOne({ _id: paymentRecord._id }, { $set: { registrationStatus: 'CONFIRMED', registrationId: saved.registrationId } });
+    console.log('REGISTRATION_CONFIRMED', { orderId, paymentId, registrationId: saved.registrationId });
+    sendWelcomeEmail(saved.leaderEmail, saved.registrationId.toString(), saved.leaderName, saved.leaderYear, saved.leaderMobile, saved.selectedEvent, saved.leaderCollege)
+      .catch(error => console.error('EMAIL_FAILED', { registrationId: saved.registrationId, error }));
+    return { registrationId: saved.registrationId };
+  } catch (error: any) {
+    await Payment.updateOne({ _id: paymentRecord._id }, { $set: { status: 'CAPTURED', registrationStatus: 'PENDING', paymentId } });
+    await guaranteedQueueWrite(paymentId, orderId, signature || `webhook:${paymentId}`, context);
+    console.error('REGISTRATION_PROCESSING_FAILED', { orderId, paymentId, error: error.message });
+    return { pending: true };
+  }
+}
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -229,97 +302,23 @@ export const registerUser = async (req: Request, res: Response) => {
       signature,
       totalFee: Number(totalFee)
     };
-    
-    // 🔒 GUARANTEED APPROACH: First save to persistent queue
-    try {
-      // Step 1: GUARANTEED write to queue (this MUST succeed for successful payment)
-      const queueId = await guaranteedQueueWrite(paymentId, orderId, signature, normalizedData);
-      console.log(`✅ Payment ${paymentId} guaranteed in queue with ID: ${queueId}`);
-      
-      // Step 2: Try immediate processing (best case - user gets instant response)
-      try {
-        const saved = await saveRegistrationWithRetry(normalizedData, 3); // Quick attempt with fewer retries
-        
-        // Mark as completed in queue
-        const { PendingRegistration } = await import('./utils/guaranteedQueue.js');
-        await PendingRegistration.updateOne(
-          { paymentId },
-          { 
-            $set: { 
-              status: 'completed', 
-              completedAt: new Date() 
-            } 
-          }
-        );
-        
-        console.log(`🚀 INSTANT SUCCESS: Payment ${paymentId} processed immediately as registration ${saved.registrationId}`);
-        
-        // Send welcome email (non-blocking)
-        sendWelcomeEmail(
-          saved.leaderEmail,
-          saved.registrationId.toString(),
-          saved.leaderName,
-          saved.leaderYear,
-          saved.leaderMobile,
-          saved.selectedEvent,
-          saved.leaderCollege
-        ).catch(emailError => {
-          console.error('Email failed for registration:', saved.registrationId, emailError);
-        });
-        
-        return res.status(201).json({ 
-          success: true, 
-          message: 'Registration completed successfully',
-          registrationId: saved.registrationId,
-          processed: 'immediately'
-        });
-        
-      } catch (immediateError: any) {
-        console.log(`⏳ Payment ${paymentId} queued for background processing (immediate processing failed):`, immediateError.message);
-        
-        // Start background processing (non-blocking)
-        processGuaranteedQueue().catch(err => {
-          console.error('Background processing error:', err);
-        });
-        
-        return res.status(202).json({ 
-          success: true, 
-          message: 'Payment received and queued for processing. You will receive confirmation email shortly.',
-          queueId,
-          processed: 'queued'
-        });
-      }
-      
-    } catch (queueError) {
-      // CRITICAL: If we can't even queue a successful payment, this is a major system failure
-      console.error(`🔴 CRITICAL SYSTEM FAILURE: Cannot guarantee payment ${paymentId}:`, queueError);
-      
-      // Last-ditch effort - try direct save with maximum retries
-      try {
-        const saved = await saveRegistrationWithRetry(normalizedData, 10);
-        console.log(`🆘 EMERGENCY SAVE SUCCESS: Payment ${paymentId} saved via emergency path as registration ${saved.registrationId}`);
-        
-        return res.status(201).json({ 
-          success: true, 
-          message: 'Registration completed via emergency processing',
-          registrationId: saved.registrationId,
-          processed: 'emergency'
-        });
-        
-      } catch (emergencyError) {
-        console.error(`💀 TOTAL SYSTEM FAILURE: Payment ${paymentId} cannot be processed:`, emergencyError);
-        
-        // Return error but with clear message that payment issue needs manual resolution
-        return res.status(500).json({ 
-          success: false, 
-          error: 'System temporarily unavailable. Your payment is safe - please contact support with your payment ID for manual processing.',
-          paymentId,
-          orderId,
-          code: 'SYSTEM_FAILURE_MANUAL_INTERVENTION_REQUIRED'
-        });
-      }
+
+    const processed = await processPaidOrder(orderId, paymentId, signature, normalizedData);
+    if (processed.registrationId) {
+      return res.status(201).json({
+        success: true,
+        message: 'Registration completed successfully',
+        registrationId: processed.registrationId,
+        processed: 'immediately'
+      });
     }
-    
+
+    return res.status(202).json({
+      success: true,
+      code: 'REGISTRATION_PENDING',
+      message: 'Payment received successfully. Your registration is being confirmed. Please do not make another payment.',
+      processed: 'queued'
+    });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ success: false, error: 'Failed to register user' });

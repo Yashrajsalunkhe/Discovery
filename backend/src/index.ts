@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import type { Request } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { registerUser, connectToMongoDB } from './register.js';
@@ -19,6 +20,7 @@ import {
   getRegistrationStats 
 } from './utils/admin.js';
 import { getQueueDetails, retryQueueItem, getProcessingStats } from './utils/queueAdmin.js';
+import { razorpayWebhook } from './utils/webhook.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -70,7 +72,14 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, _res, buffer) => {
+    if ((req as Request).originalUrl === '/api/razorpay/webhook') {
+      (req as Request & { rawBody?: Buffer }).rawBody = Buffer.from(buffer);
+    }
+  }
+}));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(metricsMiddleware);
 
@@ -131,6 +140,7 @@ app.use(async (req, res, next) => {
 app.post('/api/register', registrationRateLimit, deduplicationMiddleware, checkDuplicate, verifyPayment, registerUser);
 app.post('/api/order', orderRazorpay);
 app.post('/api/payment-verification', verifyPayment);
+app.post('/api/razorpay/webhook', razorpayWebhook);
 
 // Admin Routes
 app.post('/api/admin/login', adminLogin);

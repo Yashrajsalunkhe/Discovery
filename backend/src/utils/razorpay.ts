@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import Razorpay from 'razorpay';
 import { calculateTotalWithRazorpayFees, calculateTeamFee } from './feeCalculation.js';
+import { Payment } from './payment.js';
 
 export const orderRazorpay: RequestHandler = async (req, res, next) => {
     // Validate Razorpay credentials
@@ -83,7 +84,16 @@ export const orderRazorpay: RequestHandler = async (req, res, next) => {
             });
         }
 
-        console.log('Order created successfully:', order.id);
+        await Payment.create({
+            orderId: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            status: 'CREATED',
+            registrationStatus: 'PENDING',
+            registrationData: req.body.registrationData
+        });
+
+        console.log('ORDER_CREATED', { orderId: order.id, amount: order.amount, currency: order.currency });
         res.status(200).json({ 
             success: true, 
             order,

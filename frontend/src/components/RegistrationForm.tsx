@@ -100,10 +100,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
   
   // Registration closure state
-  const [registrationsClosed] = useState(true); // Set to true to close registrations
+  const [registrationsClosed] = useState(false); // Set to true to close registrations
   
   // Enhanced payment states
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating-order' | 'payment-processing' | 'confirming-registration' | 'success' | 'failed'>('idle');
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating-order' | 'payment-processing' | 'confirming-registration' | 'success' | 'pending' | 'failed'>('idle');
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [eventSelectOpen, setEventSelectOpen] = useState(false);
   const teamMembersRef = useRef<HTMLDivElement>(null);
@@ -418,7 +418,8 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           teamSize: values.teamSize || 1,
           baseFeePerMember: 100,
           currency: "INR", 
-          receipt: `receipt_${Date.now()}` 
+          receipt: `receipt_${Date.now()}` ,
+          registrationData
         })
       });
 
@@ -471,12 +472,19 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
             });
 
             const result = await registerRes.json();
-            if (result.success) {
+            if (result.success && result.registrationId) {
               setPaymentStatus('success');
               setIsSubmitted(true);
               toast({
                 title: "Registration Successful!",
                 description: "Your registration has been confirmed. You will receive a confirmation email shortly.",
+              });
+            } else if (result.success) {
+              setPaymentStatus('pending');
+              setIsSubmitted(true);
+              toast({
+                title: "Payment Received",
+                description: "Your registration is being confirmed. Please do not make another payment.",
               });
             } else {
               setPaymentStatus('failed');
@@ -547,21 +555,25 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
     }
   };
 
-  if (isSubmitted && paymentStatus === 'success') {
+  if (isSubmitted && (paymentStatus === 'success' || paymentStatus === 'pending')) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-6">
             <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold text-green-600 mb-2">Registration Successful!</h2>
+            <h2 className="text-2xl font-bold text-green-600 mb-2">
+              {paymentStatus === 'pending' ? 'Payment Received' : 'Registration Successful!'}
+            </h2>
             <p className="text-muted-foreground mb-4">
               Thank you for registering{eventTitle ? ` for ${eventTitle}` : ""}. 
-              Your payment has been confirmed and registration is complete.
+              {paymentStatus === 'pending'
+                ? 'Your payment was received successfully. Your registration is being confirmed.'
+                : 'Your payment has been confirmed and registration is complete.'}
             </p>
             <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200 mb-6">
               <p className="text-lg font-semibold flex items-center justify-center gap-1 text-green-700">
                 <CheckCircle className="h-5 w-5" />
-                Payment Confirmed
+                {paymentStatus === 'pending' ? 'Registration Pending Confirmation' : 'Payment Confirmed'}
               </p>
               <p className="text-sm text-green-600 mt-1">
                 Total Fee: {formatCurrency(feeBreakdown?.totalAmount || 0)}
