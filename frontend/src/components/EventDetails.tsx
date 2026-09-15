@@ -311,7 +311,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
             </Card>
           )}
 
-          {/* Themes (for Ideathon) */}
+          {/* Event themes */}
           {event.themes && event.themes.length > 0 && (
             <Card className="festival-card mx-0 sm:mx-0">
               <CardHeader>
@@ -505,11 +505,11 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-muted/30 rounded-lg gap-1 sm:gap-0">
                   <span className="font-medium">Abstract Submission Deadline</span>
-                  <span className="text-primary font-semibold">7th October 2025</span>
+                  <span className="text-primary font-semibold">To be announced</span>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-muted/30 rounded-lg gap-1 sm:gap-0">
                   <span className="font-medium">Event Date</span>
-                  <span className="text-primary font-semibold">11th October 2025</span>
+                  <span className="text-primary font-semibold">10th October 2026</span>
                 </div>
               </div>
             </CardContent>

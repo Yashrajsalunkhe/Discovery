@@ -11,7 +11,7 @@ export const ContactSection = () => {
             Get In Touch
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Have questions about Discovery 2K25? We're here to help! For event-specific queries, 
+            Have questions about Discovery 2K26? We're here to help! For event-specific queries,
             please contact the coordinators listed in the respective event rules.
           </p>
         </div>
@@ -63,7 +63,7 @@ export const ContactSection = () => {
                 <User className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <p className="font-medium text-foreground">Pranav Patil</p>
-                  <p className="text-sm text-muted-foreground">Discovery 2K25 Coordinator</p>
+                  <p className="text-sm text-muted-foreground">Discovery 2K26 Coordinator</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">

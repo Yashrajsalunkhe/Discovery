@@ -93,13 +93,13 @@ export const AboutSection = () => {
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5"></div>
             <div className="relative">
               <p className="text-base sm:text-lg text-gray-300 leading-relaxed mb-4">
-                <span className="text-cyan-400 font-semibold">Discovery 2K25</span> is more than just a technical festival—it's a transformative journey that brings together the brightest minds from engineering, management, information technology, and food technology disciplines. Organized annually, this prestigious event has evolved into a cornerstone of academic excellence and innovation.
+                <span className="text-cyan-400 font-semibold">Discovery 2K26</span> is more than just a technical festival—it's a transformative journey that brings together the brightest minds from engineering, management, information technology, and food technology disciplines. Organized annually, this prestigious event has evolved into a cornerstone of academic excellence and innovation.
               </p>
               <p className="text-base sm:text-lg text-gray-300 leading-relaxed mb-4">
                 Our mission is to create an ecosystem where theoretical knowledge meets practical application, where ideas transform into reality, and where students don't just participate—they <span className="text-purple-400 font-semibold">innovate, collaborate, and lead</span>. With industry partnerships, expert mentorship, and cutting-edge challenges, Discovery provides unparalleled opportunities for skill development and career advancement.
               </p>
               <p className="text-base sm:text-lg text-gray-300 leading-relaxed">
-                Whether you're passionate about <span className="text-pink-400 font-semibold">artificial intelligence</span>, <span className="text-orange-400 font-semibold">sustainable engineering</span>, <span className="text-green-400 font-semibold">business innovation</span>, or <span className="text-yellow-400 font-semibold">culinary technology</span>—Discovery 2K25 offers a platform to showcase your talent, learn from industry leaders, and connect with a community that shares your vision for the future.
+                Whether you're passionate about <span className="text-pink-400 font-semibold">artificial intelligence</span>, <span className="text-orange-400 font-semibold">sustainable engineering</span>, <span className="text-green-400 font-semibold">business innovation</span>, or <span className="text-yellow-400 font-semibold">culinary technology</span>—Discovery 2K26 offers a platform to showcase your talent, learn from industry leaders, and connect with a community that shares your vision for the future.
               </p>
             </div>
           </div>

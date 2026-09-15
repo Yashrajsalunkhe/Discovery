@@ -1,4 +1,4 @@
-// Team member data structures and utilities for Discovery 2K25
+// Team member data structures and utilities for Discovery 2K26
 
 export interface BaseTeamMember {
   id?: string;

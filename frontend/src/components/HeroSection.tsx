@@ -17,7 +17,7 @@ export const HeroSection = memo(({ onExploreEvents, onRegister }: HeroSectionPro
   });
 
   useEffect(() => {
-    const targetDate = new Date('2025-10-11T00:00:00').getTime();
+    const targetDate = new Date('2026-10-10T09:00:00+05:30').getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -65,7 +65,7 @@ export const HeroSection = memo(({ onExploreEvents, onRegister }: HeroSectionPro
           <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-4 sm:mb-6 tracking-tight">
             <span className="text-gradient">DISCOVERY</span>
             <br />
-            <span className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-foreground">2K25</span>
+            <span className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-foreground">2K26</span>
           </h1>
           
           {/* Subtitle */}
@@ -103,7 +103,7 @@ export const HeroSection = memo(({ onExploreEvents, onRegister }: HeroSectionPro
           <div className="flex flex-col xs:flex-row xs:flex-wrap justify-center gap-3 xs:gap-4 md:gap-6 mb-6 sm:mb-8 animate-slide-in-right px-2">
             <div className="flex items-center justify-center gap-2 text-foreground/80 text-sm xs:text-base">
               <Calendar className="h-4 w-4 xs:h-5 xs:w-5 text-primary flex-shrink-0" />
-              <span className="font-medium">11th October 2025</span>
+              <span className="font-medium">10th October 2026</span>
             </div>
             <div className="flex items-center justify-center gap-2 text-foreground/80 text-sm xs:text-base">
               <MapPin className="h-4 w-4 xs:h-5 xs:w-5 text-secondary flex-shrink-0" />

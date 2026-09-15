@@ -54,7 +54,7 @@ const departments: Department[] = [
   {
     id: "bba",
     name: "Business Administration",
-    eventCount: 1,
+    eventCount: 2,
     eventNames: eventsByDepartment.bba?.map(event => event.name) || []
   },
   {

@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
-import { eventsByDepartment } from '@/data/events';
+import { eventsByDepartment, type Event } from '@/data/events';
 
 interface DepartmentInfo {
   code: string;
   name: string;
-  events: { name: string; description: string; format: string; focus: string }[];
+  events: (Event & { format: string; focus: string })[];
 }
 
 // Build department data from the existing events.ts data
@@ -13,6 +13,7 @@ const departments: DepartmentInfo[] = [
     code: 'AI&DS',
     name: 'AI & Data Science',
     events: (eventsByDepartment['aids'] || []).map((e) => ({
+      ...e,
       name: e.name,
       description: e.description || 'Present a research idea or technical study with clarity and evidence.',
       format: e.rules?.[0]?.includes('Presentation') ? 'Presentation' : 'Timed challenge',
@@ -23,6 +24,7 @@ const departments: DepartmentInfo[] = [
     code: 'MECH',
     name: 'Mechanical Engineering',
     events: (eventsByDepartment['mechanical'] || []).map((e) => ({
+      ...e,
       name: e.name,
       description: e.description || 'Share a technical concept, experiment or innovation.',
       format: e.name.includes('Race') ? 'Live race' : e.name.includes('CAD') ? 'Design challenge' : 'Presentation',
@@ -33,6 +35,7 @@ const departments: DepartmentInfo[] = [
     code: 'EE',
     name: 'Electrical Engineering',
     events: (eventsByDepartment['electrical'] || []).map((e) => ({
+      ...e,
       name: e.name,
       description: e.description || 'Explain an electrical engineering idea, application or emerging technology.',
       format: e.name.includes('Circuit') ? 'Build challenge' : e.name.includes('Troubleshoot') ? 'Practical challenge' : 'Presentation',
@@ -43,6 +46,7 @@ const departments: DepartmentInfo[] = [
     code: 'CIVIL',
     name: 'Civil Engineering',
     events: (eventsByDepartment['civil'] || []).map((e) => ({
+      ...e,
       name: e.name,
       description: e.description || 'Present a civil engineering study or solution.',
       format: e.name.includes('SETU') || e.name.includes('Bridge') ? 'Build challenge' : e.name.includes('AKRUTI') ? 'Design challenge' : 'Presentation',
@@ -53,6 +57,7 @@ const departments: DepartmentInfo[] = [
     code: 'CSE',
     name: 'Computer Science Engineering',
     events: (eventsByDepartment['cse'] || []).map((e) => ({
+      ...e,
       name: e.name,
       description: e.description || 'Present a computing research idea, project or technology.',
       format: e.name.includes('Code') ? 'Timed challenge' : e.name.includes('B-Plan') || e.name.includes('Plan') ? 'Pitch challenge' : 'Presentation',
@@ -63,6 +68,7 @@ const departments: DepartmentInfo[] = [
     code: 'AERO',
     name: 'Aeronautical Engineering',
     events: (eventsByDepartment['aeronautical'] || []).map((e) => ({
+      ...e,
       name: e.name,
       description: e.description || 'Communicate an aviation or aerospace concept.',
       format: e.name.includes('Glider') || e.name.includes('Flight Challenge') ? 'Flight challenge' : e.name.includes('Simulator') ? 'Simulation' : 'Presentation',
@@ -73,16 +79,18 @@ const departments: DepartmentInfo[] = [
     code: 'IOT&CS',
     name: 'IoT & Cyber Security',
     events: (eventsByDepartment['iot'] || []).map((e) => ({
+      ...e,
       name: e.name,
       description: e.description || 'Present an idea at the intersection of connected devices and security.',
-      format: e.name.includes('Ideathon') ? 'Idea sprint' : e.name.includes('Cricket') ? 'Team league' : 'Presentation',
-      focus: e.name.includes('Ideathon') ? 'Innovation & pitching' : e.name.includes('Cricket') ? 'Teamwork & sportsmanship' : 'Research & communication',
+      format: e.name.includes('Catch the Flag') ? 'Team challenge' : e.name.includes('Pickle Ball') ? 'Sports challenge' : 'Presentation',
+      focus: e.name.includes('Catch the Flag') ? 'Strategy & teamwork' : e.name.includes('Pickle Ball') ? 'Teamwork & sportsmanship' : 'Research & communication',
     })),
   },
   {
     code: 'BBA',
     name: 'Business Administration',
     events: (eventsByDepartment['bba'] || []).map((e) => ({
+      ...e,
       name: e.name,
       description: e.description || 'Make a persuasive, evidence-backed presentation on a business topic.',
       format: 'Presentation',
@@ -93,6 +101,7 @@ const departments: DepartmentInfo[] = [
     code: 'FOOD',
     name: 'Food Technology',
     events: (eventsByDepartment['food'] || []).map((e) => ({
+      ...e,
       name: e.name,
       description: e.description || 'Explore food products and innovation.',
       format: e.name.includes('New Product') ? 'Product challenge' : 'Concept challenge',
@@ -132,6 +141,9 @@ export const DepartmentExplorer = () => {
 
   const activeDept = isEvents
     ? departments[(view as { departmentIndex: number }).departmentIndex]
+    : null;
+  const selectedEvent = isDetail && activeDept
+    ? activeDept.events[view.eventIndex]
     : null;
 
   return (
@@ -246,7 +258,7 @@ export const DepartmentExplorer = () => {
           )}
 
           {/* Event detail view */}
-          {isDetail && activeDept && (
+          {selectedEvent && activeDept && (
             <div className="p-[18px_18px_26px] min-h-[300px]" style={{
               background: 'linear-gradient(180deg, rgba(9,11,15,0.96), rgba(15,18,24,0.97))',
             }}>
@@ -260,19 +272,70 @@ export const DepartmentExplorer = () => {
                 {activeDept.name}
               </div>
               <h4 className="font-display text-[1.6rem] mb-2.5">
-                {activeDept.events[view.eventIndex].name}
+                {selectedEvent.name}
               </h4>
               <p className="text-paper-dim text-[15px] max-w-[620px] leading-[1.7]">
-                {activeDept.events[view.eventIndex].description}
+                {selectedEvent.description || 'Event details will be announced by the organizers.'}
               </p>
               <div className="flex flex-wrap gap-[22px] mt-5 text-paper-mute font-mono text-[11px] tracking-[.04em]">
                 <span className="flex gap-2 items-center">
-                  FORMAT <strong className="text-paper-dim font-medium">{activeDept.events[view.eventIndex].format}</strong>
+                  FORMAT <strong className="text-paper-dim font-medium">{selectedEvent.format}</strong>
                 </span>
                 <span className="flex gap-2 items-center">
-                  FOCUS <strong className="text-paper-dim font-medium">{activeDept.events[view.eventIndex].focus}</strong>
+                  FOCUS <strong className="text-paper-dim font-medium">{selectedEvent.focus}</strong>
+                </span>
+                <span className="flex gap-2 items-center">
+                  TEAM <strong className="text-paper-dim font-medium">
+                    {selectedEvent.minTeamSize && selectedEvent.minTeamSize > 1
+                      ? `${selectedEvent.minTeamSize}-${selectedEvent.maxTeamSize} participants`
+                      : `Up to ${selectedEvent.maxTeamSize} participant${selectedEvent.maxTeamSize === 1 ? '' : 's'}`}
+                  </strong>
+                </span>
+                <span className="flex gap-2 items-center">
+                  FEE <strong className="text-paper-dim font-medium">₹{selectedEvent.entryFee} / participant</strong>
                 </span>
               </div>
+
+              <div className="grid gap-5 mt-7 md:grid-cols-2">
+                {selectedEvent.rules && selectedEvent.rules.length > 0 && (
+                  <div className="border border-line rounded-[14px] p-4" style={{ background: 'rgba(17,20,26,0.8)' }}>
+                    <h5 className="font-mono text-[11px] tracking-[.1em] text-brass mb-3">RULES & GUIDELINES</h5>
+                    <ol className="space-y-2 text-paper-dim text-sm leading-[1.6] list-decimal list-inside">
+                      {selectedEvent.rules.map((rule, index) => <li key={index}>{rule}</li>)}
+                    </ol>
+                  </div>
+                )}
+                {selectedEvent.specifications && selectedEvent.specifications.length > 0 && (
+                  <div className="border border-line rounded-[14px] p-4" style={{ background: 'rgba(17,20,26,0.8)' }}>
+                    <h5 className="font-mono text-[11px] tracking-[.1em] text-brass mb-3">SPECIFICATIONS</h5>
+                    <ul className="space-y-2 text-paper-dim text-sm leading-[1.6] list-disc list-inside">
+                      {selectedEvent.specifications.filter(Boolean).map((spec, index) => <li key={index}>{spec}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {selectedEvent.coordinators && (
+                <div className="mt-5 border border-line rounded-[14px] p-4" style={{ background: 'rgba(17,20,26,0.8)' }}>
+                  <h5 className="font-mono text-[11px] tracking-[.1em] text-brass mb-3">EVENT COORDINATORS</h5>
+                  <div className="grid gap-4 sm:grid-cols-2 text-sm text-paper-dim">
+                    {selectedEvent.coordinators.faculty && (
+                      <div>
+                        <div className="text-paper font-medium">Faculty: {selectedEvent.coordinators.faculty.name}</div>
+                        <div>{selectedEvent.coordinators.faculty.phone}</div>
+                        {selectedEvent.coordinators.faculty.email && <div className="break-all">{selectedEvent.coordinators.faculty.email}</div>}
+                      </div>
+                    )}
+                    {selectedEvent.coordinators.student && (
+                      <div>
+                        <div className="text-paper font-medium">Student: {selectedEvent.coordinators.student.name}</div>
+                        <div>{selectedEvent.coordinators.student.phone}</div>
+                        {selectedEvent.coordinators.student.email && <div className="break-all">{selectedEvent.coordinators.student.email}</div>}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

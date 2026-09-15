@@ -113,18 +113,19 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
   // Filter events to show only one Paper Presentation option and exclude closed events
   const filteredEvents = allEvents.filter((event, index, arr) => {
-    // Exclude Box Cricket League from registration
-    if (event.name === "Box Cricket League" || event.name === "Box Cricket L") {
+    // Exclude Pickle Ball from registration
+    if (event.name === "Pickle Ball") {
       return false;
     }
     
     // Exclude closed events from registration
     const closedEvents = [
-      "CAD Conqueror",
+      "CAD Master",
       "Code 2 Compete", 
-      "Coding Competition",
-      "Paper Glider: Flight Challenge",
-      "Real Flight Simulator",
+      "CodeMania",
+      "PROMPT WARS - Battle of the Minds",
+      "Paper Glider",
+      "RC Simulator",
       "SETU"
     ];
     
@@ -205,7 +206,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       }
       
       // Auto-scroll to team members section when team members are added for Box Cricket
-      if (selectedEvent?.name === "Box Cricket League" && targetMemberCount > 0) {
+      if (selectedEvent?.name === "Pickle Ball" && targetMemberCount > 0) {
         setTimeout(() => {
           teamMembersRef.current?.scrollIntoView({ 
             behavior: 'smooth', 
@@ -276,11 +277,11 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       }
       
       // Auto-scroll to team members section for Box Cricket
-      if (event?.name === "Box Cricket League" && minTeamSize > 1) {
+      if (event?.name === "Pickle Ball" && minTeamSize > 1) {
         // Show helpful toast
         toast({
           title: "Box Cricket Selected! 🏏",
-          description: "Please add details for all 6 team members below.",
+          description: "Please add details for all team members below.",
           duration: 4000,
         });
         
@@ -1057,7 +1058,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                   <div ref={teamMembersRef} className="bg-ink-soft/50 p-6 rounded-lg border border-line">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
                       <Users className="h-5 w-5 text-brass" />
-                      {selectedEvent?.name === "Box Cricket League" ? "Box Cricket Team Members (5 more required)" : "Team Member Details"}
+                      {selectedEvent?.name === "Pickle Ball" ? "Pickle Ball Team Members" : "Team Member Details"}
                     </h3>
                     
                     <div className="space-y-6">

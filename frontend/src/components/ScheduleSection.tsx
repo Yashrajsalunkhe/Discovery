@@ -6,13 +6,13 @@ export const ScheduleSection = () => {
   const schedule = [
     {
       day: "Day 1",
-      date: "11th October 2025",
+      date: "10th October 2026",
       events: [
         { time: "09:00 AM", activity: "Registration & Welcome", type: "general" },
         { time: "10:00 AM", activity: "Paper Presentations (All Departments)", type: "presentation" },
-        { time: "11:30 AM", activity: "Coding Competitions (CSE, AIDS)", type: "coding" },
+        { time: "11:30 AM", activity: "CodeMania & PROMPT WARS (AI & DS)", type: "coding" },
         { time: "01:00 PM", activity: "Lunch Break", type: "break" },
-        { time: "02:00 PM", activity: "Robotics Events (Robo Race)", type: "robotics" },
+        { time: "02:00 PM", activity: "Robotics Events (Robo Soccer)", type: "robotics" },
         { time: "03:30 PM", activity: "Circuit Building & Troubleshooting", type: "technical" },
         { time: "05:00 PM", activity: "Day 1 Wrap-up", type: "general" }
       ]
@@ -38,7 +38,7 @@ export const ScheduleSection = () => {
             Event Schedule
           </h2>
           <p className="text-xl text-muted-foreground">
-            Detailed timeline for Discovery 2K25
+            Detailed timeline for Discovery 2K26
           </p>
         </div>
 
