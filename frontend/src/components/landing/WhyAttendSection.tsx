@@ -45,20 +45,20 @@ export const WhyAttendSection = () => {
       </div>
 
       <div
-        className="grid grid-cols-3 max-md:grid-cols-1 border border-line"
+        className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 border border-line"
         style={{ gap: '1px', background: 'var(--line)' }}
         data-perks
       >
         {perks.map((perk, i) => (
           <div
             key={perk.index}
-            className="py-[38px] px-8 perk-cell"
-            style={{ background: i % 3 === 1 ? 'var(--ink-soft)' : 'var(--ink)' }}
+            className="py-[38px] px-8 max-sm:py-7 max-sm:px-5 perk-cell"
+            style={{ background: i % 2 === 1 ? 'var(--ink-soft)' : 'var(--ink)' }}
           >
             <div
               className="font-display font-extrabold leading-none mb-3.5"
               style={{
-                fontSize: '3.2rem',
+                fontSize: 'clamp(2.4rem, 6vw, 3.2rem)',
                 color: 'transparent',
                 WebkitTextStroke: '1px var(--line)',
               }}

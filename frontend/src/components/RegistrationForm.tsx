@@ -847,7 +847,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-[400px] p-0" align="start">
+                            <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[280px] max-w-[400px] p-0" align="start">
                               <Command>
                                 <CommandInput placeholder="Search by event name or department..." className="h-9" />
                                 <CommandEmpty>No event found.</CommandEmpty>

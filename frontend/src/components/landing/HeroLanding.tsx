@@ -1,29 +1,8 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function pad(n: number): string {
-  return String(n).padStart(2, '0');
-}
-
-export const HeroLanding = () => {
+export const HeroLanding: React.FC = () => {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
-
-  useEffect(() => {
-    const target = new Date('2026-10-17T09:00:00+05:30').getTime();
-    const tick = () => {
-      const diff = Math.max(0, target - Date.now());
-      setCountdown({
-        d: Math.floor(diff / 86400000),
-        h: Math.floor((diff % 86400000) / 3600000),
-        m: Math.floor((diff % 3600000) / 60000),
-        s: Math.floor((diff % 60000) / 1000),
-      });
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
 
   const radarBlips = [
     { label: 'AI/DS', top: '30%', left: '62%' },
@@ -34,17 +13,13 @@ export const HeroLanding = () => {
   ];
 
   return (
-    <header className="hero relative min-h-screen flex flex-col justify-center pt-[120px] overflow-hidden border-b border-line" id="top"
-      style={{
-        background: `
-          linear-gradient(var(--ink), var(--ink)) padding-box,
-          repeating-linear-gradient(0deg, var(--line-soft) 0 1px, transparent 1px 88px),
-          repeating-linear-gradient(90deg, var(--line-soft) 0 1px, transparent 1px 88px)
-        `
-      }}
+    <header
+      className="hero relative min-h-[85vh] md:min-h-[90vh] flex items-center pt-[85px] sm:pt-[100px] pb-12 sm:pb-16 overflow-hidden border-b border-[#262b35] bg-[#0A0C10]"
+      id="top"
     >
-      {/* Radar */}
-      <div className="absolute top-1/2 -right-[6%] -translate-y-1/2 z-0 opacity-90 max-md:opacity-35 max-md:-right-[30%]"
+      {/* Background Radar Animation (Restored) */}
+      <div
+        className="absolute top-1/2 -right-[5%] -translate-y-1/2 z-0 opacity-80 max-md:opacity-35 max-md:-right-[30%] max-sm:-right-[50%] max-sm:opacity-20 pointer-events-none"
         style={{ width: 'min(58vw, 760px)', height: 'min(58vw, 760px)' }}
       >
         {[22, 44, 66, 88].map((size, i) => (
@@ -53,102 +28,111 @@ export const HeroLanding = () => {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border"
             style={{
               width: `${size}%`, height: `${size}%`,
-              borderColor: i === 3 ? 'var(--line-soft)' : 'var(--line)',
+              borderColor: i === 3 ? 'rgba(237,234,226,0.06)' : 'rgba(38,43,53,0.8)',
             }}
           />
         ))}
+
+        {/* Radar Sweep */}
         <div
           className="absolute top-1/2 left-1/2 rounded-full radar-sweep"
           style={{
             width: '88%', height: '88%',
             transform: 'translate(-50%,-50%)',
-            background: 'conic-gradient(from 0deg, rgba(61,107,255,0.55), rgba(61,107,255,0) 26%)',
+            background: 'conic-gradient(from 0deg, rgba(61,107,255,0.45), rgba(61,107,255,0) 28%)',
             animation: 'sweep 6s linear infinite',
           }}
         />
+
+        {/* Department Radar Blips */}
         {radarBlips.map((blip) => (
           <div
             key={blip.label}
-            className="absolute w-1.5 h-1.5 rounded-full bg-brass"
+            className="absolute w-2 h-2 rounded-full bg-[#e8b923]"
             style={{
               top: blip.top, left: blip.left,
-              boxShadow: '0 0 0 6px rgba(232,185,35,0.14)',
+              boxShadow: '0 0 0 6px rgba(232,185,35,0.18)',
             }}
           >
-            <span className="absolute -top-[22px] left-1/2 -translate-x-1/2 font-mono text-[10.5px] tracking-[.06em] text-paper-dim whitespace-nowrap">
+            <span className="absolute -top-[22px] left-1/2 -translate-x-1/2 font-mono text-[10.5px] tracking-[.06em] text-[#97a0ac] whitespace-nowrap">
               {blip.label}
             </span>
           </div>
         ))}
       </div>
 
-      {/* Hero inner */}
-      <div className="wrap relative z-[2] pb-16 hero-inner">
-        <div className="flex items-center gap-[18px] mb-[26px] flex-wrap hero-kicker">
-          <div className="eyebrow"><span className="dot" />TRANSMISSION LIVE — REGISTRATIONS OPEN</div>
-          <div className="font-mono text-[12.5px] tracking-[.1em] text-paper-mute border-l border-line pl-[18px] hero-coords">
-            16.95°N · 74.40°E — ADCET, ASHTA
+      {/* Main Hero Content */}
+      <div className="wrap relative z-10 w-full">
+        <div className="max-w-[720px] flex flex-col justify-center">
+
+          {/* Top Subhead / Department Kicker */}
+          <div className="font-mono text-[10px] sm:text-[12.5px] font-semibold tracking-[0.08em] sm:tracking-[0.14em] text-[#97a0ac] uppercase mb-4 sm:mb-8 flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <span>ADCET ASHTA</span>
+            <span className="text-[#3d4554] font-normal">/</span>
+            <span className="text-[#edeae2]">ARTIFICIAL INTELLIGENCE & DATA SCIENCE</span>
           </div>
-        </div>
 
-        <h1 className="font-display font-extrabold leading-[0.86] tracking-[-0.01em] text-paper hero-title" 
-            style={{ fontSize: 'clamp(3.4rem, 10.5vw, 9.5rem)' }}>
-          <span className="overflow-hidden block" data-line>
-            <span className="inline-block">DISCOVERY</span>
-          </span>
-          <span className="overflow-hidden block" data-line>
-            <span className="inline-block" style={{ color: 'transparent', WebkitTextStroke: '1.5px var(--paper)' }}>20</span>
-            <span className="inline-block text-brass" style={{ WebkitTextStroke: '0' }}>26</span>
-          </span>
-        </h1>
-
-        <p className="max-w-[520px] mt-7 text-[17px] leading-[1.65] text-paper-dim hero-sub">
-          One campus, one day, <b className="text-paper font-semibold">24+ competitions</b> run by every engineering department at ADCET. Built by students, judged by industry, open to every college that wants in.
-        </p>
-
-        <div className="flex items-center gap-[22px] mt-11 flex-wrap hero-actions">
-          <a
-            href="/register"
-            onClick={(e) => { e.preventDefault(); navigate('/register'); }}
-            className="btn-primary"
+          {/* Main Title */}
+          <h1
+            className="font-display font-black leading-[0.88] tracking-[-0.02em] text-[#EDEAE2] mb-3 sm:mb-4 uppercase select-none max-w-full overflow-hidden"
+            style={{ fontSize: 'clamp(2.05rem, 8.4vw, 8.5rem)' }}
           >
-            <span>Register a Team</span>
-          </a>
-          <a
-            href="#tracks"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById('tracks')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="btn-ghost"
-          >
-            View All Events
-          </a>
-        </div>
-      </div>
+            <span className="block text-[#EDEAE2]">
+              DISCOVERY
+            </span>
+            <span className="block">
+              <span
+                style={{
+                  color: 'transparent',
+                  WebkitTextStroke: '1.2px #EDEAE2'
+                }}
+              >
+                20
+              </span>
+              <span className="text-[#E8B923]">
+                26
+              </span>
+            </span>
+          </h1>
 
-      {/* Countdown footer */}
-      <div className="relative z-[2] border-t border-line hero-foot">
-        <div className="wrap grid grid-cols-4 max-sm:grid-cols-2">
-          {[
-            { val: countdown.d, label: 'DAYS' },
-            { val: countdown.h, label: 'HOURS' },
-            { val: countdown.m, label: 'MINUTES' },
-            { val: countdown.s, label: 'SECONDS' },
-          ].map((cell, i) => (
-            <div
-              key={cell.label}
-              className={`py-[22px] px-8 text-left countdown-cell ${i < 3 ? 'border-r border-line' : ''} ${i === 1 ? 'max-sm:border-r-0' : ''}`}
+          {/* Sub-brand / Tag */}
+          <div className="font-mono text-[11px] sm:text-[13px] tracking-[0.16em] sm:tracking-[0.26em] text-[#E8B923] uppercase font-semibold mb-5 sm:mb-6">
+            NEUROVERSE SYMPOSIUM
+          </div>
+
+          {/* Minimalist Subtitle Paragraph */}
+          <div className="space-y-1 text-[#97a0ac] text-[14px] sm:text-[17px] font-normal leading-[1.6] max-w-[480px] mb-7 sm:mb-10">
+            <p className="text-[#edeae2] font-medium text-[15px] sm:text-[17px]">Code it. Create it. Play for it.</p>
+            <p className="text-[#7e8794] text-[13px] sm:text-[14px]">National Level Event • 29th September 2026</p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <a
+              href="#tracks"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('tracks')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="btn-hero-yellow w-full sm:w-auto sm:min-w-[170px]"
             >
-              <div className="font-mono font-semibold text-paper tabular-nums countdown-num"
-                style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.4rem)' }}>
-                {pad(cell.val)}
-              </div>
-              <div className="font-mono text-[11px] tracking-[.12em] text-paper-mute mt-1">
-                {cell.label}
-              </div>
-            </div>
-          ))}
+              <span>Explore events</span>
+              <span className="text-base leading-none">↗</span>
+            </a>
+
+            <a
+              href="/register"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/register');
+              }}
+              className="btn-hero-dark w-full sm:w-auto sm:min-w-[150px]"
+            >
+              <span>Register</span>
+              <span className="text-base leading-none text-[#E8B923]">↗</span>
+            </a>
+          </div>
+
         </div>
       </div>
     </header>

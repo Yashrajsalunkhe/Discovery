@@ -14,8 +14,7 @@ export const FooterLanding = () => {
   return (
     <footer className="py-20 pb-[34px]">
       <div className="wrap">
-        <div className="grid gap-10 pb-16 border-b border-line max-md:grid-cols-2 max-sm:grid-cols-1"
-          style={{ gridTemplateColumns: '1.4fr 1fr 1fr 1fr' }}>
+        <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] max-md:grid-cols-2 max-sm:grid-cols-1 gap-10 max-sm:gap-8 pb-16 border-b border-line">
           {/* Brand */}
           <div className="max-w-[280px]">
             <div className="font-display font-bold text-xl mb-4">
@@ -70,7 +69,7 @@ export const FooterLanding = () => {
         </div>
 
         {/* Bottom */}
-        <div className="flex justify-between items-center pt-7 flex-wrap gap-3.5">
+        <div className="flex justify-between items-center pt-7 flex-wrap gap-3.5 max-sm:flex-col max-sm:items-start">
           <div className="font-mono text-[11.5px] text-paper-mute tracking-[.04em]">
             DISCOVERY 2K26 — ADCET, ASHTA. ALL ROUNDS RUN ON CAMPUS.
           </div>

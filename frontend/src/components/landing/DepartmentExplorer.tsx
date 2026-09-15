@@ -158,9 +158,9 @@ export const DepartmentExplorer = () => {
         </div>
       </div>
 
-      <div className="max-w-[var(--container)] mx-auto px-8 pt-[18px] max-md:px-4">
+      <div className="max-w-[var(--container)] mx-auto px-8 pt-[18px] max-md:px-4 max-sm:px-3">
         <div
-          className="overflow-hidden border border-line rounded-[28px]"
+          className="overflow-hidden border border-line rounded-[28px] max-sm:rounded-[18px]"
           style={{
             background: 'linear-gradient(180deg, rgba(18,21,27,0.98), rgba(10,12,16,0.96))',
             boxShadow: '0 24px 60px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)',
@@ -169,7 +169,7 @@ export const DepartmentExplorer = () => {
           {/* Department grid — hidden when viewing events */}
           {!isEvents && (
             <div
-              className="grid grid-cols-3 max-md:grid-cols-2 gap-[18px] p-[18px] max-md:gap-3 max-md:p-3"
+              className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-[18px] p-[18px] max-md:gap-3 max-md:p-3 max-sm:gap-2.5 max-sm:p-2.5"
               style={{
                 background: `
                   radial-gradient(circle at top left, rgba(61,107,255,0.12), transparent 28%),
@@ -182,7 +182,7 @@ export const DepartmentExplorer = () => {
                 <button
                   key={dept.code}
                   onClick={() => handleDepartmentClick(i)}
-                  className="relative min-h-[210px] max-md:min-h-[170px] flex flex-col items-start justify-between gap-[18px] p-5 max-md:p-4 text-left overflow-hidden rounded-[20px] border border-line transition-all duration-250 hover:-translate-y-1 hover:border-brass/60 hover:shadow-[0_16px_28px_rgba(0,0,0,0.2)] group"
+                  className="relative min-h-[210px] max-md:min-h-[170px] max-sm:min-h-[130px] flex flex-col items-start justify-between gap-[18px] max-sm:gap-3 p-5 max-md:p-4 max-sm:p-4 text-left overflow-hidden rounded-[20px] max-sm:rounded-[14px] border border-line transition-all duration-250 hover:-translate-y-1 hover:border-brass/60 hover:shadow-[0_16px_28px_rgba(0,0,0,0.2)] group"
                   style={{
                     background: 'linear-gradient(180deg, rgba(18,21,27,0.96), rgba(14,16,22,0.98))',
                   }}
@@ -271,13 +271,13 @@ export const DepartmentExplorer = () => {
               <div className="text-brass font-mono text-[11px] tracking-[.1em] mb-2.5">
                 {activeDept.name}
               </div>
-              <h4 className="font-display text-[1.6rem] mb-2.5">
+              <h4 className="font-display" style={{ fontSize: 'clamp(1.2rem, 3.5vw, 1.6rem)' }}>
                 {selectedEvent.name}
               </h4>
               <p className="text-paper-dim text-[15px] max-w-[620px] leading-[1.7]">
                 {selectedEvent.description || 'Event details will be announced by the organizers.'}
               </p>
-              <div className="flex flex-wrap gap-[22px] mt-5 text-paper-mute font-mono text-[11px] tracking-[.04em]">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-[22px] mt-5 text-paper-mute font-mono text-[11px] tracking-[.04em]">
                 <span className="flex gap-2 items-center">
                   FORMAT <strong className="text-paper-dim font-medium">{selectedEvent.format}</strong>
                 </span>

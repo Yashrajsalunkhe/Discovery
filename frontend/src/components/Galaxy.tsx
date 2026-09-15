@@ -1,5 +1,5 @@
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
-import { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, HTMLAttributes } from 'react';
 import './Galaxy.css';
 
 const vertexShader = `
@@ -35,10 +35,11 @@ uniform float uRepulsionStrength;
 uniform float uMouseActiveFactor;
 uniform float uAutoCenterRepulsion;
 uniform bool uTransparent;
+uniform float uLightMode;
 
 varying vec2 vUv;
 
-#define NUM_LAYER 2.0
+#define NUM_LAYER 4.0
 #define STAR_COLOR_CUTOFF 0.2
 #define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
 #define PERIOD 3.0
@@ -159,7 +160,12 @@ void main() {
     col += StarLayer(uv * scale + i * 453.32) * fade;
   }
 
-  if (uTransparent) {
+  if (uLightMode > 0.5) {
+    float energy = max(max(col.r, col.g), col.b);
+    float coverage = clamp(smoothstep(0.0, 0.42, energy) * 0.92, 0.0, 0.92);
+    vec3 ink = clamp(col * 0.48, 0.0, 0.82);
+    gl_FragColor = vec4(mix(vec3(1.0), ink, coverage), 1.0);
+  } else if (uTransparent) {
     float alpha = length(col);
     alpha = smoothstep(0.0, 0.3, alpha);
     alpha = min(alpha, 1.0);
@@ -170,7 +176,7 @@ void main() {
 }
 `;
 
-interface GalaxyProps {
+export interface GalaxyProps extends HTMLAttributes<HTMLDivElement> {
   focal?: [number, number];
   rotation?: [number, number];
   starSpeed?: number;
@@ -182,14 +188,15 @@ interface GalaxyProps {
   glowIntensity?: number;
   saturation?: number;
   mouseRepulsion?: boolean;
+  repulsionStrength?: number;
   twinkleIntensity?: number;
   rotationSpeed?: number;
-  repulsionStrength?: number;
   autoCenterRepulsion?: number;
   transparent?: boolean;
+  lightMode?: boolean;
 }
 
-export default memo(function Galaxy({
+export default function Galaxy({
   focal = [0.5, 0.5],
   rotation = [1.0, 0.0],
   starSpeed = 0.5,
@@ -206,6 +213,7 @@ export default memo(function Galaxy({
   rotationSpeed = 0.1,
   autoCenterRepulsion = 0,
   transparent = true,
+  lightMode = false,
   ...rest
 }: GalaxyProps) {
   const ctnDom = useRef<HTMLDivElement>(null);
@@ -213,31 +221,19 @@ export default memo(function Galaxy({
   const smoothMousePos = useRef({ x: 0.5, y: 0.5 });
   const targetMouseActive = useRef(0.0);
   const smoothMouseActive = useRef(0.0);
-  const lastFrameTime = useRef(0);
-  const frameSkip = useRef(0);
 
   useEffect(() => {
     if (!ctnDom.current) return;
     const ctn = ctnDom.current;
-    
-    // Check for reduced motion preference
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      ctn.style.display = 'none';
-      return;
-    }
-
     const renderer = new Renderer({
       alpha: transparent,
-      premultipliedAlpha: false,
-      antialias: false, // Disable antialiasing for better performance
-      powerPreference: 'high-performance',
-      depth: false, // Disable depth testing for better performance
-      stencil: false // Disable stencil buffer for better performance
+      premultipliedAlpha: false
     });
     const gl = renderer.gl;
 
-    if (transparent) {
+    if (lightMode) {
+      gl.clearColor(1, 1, 1, 1);
+    } else if (transparent) {
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.clearColor(0, 0, 0, 0);
@@ -248,6 +244,7 @@ export default memo(function Galaxy({
     let program: Program;
 
     function resize() {
+      if (!ctn) return;
       const scale = 1;
       renderer.setSize(ctn.offsetWidth * scale, ctn.offsetHeight * scale);
       if (program) {
@@ -287,7 +284,8 @@ export default memo(function Galaxy({
         uRepulsionStrength: { value: repulsionStrength },
         uMouseActiveFactor: { value: 0.0 },
         uAutoCenterRepulsion: { value: autoCenterRepulsion },
-        uTransparent: { value: transparent }
+        uTransparent: { value: transparent },
+        uLightMode: { value: lightMode ? 1 : 0 }
       }
     });
 
@@ -295,42 +293,29 @@ export default memo(function Galaxy({
     let animateId: number;
 
     function update(t: number) {
-      // More aggressive throttling - 20fps for better performance
-      if (t - lastFrameTime.current < 50) {
-        animateId = requestAnimationFrame(update);
-        return;
-      }
-      lastFrameTime.current = t;
-
       animateId = requestAnimationFrame(update);
       if (!disableAnimation) {
         program.uniforms.uTime.value = t * 0.001;
         program.uniforms.uStarSpeed.value = (t * 0.001 * starSpeed) / 10.0;
       }
 
-      // Reduce mouse interpolation frequency even more for better performance
-      if (frameSkip.current % 4 === 0) {
-        const lerpFactor = 0.03; // Slower interpolation
-        smoothMousePos.current.x += (targetMousePos.current.x - smoothMousePos.current.x) * lerpFactor;
-        smoothMousePos.current.y += (targetMousePos.current.y - smoothMousePos.current.y) * lerpFactor;
+      const lerpFactor = 0.05;
+      smoothMousePos.current.x += (targetMousePos.current.x - smoothMousePos.current.x) * lerpFactor;
+      smoothMousePos.current.y += (targetMousePos.current.y - smoothMousePos.current.y) * lerpFactor;
 
-        smoothMouseActive.current += (targetMouseActive.current - smoothMouseActive.current) * lerpFactor;
+      smoothMouseActive.current += (targetMouseActive.current - smoothMouseActive.current) * lerpFactor;
 
-        program.uniforms.uMouse.value[0] = smoothMousePos.current.x;
-        program.uniforms.uMouse.value[1] = smoothMousePos.current.y;
-        program.uniforms.uMouseActiveFactor.value = smoothMouseActive.current;
-      }
-      frameSkip.current++;
+      program.uniforms.uMouse.value[0] = smoothMousePos.current.x;
+      program.uniforms.uMouse.value[1] = smoothMousePos.current.y;
+      program.uniforms.uMouseActiveFactor.value = smoothMouseActive.current;
 
       renderer.render({ scene: mesh });
     }
-    
-    // Render first frame immediately to show galaxy without delay
-    renderer.render({ scene: mesh });
     animateId = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);
 
     function handleMouseMove(e: MouseEvent) {
+      if (!ctn) return;
       const rect = ctn.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = 1.0 - (e.clientY - rect.top) / rect.height;
@@ -343,18 +328,22 @@ export default memo(function Galaxy({
     }
 
     if (mouseInteraction) {
-      ctn.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mousemove', handleMouseMove);
       ctn.addEventListener('mouseleave', handleMouseLeave);
+      document.addEventListener('mouseleave', handleMouseLeave);
     }
 
     return () => {
       cancelAnimationFrame(animateId);
       window.removeEventListener('resize', resize);
       if (mouseInteraction) {
-        ctn.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mousemove', handleMouseMove);
         ctn.removeEventListener('mouseleave', handleMouseLeave);
+        document.removeEventListener('mouseleave', handleMouseLeave);
       }
-      ctn.removeChild(gl.canvas);
+      if (gl.canvas.parentNode === ctn) {
+        ctn.removeChild(gl.canvas);
+      }
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, [
@@ -369,12 +358,13 @@ export default memo(function Galaxy({
     glowIntensity,
     saturation,
     mouseRepulsion,
+    repulsionStrength,
     twinkleIntensity,
     rotationSpeed,
-    repulsionStrength,
     autoCenterRepulsion,
-    transparent
+    transparent,
+    lightMode
   ]);
 
   return <div ref={ctnDom} className="galaxy-container" {...rest} />;
-});
+}

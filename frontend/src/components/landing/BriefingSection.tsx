@@ -32,16 +32,15 @@ export const BriefingSection = () => {
         </div>
 
         <div
-          className="grid border border-line briefing-grid max-md:grid-cols-1"
-          style={{ gridTemplateColumns: '1.3fr 1fr' }}
+          className="grid grid-cols-[1.3fr_1fr] max-md:grid-cols-1 border border-line briefing-grid"
           data-reveal
         >
           {/* Copy */}
-          <div className="p-12 border-r border-line max-md:border-r-0 max-md:border-b max-md:border-line">
-            <p className="text-[17px] leading-[1.75] text-paper-dim max-w-[560px]">
+          <div className="p-12 max-md:p-6 max-sm:p-5 border-r border-line max-md:border-r-0 max-md:border-b max-md:border-line">
+            <p className="text-[17px] max-sm:text-[15px] leading-[1.75] text-paper-dim max-w-[560px]">
               <strong className="text-paper font-semibold">Discovery 2K26</strong> is ADCET's national-level technical festival — a single day where Computer, AI &amp; DS, Mechanical, Civil, E&amp;TC, Electrical and Robotics all run their own competitions in parallel, on the same campus, in front of the same judges from industry.
             </p>
-            <p className="text-[17px] leading-[1.75] text-paper-dim max-w-[560px] mt-[18px]">
+            <p className="text-[17px] max-sm:text-[15px] leading-[1.75] text-paper-dim max-w-[560px] mt-[18px] max-sm:mt-3">
               It's organized end-to-end by students — the same clubs that run the department's year-round technical work — with faculty mentors backing every track. Outside teams are welcome on every event; there is no home-team advantage built into the judging.
             </p>
             <div className="flex gap-2.5 mt-[34px] flex-wrap">
@@ -61,12 +60,12 @@ export const BriefingSection = () => {
             ].map((stat, i, arr) => (
               <div
                 key={i}
-                className={`py-[26px] px-10 flex items-baseline justify-between gap-5 ${
+                className={`py-[26px] px-10 max-md:px-6 max-sm:px-5 flex items-baseline justify-between gap-5 ${
                   i < arr.length - 1 ? 'border-b border-line' : ''
                 }`}
               >
                 <div className="font-display font-bold text-paper whitespace-nowrap relative"
-                  style={{ fontSize: '2.6rem' }}>
+                  style={{ fontSize: 'clamp(1.8rem, 5vw, 2.6rem)' }}>
                   {stat.redact && (
                     <span
                       ref={redactRef}

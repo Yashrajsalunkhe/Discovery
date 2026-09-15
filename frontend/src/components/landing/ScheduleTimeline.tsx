@@ -48,9 +48,9 @@ export const ScheduleTimeline = () => {
           </p>
         </div>
 
-        <div className="grid max-md:grid-cols-1 gap-[60px] max-md:gap-[30px]" style={{ gridTemplateColumns: '220px 1fr' }}>
+        <div className="grid grid-cols-[220px_1fr] max-md:grid-cols-1 gap-[60px] max-md:gap-[24px] max-sm:gap-4">
           {/* Side */}
-          <div className="sticky top-[140px] self-start max-md:static">
+          <div className="sticky top-[140px] self-start max-md:static max-md:pb-4 max-md:border-b max-md:border-line">
             <div className="font-mono text-xs tracking-[.1em] text-paper-mute leading-8">
               DAY&nbsp;01<br />
               ADCET CAMPUS<br />
@@ -60,9 +60,9 @@ export const ScheduleTimeline = () => {
           </div>
 
           {/* Timeline */}
-          <div className="relative pl-10" data-timeline>
+          <div className="relative pl-10 max-sm:pl-7" data-timeline>
             {/* Vertical line */}
-            <div className="absolute left-[6px] top-[6px] bottom-[6px] w-px bg-line">
+            <div className="absolute left-[6px] max-sm:left-[4px] top-[6px] bottom-[6px] w-px bg-line">
               <div
                 className="absolute left-0 top-0 w-px h-full bg-brass origin-top"
                 style={{ transform: 'scaleY(0)' }}
@@ -76,14 +76,14 @@ export const ScheduleTimeline = () => {
                 className={`relative timeline-item ${i < timelineItems.length - 1 ? 'pb-[52px]' : ''}`}
               >
                 {/* Dot */}
-                <div className="absolute -left-10 top-1 w-[13px] h-[13px] rounded-full bg-ink border-2 border-line" />
-                <div className="font-mono text-[12.5px] tracking-[.08em] text-brass mb-2">
+                <div className="absolute -left-10 max-sm:-left-7 top-1 w-[13px] h-[13px] max-sm:w-[11px] max-sm:h-[11px] rounded-full bg-ink border-2 border-line" />
+                <div className="font-mono text-[12.5px] max-sm:text-[11.5px] tracking-[.08em] text-brass mb-2">
                   {item.time}
                 </div>
-                <div className="font-display font-semibold text-[1.4rem] mb-2">
+                <div className="font-display font-semibold mb-2" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)' }}>
                   {item.title}
                 </div>
-                <div className="text-paper-dim text-[14.5px] max-w-[460px] leading-[1.6]">
+                <div className="text-paper-dim text-[14.5px] max-sm:text-[13.5px] max-w-[460px] max-sm:max-w-full leading-[1.6]">
                   {item.desc}
                 </div>
               </div>

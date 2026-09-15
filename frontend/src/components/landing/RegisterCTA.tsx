@@ -4,7 +4,7 @@ export const RegisterCTA = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-[140px] border-b border-line relative overflow-hidden" id="register">
+    <section className="py-[140px] max-md:py-[80px] max-sm:py-[64px] border-b border-line relative overflow-hidden" id="register">
       {/* Grid background */}
       <div
         className="absolute inset-0 z-0"
@@ -23,13 +23,14 @@ export const RegisterCTA = () => {
           className="font-display font-extrabold leading-[1.02] max-w-[900px] mx-auto"
           style={{ fontSize: 'clamp(2.4rem, 6vw, 5rem)' }}
         >
-          Pick your station.<br />
+          Pick your station.{' '}
+          <span className="hidden sm:inline"><br /></span>
           Bring your <span className="text-brass">team</span>.
         </h2>
         <p className="mx-auto mt-[26px] max-w-[460px] text-paper-dim text-base">
           Solo or squad, first-year or final-year — every track sets its own team size in its rulebook. Registration takes under five minutes.
         </p>
-        <div className="flex justify-center gap-[22px] mt-11 flex-wrap">
+        <div className="flex justify-center gap-[22px] max-sm:gap-3 mt-11 max-sm:mt-8 flex-wrap max-[475px]:flex-col max-[475px]:items-stretch max-[475px]:px-4">
           <a
             href="/register"
             onClick={(e) => { e.preventDefault(); navigate('/register'); }}
@@ -39,7 +40,7 @@ export const RegisterCTA = () => {
           </a>
           <a href="#" className="btn-ghost">Download Brochure</a>
         </div>
-        <div className="mt-9 font-mono text-[12.5px] tracking-[.1em] text-paper-mute">
+        <div className="mt-9 max-sm:mt-6 font-mono text-[12.5px] max-sm:text-[11px] tracking-[.1em] text-paper-mute max-sm:px-4">
           REGISTRATIONS CLOSE 48 HOURS BEFORE GATE OPEN
         </div>
       </div>
