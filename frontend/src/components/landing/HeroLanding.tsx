@@ -63,7 +63,7 @@ export const HeroLanding: React.FC = () => {
 
       {/* Main Hero Content */}
       <div className="wrap relative z-10 w-full">
-        <div className="max-w-[720px] flex flex-col justify-center">
+        <div className="max-w-[920px] flex flex-col justify-center">
 
           {/* Top Subhead / Department Kicker */}
           <div className="font-mono text-[10px] sm:text-[12.5px] font-semibold tracking-[0.08em] sm:tracking-[0.14em] text-[#97a0ac] uppercase mb-4 sm:mb-8 flex items-center gap-1.5 sm:gap-2 flex-wrap">
@@ -74,8 +74,8 @@ export const HeroLanding: React.FC = () => {
 
           {/* Main Title */}
           <h1
-            className="font-display font-black leading-[0.88] tracking-[-0.02em] text-[#EDEAE2] mb-3 sm:mb-4 uppercase select-none max-w-full overflow-hidden"
-            style={{ fontSize: 'clamp(2.05rem, 8.4vw, 8.5rem)' }}
+            className="font-display font-black leading-[0.88] tracking-[-0.02em] text-[#EDEAE2] mb-3 sm:mb-4 uppercase select-none max-w-full"
+            style={{ fontSize: 'clamp(2rem, 7.2vw, 6.5rem)' }}
           >
             <span className="block text-[#EDEAE2]">
               DISCOVERY
@@ -84,7 +84,7 @@ export const HeroLanding: React.FC = () => {
               <span
                 style={{
                   color: 'transparent',
-                  WebkitTextStroke: '1.2px #EDEAE2'
+                  WebkitTextStroke: '1.5px #EDEAE2'
                 }}
               >
                 20

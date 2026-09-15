@@ -49,7 +49,7 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[500] transition-all duration-[300ms] ease-out border-b ${isScrolled
+        className={`fixed top-0 left-0 right-0 z-[500] transition-all duration-300 ease-out border-b ${isScrolled
             ? 'bg-[#0A0C10]/95 backdrop-blur-md border-[#262b35] py-3 shadow-lg'
             : 'bg-transparent border-transparent py-3.5 sm:py-6'
           }`}
@@ -115,7 +115,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       <div
-        className={`fixed inset-0 bg-[#0A0C10]/98 backdrop-blur-xl z-[900] flex flex-col justify-between p-6 sm:p-8 transition-transform duration-400 ease-[cubic-bezier(.65,0,.35,1)] ${isMobileOpen ? 'translate-y-0' : '-translate-y-full'
+        className={`fixed inset-0 bg-[#0A0C10]/98 backdrop-blur-xl z-[900] flex flex-col justify-between p-6 sm:p-8 transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-y-0' : '-translate-y-full'
           }`}
       >
         <div className="flex items-center justify-between border-b border-[#262b35] pb-5">
