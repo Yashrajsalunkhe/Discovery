@@ -182,10 +182,9 @@ export const DepartmentExplorer = () => {
 
       <div className="max-w-[var(--container)] mx-auto px-8 pt-[18px] max-md:px-4 max-sm:px-3">
         <div
-          className="overflow-hidden border border-line rounded-[28px] max-sm:rounded-[18px]"
+          className="overflow-hidden border border-[#E2E8F0] rounded-[28px] max-sm:rounded-[18px] bg-white"
           style={{
-            background: 'linear-gradient(180deg, rgba(18,21,27,0.98), rgba(10,12,16,0.96))',
-            boxShadow: '0 24px 60px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)',
+            boxShadow: '0 12px 40px rgba(15, 23, 42, 0.06)',
           }}
         >
           {/* Department grid — hidden when viewing events */}
@@ -193,41 +192,36 @@ export const DepartmentExplorer = () => {
             <div
               className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-[18px] p-[18px] max-md:gap-3 max-md:p-3 max-sm:gap-2.5 max-sm:p-2.5"
               style={{
-                background: `
-                  radial-gradient(circle at top left, rgba(61,107,255,0.12), transparent 28%),
-                  radial-gradient(circle at bottom right, rgba(232,185,35,0.09), transparent 26%),
-                  var(--ink)
-                `,
+                background: '#F8FAFC',
               }}
             >
               {departments.map((dept, i) => (
                 <button
                   key={dept.code}
                   onClick={() => handleDepartmentClick(i)}
-                  className="relative min-h-[210px] max-md:min-h-[170px] max-sm:min-h-[130px] flex flex-col items-start justify-between gap-[18px] max-sm:gap-3 p-5 max-md:p-4 max-sm:p-4 text-left overflow-hidden rounded-[20px] max-sm:rounded-[14px] border border-line transition-all duration-250 hover:-translate-y-1 hover:border-brass/60 hover:shadow-[0_16px_28px_rgba(0,0,0,0.2)] group"
+                  className="relative min-h-[260px] max-md:min-h-[230px] max-sm:min-h-[210px] flex flex-col items-start justify-between gap-[18px] max-sm:gap-3 p-6 max-md:p-5 max-sm:p-5 text-left overflow-hidden rounded-[24px] border border-[#E2E8F0] bg-white transition-all duration-200 hover:-translate-y-1 hover:border-blue-300 hover:shadow-[0_14px_34px_rgba(15,23,42,0.11)] group"
                   style={{
-                    background: 'linear-gradient(180deg, rgba(18,21,27,0.96), rgba(14,16,22,0.98))',
+                    boxShadow: '0 8px 30px rgba(15, 23, 42, 0.06)',
                   }}
                 >
-                  {/* Gradient overlay on hover */}
                   <div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-250"
+                    className="absolute left-6 top-0 h-1 w-12 rounded-b-full bg-blue-600 transition-all duration-200 group-hover:w-20"
                     style={{
-                      background: i % 3 === 1
-                        ? 'linear-gradient(135deg, rgba(61,107,255,0.18), transparent 46%)'
-                        : i % 3 === 2
-                        ? 'linear-gradient(135deg, rgba(225,75,75,0.14), transparent 46%)'
-                        : 'linear-gradient(135deg, rgba(232,185,35,0.14), transparent 46%)',
+                      zIndex: 1,
                     }}
                   />
-                  <span className="relative z-[1] font-mono text-[11px] tracking-[.08em] text-paper-mute">
+                  <span className="relative z-[1] font-mono text-sm font-medium tracking-[.08em] text-[#64748B]">
                     0{i + 1}
                   </span>
-                  <span className="relative z-[1] font-display text-[1.15rem] font-semibold leading-[1.25] max-w-[88%]">
+                  <span
+                    className="relative z-[1] font-display font-bold leading-[1.2] max-w-full text-[#0F172A]"
+                    style={{ fontSize: 'clamp(20px, 2vw, 26px)' }}
+                  >
                     {dept.name}
                   </span>
-                  <span className="relative z-[1] font-mono text-[11px] tracking-[.08em] text-brass">
-                    {dept.events.length} EVT
+                  <span className="relative z-[1] font-mono text-[11px] tracking-[.08em]">
+                    <span className="text-[#2563EB] font-semibold">{dept.events.length}</span>{' '}
+                    <span className="text-[#475569]">EVT</span>
                   </span>
                 </button>
               ))}
@@ -236,43 +230,50 @@ export const DepartmentExplorer = () => {
 
           {/* Events view */}
           {isEvents && activeDept && !isDetail && (
-            <div className="p-0 max-md:p-0" style={{
-              minHeight: '430px',
-              background: 'linear-gradient(180deg, rgba(9,11,15,0.96), rgba(15,18,24,0.97))',
-            }}>
+            <div className="p-0 max-md:p-0 bg-[#F8FAFC]" style={{ minHeight: '430px' }}>
               {/* Header */}
-              <div className="flex items-start justify-between gap-6 mx-0 mb-[18px] p-[22px_18px_18px] border-b border-line"
-                style={{ background: 'linear-gradient(180deg, rgba(19,23,31,0.9), rgba(17,20,26,0.75))' }}>
+              <div className="flex items-start justify-between gap-6 mx-0 mb-[18px] p-[24px] max-sm:p-5 border-b border-[#E2E8F0] bg-white">
                 <div>
                   <button
                     onClick={handleBackToList}
-                    className="font-mono text-[11px] tracking-[.08em] text-paper-dim pb-2.5 border-b border-line hover:text-brass hover:border-brass transition-colors duration-200 mb-2.5 block"
+                    className="font-mono text-[11px] tracking-[.08em] text-[#475569] pb-2.5 border-b border-[#E2E8F0] hover:text-[#2563EB] hover:border-[#2563EB] transition-colors duration-200 mb-3 block"
                   >
                     ← BACK TO DEPARTMENTS
                   </button>
-                  <div className="text-brass font-mono text-[11px] tracking-[.1em] mb-2.5">
+                  <div className="text-[#2563EB] font-mono text-[11px] tracking-[.1em] mb-2.5">
                     DEPARTMENT {String((view as { departmentIndex: number }).departmentIndex + 1).padStart(2, '0')} / {activeDept.code}
                   </div>
-                  <h3 className="font-display font-semibold" style={{ fontSize: 'clamp(1.3rem, 2vw, 1.9rem)', lineHeight: 1.15 }}>
+                  <h3 className="font-display font-bold text-[#0F172A]" style={{ fontSize: 'clamp(1.4rem, 2vw, 1.9rem)', lineHeight: 1.15 }}>
                     {activeDept.name}
                   </h3>
                 </div>
-                <div className="text-paper-mute font-mono text-[11px] whitespace-nowrap">
+                <div className="text-[#64748B] font-mono text-[11px] whitespace-nowrap pt-1">
                   {activeDept.events.length} {activeDept.events.length === 1 ? 'EVENT' : 'EVENTS'}
                 </div>
               </div>
 
               {/* Event list */}
-              <div className="grid gap-3 px-[18px] max-md:px-3 pb-[18px]">
+              <div className="grid gap-4 px-6 max-md:px-4 max-sm:px-3 pb-6 md:grid-cols-2">
                 {activeDept.events.map((event, i) => (
                   <button
                     key={i}
                     onClick={() => handleEventClick((view as { departmentIndex: number }).departmentIndex, i)}
-                    className="w-full flex items-center justify-between gap-5 py-[15px] px-4 text-left text-paper-dim rounded-[14px] border border-line transition-all duration-200 hover:text-paper hover:border-brass/65 hover:translate-x-0.5"
-                    style={{ background: 'rgba(17,20,26,0.8)' }}
+                    className="w-full min-w-0 flex flex-col items-start justify-between gap-5 p-5 text-left rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_6px_20px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-1 hover:border-blue-300 hover:shadow-[0_12px_26px_rgba(15,23,42,0.09)]"
                   >
-                    <span className="max-w-[78%]">{event.name}</span>
-                    <span className="font-mono text-[11px] tracking-[.08em] text-brass">VIEW</span>
+                    <span className="w-full min-w-0">
+                      <span className="inline-flex max-w-full mb-3 px-2.5 py-1 rounded-full bg-blue-50 text-[#2563EB] font-mono text-[10px] tracking-[.08em] truncate">
+                        {event.department || activeDept.name}
+                      </span>
+                      <span className="block text-[#0F172A] font-display font-bold text-[1.05rem] leading-[1.3] break-words">
+                        {event.name}
+                      </span>
+                      <span className="block mt-2 text-[#475569] text-sm leading-[1.55] line-clamp-2">
+                        {event.description || 'Event details will be announced by the organizers.'}
+                      </span>
+                    </span>
+                    <span className="inline-flex items-center justify-center w-full min-h-11 px-4 py-2 rounded-lg bg-[#2563EB] text-white font-mono text-[11px] tracking-[.06em] transition-colors duration-200 hover:bg-blue-700">
+                      VIEW DETAILS →
+                    </span>
                   </button>
                 ))}
               </div>
@@ -281,56 +282,58 @@ export const DepartmentExplorer = () => {
 
           {/* Event detail view */}
           {selectedEvent && activeDept && (
-            <div className="p-[18px_18px_26px] min-h-[300px]" style={{
-              background: 'linear-gradient(180deg, rgba(9,11,15,0.96), rgba(15,18,24,0.97))',
-            }}>
+            <div className="p-6 max-sm:p-4 min-h-[300px] bg-[#F8FAFC]">
               <button
                 onClick={handleBackToEvents}
-                className="font-mono text-[11px] tracking-[.08em] text-paper-dim py-2 pb-2.5 border-b border-line hover:text-brass hover:border-brass transition-colors duration-200 mb-[22px] block"
+                className="font-mono text-[11px] tracking-[.08em] text-[#475569] py-2 pb-2.5 border-b border-[#E2E8F0] hover:text-[#2563EB] hover:border-[#2563EB] transition-colors duration-200 mb-7 block"
               >
                 ← BACK TO EVENTS
               </button>
-              <div className="text-brass font-mono text-[11px] tracking-[.1em] mb-2.5">
+              <div className="text-[#2563EB] font-mono text-[11px] tracking-[.1em] mb-3">
                 {activeDept.name}
               </div>
-              <h4 className="font-display" style={{ fontSize: 'clamp(1.2rem, 3.5vw, 1.6rem)' }}>
+              <h4 className="font-display font-bold text-[#0F172A]" style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.2rem)', lineHeight: 1.2 }}>
                 {selectedEvent.name}
               </h4>
-              <p className="text-paper-dim text-[15px] max-w-[620px] leading-[1.7]">
+              <p className="text-[#475569] text-[15px] max-w-[760px] leading-[1.7] mt-3">
                 {selectedEvent.description || 'Event details will be announced by the organizers.'}
               </p>
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-[22px] mt-5 text-paper-mute font-mono text-[11px] tracking-[.04em]">
-                <span className="flex gap-2 items-center">
-                  FORMAT <strong className="text-paper-dim font-medium">{selectedEvent.format}</strong>
-                </span>
-                <span className="flex gap-2 items-center">
-                  FOCUS <strong className="text-paper-dim font-medium">{selectedEvent.focus}</strong>
-                </span>
-                <span className="flex gap-2 items-center">
-                  TEAM <strong className="text-paper-dim font-medium">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+                <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)]">
+                  <span className="block text-[#64748B] font-mono text-[10px] tracking-[.1em]">FORMAT</span>
+                  <strong className="block mt-2 text-[#0F172A] font-medium text-sm">{selectedEvent.format}</strong>
+                </div>
+                <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)]">
+                  <span className="block text-[#64748B] font-mono text-[10px] tracking-[.1em]">FOCUS</span>
+                  <strong className="block mt-2 text-[#0F172A] font-medium text-sm">{selectedEvent.focus}</strong>
+                </div>
+                <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)]">
+                  <span className="block text-[#64748B] font-mono text-[10px] tracking-[.1em]">TEAM</span>
+                  <strong className="block mt-2 text-[#0F172A] font-medium text-sm">
                     {selectedEvent.minTeamSize && selectedEvent.minTeamSize > 1
                       ? `${selectedEvent.minTeamSize}-${selectedEvent.maxTeamSize} participants`
                       : `Up to ${selectedEvent.maxTeamSize} participant${selectedEvent.maxTeamSize === 1 ? '' : 's'}`}
                   </strong>
-                </span>
-                <span className="flex gap-2 items-center">
-                  FEE <strong className="text-paper-dim font-medium">₹{selectedEvent.entryFee} / participant</strong>
-                </span>
+                </div>
+                <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)]">
+                  <span className="block text-[#64748B] font-mono text-[10px] tracking-[.1em]">FEE</span>
+                  <strong className="block mt-2 text-[#0F172A] font-medium text-sm">₹{selectedEvent.entryFee} / participant</strong>
+                </div>
               </div>
 
               <div className="grid gap-5 mt-7 md:grid-cols-2">
                 {selectedEvent.rules && selectedEvent.rules.length > 0 && (
-                  <div className="border border-line rounded-[14px] p-4" style={{ background: 'rgba(17,20,26,0.8)' }}>
-                    <h5 className="font-mono text-[11px] tracking-[.1em] text-brass mb-3">RULES & GUIDELINES</h5>
-                    <ol className="space-y-2 text-paper-dim text-sm leading-[1.6] list-decimal list-inside">
+                  <div className="border border-[#E2E8F0] rounded-[18px] p-5 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+                    <h5 className="font-mono text-[11px] tracking-[.1em] text-[#2563EB] mb-3">RULES & GUIDELINES</h5>
+                    <ol className="space-y-2 text-[#475569] text-sm leading-[1.6] list-decimal list-inside">
                       {selectedEvent.rules.map((rule, index) => <li key={index}>{rule}</li>)}
                     </ol>
                   </div>
                 )}
                 {selectedEvent.specifications && selectedEvent.specifications.length > 0 && (
-                  <div className="border border-line rounded-[14px] p-4" style={{ background: 'rgba(17,20,26,0.8)' }}>
-                    <h5 className="font-mono text-[11px] tracking-[.1em] text-brass mb-3">SPECIFICATIONS</h5>
-                    <ul className="space-y-2 text-paper-dim text-sm leading-[1.6] list-disc list-inside">
+                  <div className="border border-[#E2E8F0] rounded-[18px] p-5 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+                    <h5 className="font-mono text-[11px] tracking-[.1em] text-[#2563EB] mb-3">SPECIFICATIONS</h5>
+                    <ul className="space-y-2 text-[#475569] text-sm leading-[1.6] list-disc list-inside">
                       {selectedEvent.specifications.filter(Boolean).map((spec, index) => <li key={index}>{spec}</li>)}
                     </ul>
                   </div>
@@ -338,19 +341,19 @@ export const DepartmentExplorer = () => {
               </div>
 
               {selectedEvent.coordinators && (
-                <div className="mt-5 border border-line rounded-[14px] p-4" style={{ background: 'rgba(17,20,26,0.8)' }}>
-                  <h5 className="font-mono text-[11px] tracking-[.1em] text-brass mb-3">EVENT COORDINATORS</h5>
-                  <div className="grid gap-4 sm:grid-cols-2 text-sm text-paper-dim">
+                <div className="mt-5 border border-[#E2E8F0] rounded-[18px] p-5 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+                  <h5 className="font-mono text-[11px] tracking-[.1em] text-[#2563EB] mb-3">EVENT COORDINATORS</h5>
+                  <div className="grid gap-4 sm:grid-cols-2 text-sm text-[#475569]">
                     {selectedEvent.coordinators.faculty && (
                       <div>
-                        <div className="text-paper font-medium">Faculty: {selectedEvent.coordinators.faculty.name}</div>
+                        <div className="text-[#0F172A] font-medium">Faculty: {selectedEvent.coordinators.faculty.name}</div>
                         <div>{selectedEvent.coordinators.faculty.phone}</div>
                         {selectedEvent.coordinators.faculty.email && <div className="break-all">{selectedEvent.coordinators.faculty.email}</div>}
                       </div>
                     )}
                     {selectedEvent.coordinators.student && (
                       <div>
-                        <div className="text-paper font-medium">Student: {selectedEvent.coordinators.student.name}</div>
+                        <div className="text-[#0F172A] font-medium">Student: {selectedEvent.coordinators.student.name}</div>
                         <div>{selectedEvent.coordinators.student.phone}</div>
                         {selectedEvent.coordinators.student.email && <div className="break-all">{selectedEvent.coordinators.student.email}</div>}
                       </div>

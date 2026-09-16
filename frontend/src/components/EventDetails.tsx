@@ -48,23 +48,23 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
   };
 
   return (
-    <section className="pt-20 pb-8 sm:pt-32 sm:pb-20 px-2 sm:px-6 lg:px-8 min-h-screen flex justify-center">
-      <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto">`
+    <section className="pt-20 pb-12 sm:pt-32 sm:pb-20 px-3 sm:px-6 lg:px-8 min-h-screen flex justify-center bg-[#F8FAFC] text-[#0F172A] [&_.festival-card]:bg-white [&_.festival-card]:border-[#E2E8F0] [&_.festival-card]:rounded-[18px] [&_.festival-card]:shadow-[0_8px_30px_rgba(15,23,42,0.06)]">
+      <div className="w-full max-w-sm sm:max-w-md md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <Button variant="ghost" onClick={onBack} className="hover:bg-primary/20 w-fit">
+          <Button variant="ghost" onClick={onBack} className="text-[#475569] hover:bg-blue-50 hover:text-[#2563EB] w-fit">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Events
           </Button>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             {event.name === "Paper Presentation" && event.ruleBookFile && (
-              <Button variant="outline" onClick={handleDownloadRuleBook} className="hidden sm:flex hover:bg-primary/10">
+              <Button variant="outline" onClick={handleDownloadRuleBook} className="hidden sm:flex border-[#E2E8F0] text-[#475569] hover:bg-blue-50 hover:text-[#2563EB]">
                 <Download className="h-4 w-4 mr-2" />
                 Download Template
               </Button>
             )}
             {onRegister && (
-              <Button onClick={onRegister} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+              <Button onClick={onRegister} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] w-full sm:w-auto rounded-lg">
                 <UserPlus className="h-4 w-4 mr-2" />
                 Register Now
               </Button>
@@ -74,16 +74,19 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
         {/* Event Title */}
         <div className="text-center mb-8 sm:mb-12 animate-fade-in">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-gradient px-1">
+          <p className="text-[#2563EB] font-mono text-xs sm:text-sm tracking-[.12em] uppercase mb-3">
+            {event.department}
+          </p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-[#0F172A] px-1">
             {event.name}
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-4 sm:mb-6 px-1">
-            {event.department}
+          <p className="text-base sm:text-lg md:text-xl text-[#475569] mb-4 sm:mb-6 px-1 max-w-3xl mx-auto leading-relaxed">
+            {event.description || "Explore the event format, guidelines, and participation details."}
           </p>
           
           {/* Key Info */}
           <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 sm:gap-4 mb-6 sm:mb-8 px-1">
-            <Badge variant="secondary" className="flex items-center justify-center gap-2 px-3 py-2 text-sm sm:text-base mx-auto sm:mx-0 w-fit">
+            <Badge variant="secondary" className="flex items-center justify-center gap-2 px-3 py-2 text-sm sm:text-base mx-auto sm:mx-0 w-fit bg-white border border-[#E2E8F0] text-[#0F172A] shadow-sm">
               <Users className="h-4 w-4 flex-shrink-0" />
               <span className="text-center">
                 {event.minTeamSize && event.minTeamSize > 1 
@@ -92,7 +95,7 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                 }
               </span>
             </Badge>
-            <Badge variant="outline" className="flex items-center justify-center gap-2 px-3 py-2 text-sm sm:text-base text-primary border-primary/30 mx-auto sm:mx-0 w-fit">
+            <Badge variant="outline" className="flex items-center justify-center gap-2 px-3 py-2 text-sm sm:text-base text-[#2563EB] border-[#BFDBFE] bg-blue-50 mx-auto sm:mx-0 w-fit">
               <DollarSign className="h-4 w-4 flex-shrink-0" />
               <span>₹{event.entryFee}/- per participant</span>
             </Badge>
@@ -299,11 +302,11 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
               <CardContent>
                 <div className="space-y-3">
                   {event.disqualification.map((disqual, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-red-950/30 border border-red-800/50 rounded-lg">
+                    <div key={index} className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                       <span className="flex-shrink-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
                         {index + 1}
                       </span>
-                      <span className="text-red-100">{disqual}</span>
+                      <span className="text-[#475569]">{disqual}</span>
                     </div>
                   ))}
                 </div>
@@ -410,18 +413,18 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
           {/* Mobile Download Rule Book Button - Only for Paper Presentation */}
           {event.name === "Paper Presentation" && event.ruleBookFile && (
             <div className="sm:hidden"> {/* Only show on mobile */}
-              <Card className="festival-card border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 mx-0 sm:mx-0">
+              <Card className="festival-card border-[#BFDBFE] bg-white mx-0 sm:mx-0">
                 <CardContent className="pt-4 sm:pt-6">
                   <div className="text-center space-y-3">
                     <h3 className="text-lg font-semibold text-primary">Need the Template?</h3>
-                    <p className="text-sm text-muted-foreground px-2">
+                    <p className="text-sm text-[#475569] px-2">
                       Download the complete paper submission guidelines
                     </p>
                     <Button 
                       onClick={handleDownloadRuleBook} 
                       size="lg" 
                       variant="outline"
-                      className="w-full border-primary/30 hover:bg-primary/10 text-primary py-2"
+                      className="w-full border-[#BFDBFE] hover:bg-blue-50 text-[#2563EB] py-2"
                     >
                       <Download className="h-4 w-4 mr-2" />
                       Download Template
@@ -517,17 +520,17 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Registration Call to Action */}
           {onRegister && (
-            <Card className="festival-card border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 mx-0 sm:mx-0">
+            <Card className="festival-card border-[#BFDBFE] bg-white mx-0 sm:mx-0">
               <CardContent className="pt-4 sm:pt-6">
                 <div className="text-center space-y-3 sm:space-y-4">
-                  <h3 className="text-xl sm:text-2xl font-bold text-primary">Ready to Participate?</h3>
-                  <p className="text-muted-foreground text-sm sm:text-base px-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A]">Ready to Participate?</h3>
+                  <p className="text-[#475569] text-sm sm:text-base px-2">
                     Register now to secure your spot in this exciting event!
                   </p>
                   <Button 
                     onClick={onRegister} 
                     size="lg" 
-                    className="bg-primary hover:bg-primary/90 text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto"
+                    className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto rounded-lg transition-colors duration-200"
                   >
                     <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                     Register for {event.name}

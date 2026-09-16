@@ -36,11 +36,11 @@ export const BriefingSection = () => {
           data-reveal
         >
           {/* Copy */}
-          <div className="p-12 max-md:p-6 max-sm:p-5 border-r border-line max-md:border-r-0 max-md:border-b max-md:border-line">
-            <p className="text-[17px] max-sm:text-[15px] leading-[1.75] text-paper-dim max-w-[560px]">
-              <strong className="text-paper font-semibold">Discovery 2K26</strong> is ADCET's national-level technical festival — a single day where Computer, AI &amp; DS, Mechanical, Civil, E&amp;TC, Electrical and Robotics all run their own competitions in parallel, on the same campus, in front of the same judges from industry.
+          <div className="p-12 max-md:p-6 max-sm:p-5 border-r border-line max-md:border-r-0 max-md:border-b max-md:border-line bg-white">
+            <p className="text-[17px] max-sm:text-[15px] leading-[1.75] text-slate-700 max-w-[560px]">
+              <strong className="text-slate-900 font-semibold">Discovery 2K26</strong> is ADCET's national-level technical festival — a single day where Computer, AI &amp; DS, Mechanical, Civil, E&amp;TC, Electrical and Robotics all run their own competitions in parallel, on the same campus, in front of the same judges from industry.
             </p>
-            <p className="text-[17px] max-sm:text-[15px] leading-[1.75] text-paper-dim max-w-[560px] mt-[18px] max-sm:mt-3">
+            <p className="text-[17px] max-sm:text-[15px] leading-[1.75] text-slate-600 max-w-[560px] mt-[18px] max-sm:mt-3">
               It's organized end-to-end by students — the same clubs that run the department's year-round technical work — with faculty mentors backing every track. Outside teams are welcome on every event; there is no home-team advantage built into the judging.
             </p>
             <div className="flex gap-2.5 mt-[34px] flex-wrap">

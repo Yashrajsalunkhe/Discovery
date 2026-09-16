@@ -49,15 +49,18 @@ export const EventsList = memo(({ department, onBack, onEventSelect }: EventsLis
               onClick={() => onEventSelect(event)}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <img
-                className="card__background"
-                src={event.image || "/event-images/placeholder.svg"}
-                alt={`${event.name} event`}
-                width="1920"
-                height="2193"
-              />
-                            <div className="card__content | flow">
-                <div className="card__content--container | flow">
+              <div className="card__media">
+                <img
+                  className="card__background"
+                  src={event.image || "/event-images/placeholder.svg"}
+                  alt={`${event.name} event`}
+                  width="1920"
+                  height="2193"
+                />
+              </div>
+              <div className="card__content">
+                <div className="card__content--container">
+                  <span className="card__category">{event.department}</span>
                   <h2 className="card__title">{event.name}</h2>
                   <p className="card__description">
                     {event.description || "Click to view detailed rules and information"}
