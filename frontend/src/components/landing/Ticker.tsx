@@ -11,7 +11,7 @@ export const Ticker = () => {
   const track = [...items, ...items];
 
   return (
-    <div className="border-b border-line bg-panel overflow-hidden whitespace-nowrap py-3.5 max-sm:py-2.5">
+    <div className="border-b border-slate-200 bg-slate-50 overflow-hidden whitespace-nowrap py-3.5 max-sm:py-2.5">
       <div
         className="inline-flex ticker-track"
         style={{ animation: 'ticker 26s linear infinite' }}
@@ -19,14 +19,14 @@ export const Ticker = () => {
         {track.map((item, i) => (
           <span
             key={i}
-            className="font-mono text-[13px] max-sm:text-[11px] tracking-[.1em] text-paper-dim px-[22px] max-sm:px-[14px] inline-flex items-center gap-[22px] max-sm:gap-[14px]"
+            className="font-mono text-[13px] max-sm:text-[11px] tracking-[.1em] text-slate-600 px-[22px] max-sm:px-[14px] inline-flex items-center gap-[22px] max-sm:gap-[14px]"
           >
             {item.bold ? (
-              <b className="text-brass font-semibold">{item.text}</b>
+              <b className="text-indigo-600 font-semibold">{item.text}</b>
             ) : (
               item.text
             )}
-            <span className="text-line">—</span>
+            <span className="text-slate-300">—</span>
           </span>
         ))}
       </div>
