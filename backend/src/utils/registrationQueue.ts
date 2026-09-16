@@ -90,7 +90,19 @@ const processRegistration = async (item: QueuedRegistration) => {
     saved.leaderYear,
     saved.leaderMobile,
     saved.selectedEvent,
-    saved.leaderCollege
+    saved.leaderCollege,
+    {
+      leaderDepartment: saved.leaderDepartment,
+      leaderCity: saved.leaderCity,
+      participationType: saved.participationType,
+      teamSize: saved.teamSize,
+      teamMembers: saved.teamMembers,
+      paymentId: saved.paymentId,
+      orderId: saved.orderId,
+      totalFee: saved.totalFee,
+      paperPresentationDept: saved.paperPresentationDept,
+      createdAt: saved.createdAt,
+    }
   ).catch(error => {
     console.error('Email sending failed:', error);
   });

@@ -8,6 +8,37 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
+/**
+ * Registration details passed to the email template.
+ */
+export interface EmailRegistrationData {
+  registrationId: number;
+  leaderName: string;
+  leaderEmail: string;
+  leaderMobile: string;
+  leaderCollege: string;
+  leaderDepartment: string;
+  leaderYear: string;
+  leaderCity: string;
+  selectedEvent: string;
+  paperPresentationDept?: string;
+  participationType: 'solo' | 'team';
+  teamSize: number;
+  teamMembers?: Array<{
+    name: string;
+    college: string;
+    mobile?: string;
+    email?: string;
+  }>;
+  paymentId: string;
+  orderId: string;
+  totalFee: number;
+  createdAt?: Date;
+}
+
+/**
+ * Legacy-compatible wrapper — keeps existing call-sites working.
+ */
 export async function sendWelcomeEmail(
   to: string,
   id: string,
@@ -16,316 +47,315 @@ export async function sendWelcomeEmail(
   phone: string,
   eventName: string,
   college: string,
+  /** Optional full registration data for the enhanced template */
+  fullData?: Partial<EmailRegistrationData>,
 ): Promise<void> {
-  // Helper to capitalize first letter of each word
-  const toTitleCase = (s: string) => s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  const formattedName = toTitleCase(name);
-  const formattedEvent = toTitleCase(eventName);
-  const formattedCollege = toTitleCase(college);
+  const data: EmailRegistrationData = {
+    registrationId: Number(id),
+    leaderName: name,
+    leaderEmail: to,
+    leaderMobile: phone,
+    leaderCollege: college,
+    leaderDepartment: fullData?.leaderDepartment || '',
+    leaderYear: yearOfStudy,
+    leaderCity: fullData?.leaderCity || '',
+    selectedEvent: eventName,
+    paperPresentationDept: fullData?.paperPresentationDept,
+    participationType: fullData?.participationType || 'solo',
+    teamSize: fullData?.teamSize || 1,
+    teamMembers: fullData?.teamMembers || [],
+    paymentId: fullData?.paymentId || '',
+    orderId: fullData?.orderId || '',
+    totalFee: fullData?.totalFee || 0,
+    createdAt: fullData?.createdAt || new Date(),
+  };
+
+  return sendRegistrationEmail(to, data);
+}
+
+/**
+ * Send a premium registration confirmation email with full details.
+ */
+export async function sendRegistrationEmail(
+  to: string,
+  data: EmailRegistrationData,
+): Promise<void> {
+  if (process.env.EMAIL_ENABLED !== 'true') {
+    return;
+  }
+
+  const toTitleCase = (s: string) =>
+    s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
+  const name = toTitleCase(data.leaderName);
+  const event = toTitleCase(data.selectedEvent);
+  const college = toTitleCase(data.leaderCollege);
+  const department = data.leaderDepartment || '—';
+  const city = data.leaderCity ? toTitleCase(data.leaderCity) : '—';
+  const year = data.leaderYear || '—';
+  const phone = data.leaderMobile || '—';
+  const regId = data.registrationId.toString();
+  const fee = data.totalFee ? `₹${data.totalFee.toLocaleString('en-IN')}` : '—';
+  const paymentId = data.paymentId || '—';
+  const orderId = data.orderId || '—';
+  const registeredOn = (data.createdAt ? new Date(data.createdAt) : new Date()).toLocaleDateString('en-IN', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  });
+
+  // Build team members rows with mobile numbers
+  let teamMembersSection = '';
+  if (data.participationType === 'team' && data.teamMembers && data.teamMembers.length > 0) {
+    const memberRows = data.teamMembers.map((m, i) => `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;text-align:center;">${i + 1}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:13px;">${toTitleCase(m.name)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#374151;font-size:13px;">${toTitleCase(m.college)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#374151;font-size:13px;">${m.mobile || '—'}</td>
+      </tr>`).join('');
+
+    teamMembersSection = `
+      <tr>
+        <td style="padding:20px 30px 0;">
+          <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:#111827;">Team Members</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;">
+            <tr style="background:#f9fafb;">
+              <th style="padding:8px 12px;text-align:center;color:#6b7280;font-size:12px;font-weight:600;border-bottom:1px solid #e5e7eb;width:36px;">#</th>
+              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:12px;font-weight:600;border-bottom:1px solid #e5e7eb;">Name</th>
+              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:12px;font-weight:600;border-bottom:1px solid #e5e7eb;">College</th>
+              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:12px;font-weight:600;border-bottom:1px solid #e5e7eb;">Mobile</th>
+            </tr>
+            ${memberRows}
+          </table>
+        </td>
+      </tr>`;
+  }
+
+  // Paper presentation department row
+  const paperRow = (data.selectedEvent.toLowerCase().includes('paper presentation') && data.paperPresentationDept)
+    ? `<tr>
+         <td style="padding:8px 0;color:#6b7280;font-size:13px;">Paper Dept</td>
+         <td style="padding:8px 0;color:#111827;font-size:13px;font-weight:500;">${toTitleCase(data.paperPresentationDept)}</td>
+       </tr>`
+    : '';
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Confirmed — Discovery 2K26</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:#111827;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3f4f6;padding:30px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#1e3a5f;padding:28px 30px;text-align:center;">
+              <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Discovery ADCET 2K26</h1>
+              <p style="margin:6px 0 0;font-size:13px;color:#94b8d4;">Technical Festival — Registration Confirmation</p>
+            </td>
+          </tr>
+
+          <!-- Success bar -->
+          <tr>
+            <td style="background-color:#16a34a;padding:12px 30px;text-align:center;">
+              <span style="font-size:14px;font-weight:600;color:#ffffff;">✓ Registration Confirmed</span>
+            </td>
+          </tr>
+
+          <!-- Greeting -->
+          <tr>
+            <td style="padding:24px 30px 0;">
+              <p style="margin:0;font-size:15px;color:#374151;line-height:1.6;">
+                Hello <strong>${name}</strong>,
+              </p>
+              <p style="margin:8px 0 0;font-size:14px;color:#6b7280;line-height:1.6;">
+                Your registration for <strong style="color:#111827;">${event}</strong> has been confirmed successfully. Below are your registration details.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Registration ID -->
+          <tr>
+            <td style="padding:20px 30px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;">
+                <tr>
+                  <td style="padding:14px 18px;text-align:center;">
+                    <span style="font-size:12px;color:#0369a1;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:4px;">Registration ID</span>
+                    <span style="font-size:24px;font-weight:700;color:#0c4a6e;">${regId}</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Participant Details -->
+          <tr>
+            <td style="padding:20px 30px 0;">
+              <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:#111827;">Participant Details</p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;">
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;width:35%;background:#f9fafb;">Name</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:13px;font-weight:500;">${name}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;background:#f9fafb;">Email</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:13px;">${data.leaderEmail}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;background:#f9fafb;">Phone</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:13px;">${phone}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;background:#f9fafb;">College</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:13px;">${college}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;background:#f9fafb;">Department</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:13px;">${department}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;background:#f9fafb;">Year</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:13px;">${year}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;color:#6b7280;font-size:13px;background:#f9fafb;">City</td>
+                  <td style="padding:8px 12px;color:#111827;font-size:13px;">${city}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Event Details -->
+          <tr>
+            <td style="padding:20px 30px 0;">
+              <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:#111827;">Event Details</p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;">
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;width:35%;background:#f9fafb;">Event</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:13px;font-weight:600;">${event}</td>
+                </tr>
+                ${paperRow}
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;background:#f9fafb;">Participation</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:13px;">${data.participationType === 'team' ? `Team (${data.teamSize} members)` : 'Solo'}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;color:#6b7280;font-size:13px;background:#f9fafb;">Date</td>
+                  <td style="padding:8px 12px;color:#111827;font-size:13px;">${registeredOn}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          ${teamMembersSection}
+
+          <!-- Payment Details -->
+          <tr>
+            <td style="padding:20px 30px 0;">
+              <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:#111827;">Payment Details</p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;">
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;width:35%;background:#f9fafb;">Amount Paid</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#16a34a;font-size:14px;font-weight:600;">${fee}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;background:#f9fafb;">Payment ID</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#374151;font-size:12px;font-family:monospace;word-break:break-all;">${paymentId}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;background:#f9fafb;">Order ID</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#374151;font-size:12px;font-family:monospace;word-break:break-all;">${orderId}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;color:#6b7280;font-size:13px;background:#f9fafb;">Status</td>
+                  <td style="padding:8px 12px;color:#16a34a;font-size:13px;font-weight:600;">✓ Confirmed</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- What's Next -->
+          <tr>
+            <td style="padding:20px 30px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#fffbeb;border:1px solid #fde68a;border-radius:6px;">
+                <tr>
+                  <td style="padding:16px 18px;">
+                    <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#92400e;">📌 What's Next?</p>
+                    <ul style="margin:0;padding-left:18px;color:#92400e;font-size:13px;line-height:1.8;">
+                      <li>Keep this email safe — you'll need your <strong>Registration ID (${regId})</strong> at the venue</li>
+                      <li>Watch your email for event schedule and venue details</li>
+                      <li>Follow our official pages for updates</li>
+                    </ul>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Contact -->
+          <tr>
+            <td style="padding:20px 30px;text-align:center;">
+              <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#374151;">Need Help?</p>
+              <p style="margin:0;font-size:12px;color:#6b7280;line-height:1.7;">
+                Email: <a href="mailto:discovery2025@adcet.in" style="color:#1e3a5f;text-decoration:none;">discovery2025@adcet.in</a> &nbsp;|&nbsp;
+                Phone: <a href="tel:+919975003984" style="color:#1e3a5f;text-decoration:none;">+91 9975003984</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f9fafb;padding:16px 30px;text-align:center;border-top:1px solid #e5e7eb;">
+              <p style="margin:0;font-size:12px;color:#6b7280;">
+                Best regards, <strong>Team Discovery ADCET 2K26</strong>
+              </p>
+              <p style="margin:6px 0 0;font-size:11px;color:#9ca3af;">
+                © ${new Date().getFullYear()} Discovery ADCET. All rights reserved. This is an automated email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
+
+  const mailOptions = {
+    from: `"Discovery ADCET 2K26" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: `Registration Confirmed — #${regId} | Discovery ADCET 2K26`,
+    html,
+  };
 
   const maxRetries = 3;
   let attempt = 0;
-  
-  const mailOptions = {
-    from: `"Discovery ADCET 2025" <${process.env.EMAIL_USER}>`,
-    to,
-    subject: '🎉 Registration Confirmed - Discovery ADCET 2025',
-    html: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Confirmed - Discovery ADCET 2025</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
-        }
-        
-        .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            text-align: center;
-            padding: 40px 20px;
-        }
-        
-        .logo {
-            width: 300px;
-            max-width: 90%;
-            height: auto;
-            margin: 0 auto 20px;
-            display: block;
-            border-radius: 8px;
-        }
-        
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 700;
-        }
-        
-        .header p {
-            margin: 10px 0 0;
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        
-        .content {
-            padding: 40px 30px;
-        }
-        
-        .greeting {
-            font-size: 18px;
-            margin-bottom: 25px;
-            color: #1e293b;
-        }
-        
-        .success-message {
-            background-color: #f0fdf4;
-            border-left: 4px solid #22c55e;
-            padding: 20px;
-            margin: 25px 0;
-            border-radius: 6px;
-        }
-        
-        .success-message p {
-            margin: 0;
-            color: #166534;
-            font-weight: 500;
-        }
-        
-        .registration-details {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 25px;
-            margin: 25px 0;
-        }
-        
-        .registration-details h3 {
-            margin: 0 0 20px;
-            color: #1e293b;
-            font-size: 18px;
-            font-weight: 600;
-        }
-        
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-        
-        .detail-label {
-            font-weight: 500;
-            color: #64748b;
-        }
-        
-        .detail-value {
-            font-weight: 600;
-            color: #1e293b;
-        }
-        
-        .registration-id {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .next-steps {
-            background-color: #fef3c7;
-            border: 1px solid #f59e0b;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
-        }
-        
-        .next-steps h3 {
-            margin: 0 0 15px;
-            color: #92400e;
-            font-size: 16px;
-            font-weight: 600;
-        }
-        
-        .next-steps ul {
-            margin: 0;
-            padding-left: 20px;
-            color: #92400e;
-        }
-        
-        .next-steps li {
-            margin-bottom: 8px;
-        }
-        
-        .contact-info {
-            text-align: center;
-            padding: 30px;
-            background-color: #f8fafc;
-            border-top: 1px solid #e2e8f0;
-        }
-        
-        .contact-info h3 {
-            margin: 0 0 15px;
-            color: #1e293b;
-            font-size: 16px;
-            font-weight: 600;
-        }
-        
-        .contact-details {
-            color: #64748b;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #1e293b;
-            color: #94a3b8;
-            font-size: 14px;
-        }
-        
-        .footer strong {
-            color: #ffffff;
-        }
-        
-        @media (max-width: 600px) {
-            .content {
-                padding: 30px 20px;
-            }
-            
-            .detail-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-            
-            .registration-details {
-                padding: 20px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="email-container">
-        <!-- Header -->
-        <div class="header">
-            <img src="cid:discovery-logo" alt="Discovery ADCET 2025 Logo" class="logo" style="background-color: white; padding: 10px; border-radius: 8px;">
-            <h1>Discovery ADCET 2025</h1>
-            <p>Registration Confirmed Successfully</p>
-        </div>
-        
-        <!-- Main Content -->
-        <div class="content">
-            <div class="greeting">
-                Hello <strong>${formattedName}</strong>,
-            </div>
-            
-            <div class="success-message">
-                <p>🎉 Congratulations! Your registration for <strong>${formattedEvent}</strong> has been confirmed.</p>
-            </div>
-            
-            <p>We're excited to have you participate in Discovery ADCET 2025! You're all set for an amazing experience filled with innovation, competition, and learning.</p>
-            
-            <!-- Registration Details -->
-            <div class="registration-details">
-                <h3>📋 Registration Details</h3>
-                <div class="detail-row">
-                    <span class="detail-label">Registration ID</span>
-                    <span class="registration-id">#${id}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Event</span>
-                    <span class="detail-value">${formattedEvent}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Participant</span>
-                    <span class="detail-value">${formattedName}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">College</span>
-                    <span class="detail-value">${formattedCollege}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Year of Study</span>
-                    <span class="detail-value">${yearOfStudy}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Phone</span>
-                    <span class="detail-value">${phone}</span>
-                </div>
-            </div>
-            
-            <!-- Next Steps -->
-            <div class="next-steps">
-                <h3>📌 What's Next?</h3>
-                <ul>
-                    <li>Keep this email safe - you'll need your Registration ID</li>
-                    <li>Watch your email for event schedule and venue details</li>
-                    <li>Follow our official pages for updates and announcements</li>
-                    <li>Prepare for an exciting competition ahead!</li>
-                </ul>
-            </div>
-            
-            <p style="margin-bottom: 0;">We can't wait to see you at Discovery ADCET 2025. Get ready to showcase your skills and make lasting connections!</p>
-        </div>
-        
-        <!-- Contact Information -->
-        <div class="contact-info">
-            <h3>Need Help?</h3>
-            <div class="contact-details">
-                <p>📧 Email: discovery2025@adcet.in</p>
-                <p>📱 Phone: +91 9975003984</p>
-                <p>Feel free to reach out if you have any questions!</p>
-            </div>
-        </div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            <p>Best regards,<br><strong>Team Discovery ADCET 2025</strong></p>
-            <p style="margin-top: 15px; font-size: 12px;">© 2025 Discovery ADCET. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>`
-  };
 
   while (attempt < maxRetries) {
     try {
-      console.log(`Email send attempt ${attempt + 1} for ${to}`);
+      console.log(`📧 Email send attempt ${attempt + 1} for ${to}`);
       const info = await transporter.sendMail(mailOptions);
-      console.log('Email sent successfully:', info.messageId, 'to:', to);
+      console.log('✅ Email sent successfully:', info.messageId, 'to:', to);
       return;
     } catch (error) {
       attempt++;
-      console.error(`Email send attempt ${attempt} failed for ${to}:`, error);
-      
+      console.error(`❌ Email send attempt ${attempt} failed for ${to}:`, error);
+
       if (attempt >= maxRetries) {
-        console.error(`FINAL FAILURE: Failed to send email to ${to} after ${maxRetries} attempts`);
+        console.error(`🔴 FINAL FAILURE: Failed to send email to ${to} after ${maxRetries} attempts`);
         throw new Error(`Failed to send email after ${maxRetries} attempts: ${error}`);
       }
-      
+
       // Exponential backoff
       const delay = 2000 * attempt;
-      console.log(`Retrying in ${delay}ms...`);
+      console.log(`⏳ Retrying in ${delay}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }

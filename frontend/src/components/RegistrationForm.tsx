@@ -347,6 +347,11 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
     setPaymentError(null);
     
     try {
+      const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      if (!razorpayKeyId) {
+        throw new Error('Payment is not configured. Please contact the event organizers.');
+      }
+
       // If Paper Presentation is selected, find the correct event based on department
       let finalEventDetails = selectedEvent;
       if (selectedEvent?.name === "Paper Presentation" && values.paperPresentationDept) {
@@ -407,7 +412,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
       // Razorpay payment options
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: razorpayKeyId,
         amount: backendFeeBreakdown?.totalAmountInPaise || feeBreakdown?.totalAmountInPaise || 0,
         currency: "INR",
         name: "Discovery ADCET 2K26",

@@ -219,7 +219,19 @@ const processIndividualRegistration = async (
         savedRegistration.leaderYear,
         savedRegistration.leaderMobile,
         savedRegistration.selectedEvent,
-        savedRegistration.leaderCollege
+        savedRegistration.leaderCollege,
+        {
+          leaderDepartment: savedRegistration.leaderDepartment,
+          leaderCity: savedRegistration.leaderCity,
+          participationType: savedRegistration.participationType,
+          teamSize: savedRegistration.teamSize,
+          teamMembers: savedRegistration.teamMembers,
+          paymentId: savedRegistration.paymentId,
+          orderId: savedRegistration.orderId,
+          totalFee: savedRegistration.totalFee,
+          paperPresentationDept: savedRegistration.paperPresentationDept,
+          createdAt: savedRegistration.createdAt,
+        }
       ).catch(emailError => {
         console.error(`Email failed for registration ${savedRegistration.registrationId}:`, emailError);
       });
