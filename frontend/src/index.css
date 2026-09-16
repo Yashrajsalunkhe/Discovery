@@ -3,72 +3,64 @@
 @tailwind utilities;
 
 /* ============================================================
-   DISCOVERY 2K26 — Mission-Control Design System
+   DISCOVERY 2K26 — Jade Pebble Morning Design System
    ============================================================ */
 
 @layer base {
   :root {
-    /* --- Ink & Surface tokens --- */
-    --ink:       #0A0C10;
-    --ink-soft:  #0D1015;
-    --panel:     #12151B;
-    --panel-2:   #191D25;
-    --line:      #262B35;
-    --line-soft: rgba(237,234,226,0.08);
+    /* --- Jade Pebble Morning Palette --- */
+    --canvas-bg:          #F6F8F5;
+    --surface-card:       #FFFFFF;
+    --surface-card-jade:  #F9FBF8;
+    --surface-subtle:     #EEF2EB;
+    --border-subtle:      #E6E6E6;
+    --border-jade:        #BAC8B1;
 
-    /* --- Text tokens --- */
-    --paper:     #EDEAE2;
-    --paper-dim: #97A0AC;
-    --paper-mute:#5E6672;
+    /* --- Typography Colors --- */
+    --heading:     #404E3B;
+    --heading-dark:#1C2518;
+    --body-text:   #2E382A;
+    --muted-text:  #6C8480;
 
-    /* --- Accent tokens --- */
-    --cobalt:    #3D6BFF;
-    --cobalt-dim:#1C2C63;
-    --brass:     #E8B923;
-    --brass-dim: #4A3D14;
-    --crimson:   #E14B4B;
-    --orange:    #FF5E2B;
-    --orange-bright: #FF7343;
+    /* --- Figma Scheme Accents --- */
+    --jade-sage:         #7B9669;
+    --jade-sage-hover:   #688257;
+    --jade-forest:       #404E3B;
+    --jade-forest-hover: #2F3B2B;
+    --jade-teal:         #6C8480;
+    --jade-mint:         #BAC8B1;
+    --jade-pebble:       #E6E6E6;
+    --jade-cream:        #F1F5EE;
 
     /* --- Fonts --- */
-    --f-display: 'Unbounded', sans-serif;
-    --f-body:    'IBM Plex Sans', sans-serif;
+    --f-display: 'Outfit', system-ui, sans-serif;
+    --f-body:    'Plus Jakarta Sans', system-ui, sans-serif;
     --f-mono:    'IBM Plex Mono', monospace;
 
     /* --- Layout --- */
-    --edge: 1px solid var(--line);
-    --container: 1240px;
+    --container: 1280px;
 
-    /* --- shadcn compatibility (mapped to mission-control tokens) --- */
-    --background: 220 27% 4%;
-    --foreground: 42 25% 91%;
-    --card: 220 21% 9%;
-    --card-foreground: 42 25% 91%;
-    --popover: 220 21% 7%;
-    --popover-foreground: 42 25% 91%;
-    --primary: 226 100% 62%;
-    --primary-foreground: 220 27% 4%;
-    --secondary: 44 80% 53%;
-    --secondary-foreground: 220 27% 4%;
-    --muted: 220 18% 13%;
-    --muted-foreground: 216 12% 52%;
-    --accent: 44 80% 53%;
-    --accent-foreground: 220 27% 4%;
-    --destructive: 0 68% 58%;
-    --destructive-foreground: 42 25% 91%;
-    --border: 220 16% 18%;
-    --input: 220 18% 13%;
-    --ring: 226 100% 62%;
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* --- shadcn integration (Jade Light Mode) --- */
+    --background: 100 20% 97%;
+    --foreground: 104 15% 15%;
+    --card: 100 25% 99%;
+    --card-foreground: 104 15% 15%;
+    --popover: 100 25% 99%;
+    --popover-foreground: 104 15% 15%;
+    --primary: 98 18% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 171 11% 47%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 100 15% 94%;
+    --muted-foreground: 171 11% 40%;
+    --accent: 98 18% 88%;
+    --accent-foreground: 104 15% 15%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 100 15% 88%;
+    --input: 100 15% 88%;
+    --ring: 98 18% 50%;
+    --radius: 1rem;
   }
 }
 
@@ -80,37 +72,32 @@
 
   html {
     scroll-behavior: smooth;
-    background: var(--ink);
+    background: #F6F8F5;
+    color: #404E3B;
   }
 
   body {
-    background: var(--ink);
-    color: var(--paper);
+    background: #F6F8F5;
+    color: #2E382A;
     font-family: var(--f-body);
     font-size: 16px;
-    line-height: 1.5;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
     position: relative;
-    -webkit-tap-highlight-color: transparent;
   }
 
-  /* Grain overlay — reduced on mobile for perf */
+  /* Jade Pebble Morning Canvas Ambient Radial Gradient */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
-    z-index: 999;
+    z-index: -1;
     pointer-events: none;
-    opacity: 0.05;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  @media (max-width: 768px) {
-    body::before {
-      opacity: 0.025;
-    }
+    background: 
+      radial-gradient(circle at 12% 12%, rgba(123, 150, 105, 0.1) 0%, transparent 45%),
+      radial-gradient(circle at 88% 25%, rgba(108, 132, 128, 0.09) 0%, transparent 40%),
+      radial-gradient(circle at 50% 75%, rgba(186, 200, 177, 0.12) 0%, transparent 50%);
   }
 
   img, svg { display: block; max-width: 100%; }
@@ -118,10 +105,12 @@
   ul { list-style: none; }
   button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
 
-  ::selection { background: var(--brass); color: var(--ink); }
+  ::selection { background: #BAC8B1; color: #404E3B; }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--f-display);
+    color: #404E3B;
+    letter-spacing: -0.02em;
   }
 
   * {
@@ -130,339 +119,176 @@
 
   /* Scrollbar */
   ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: var(--ink); }
-  ::-webkit-scrollbar-thumb { background: var(--brass); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { opacity: 0.8; }
+  ::-webkit-scrollbar-track { background: #EEF2EB; }
+  ::-webkit-scrollbar-thumb { background: #BAC8B1; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #7B9669; }
 }
 
 /* ============================================================
-   UTILITY CLASSES
+   UTILITY CLASSES & ANIMATIONS
    ============================================================ */
 @layer utilities {
   .wrap {
     max-width: var(--container);
     margin: 0 auto;
-    padding: 0 32px;
+    padding: 0 24px;
   }
 
-  @media (max-width: 475px) {
+  @media (max-width: 640px) {
     .wrap { padding: 0 16px; }
   }
-  @media (max-width: 375px) {
-    .wrap { padding: 0 12px; }
+
+  /* Gradient Text Utilities */
+  .gradient-text-jade {
+    background: linear-gradient(135deg, #404E3B 0%, #7B9669 55%, #6C8480 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
-  /* Eyebrow label */
-  .eyebrow {
-    font-family: var(--f-mono);
-    font-size: 12.5px;
-    letter-spacing: 0.14em;
-    color: var(--paper-dim);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .eyebrow .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--brass);
-    box-shadow: 0 0 0 3px var(--brass-dim);
+  .gradient-text-sage {
+    background: linear-gradient(135deg, #7B9669 0%, #404E3B 70%, #2E382A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
-  /* File tab */
-  .file-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--f-mono);
-    font-size: 12.5px;
-    letter-spacing: .12em;
-    color: var(--brass);
-    border: 1px solid var(--brass-dim);
-    padding: 6px 12px;
-    margin-bottom: 28px;
+  /* Jade Pebble Morning Card Style */
+  .jade-card {
+    background: #FFFFFF;
+    border: 1px solid #E6E6E6;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 24px -4px rgba(64, 78, 59, 0.06), 0 2px 6px -1px rgba(64, 78, 59, 0.03);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Buttons — min 44px touch targets on mobile */
-  .btn-primary {
-    font-family: var(--f-mono);
-    font-size: 13px;
-    letter-spacing: .06em;
-    background: var(--brass);
-    color: var(--ink);
-    padding: 16px 30px;
-    border: 1px solid var(--brass);
-    position: relative;
-    overflow: hidden;
-    transition: color .25s ease;
-    display: inline-block;
-    text-align: center;
-    cursor: pointer;
-    min-height: 44px;
+  .jade-card:hover {
+    background: #F9FBF8;
+    border-color: #BAC8B1;
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -10px rgba(123, 150, 105, 0.16), 0 4px 12px -2px rgba(64, 78, 59, 0.05);
   }
-  .btn-primary span { position: relative; z-index: 2; }
-  .btn-primary::before {
-    content: "";
-    position: absolute; inset: 0;
-    background: var(--paper);
-    transform: translateX(-101%);
-    transition: transform .3s cubic-bezier(.65,0,.35,1);
-  }
-  .btn-primary:hover::before { transform: translateX(0); }
 
-  .btn-ghost {
-    font-family: var(--f-mono);
-    font-size: 13px;
-    letter-spacing: .06em;
-    color: var(--paper);
-    padding: 16px 6px;
-    border-bottom: 1px solid var(--line);
-    transition: border-color .25s ease, color .25s ease;
-    display: inline-block;
-    cursor: pointer;
-    min-height: 44px;
+  /* Bento Grid Containers */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.25rem;
   }
-  .btn-ghost:hover { border-color: var(--cobalt); color: var(--cobalt); }
 
-  .btn-nav-register {
-    font-family: var(--f-mono);
-    font-size: 12.5px;
-    letter-spacing: .06em;
-    color: var(--ink);
-    background: var(--paper);
-    padding: 9px 18px;
-    border: 1px solid var(--paper);
-    transition: background .2s ease, color .2s ease, border-color .2s ease;
-    display: inline-block;
-    cursor: pointer;
+  .bento-col-12 { grid-column: span 12 / span 12; }
+  .bento-col-8 { grid-column: span 8 / span 12; }
+  .bento-col-6 { grid-column: span 6 / span 12; }
+  .bento-col-4 { grid-column: span 4 / span 12; }
+
+  @media (max-width: 1024px) {
+    .bento-col-8, .bento-col-6, .bento-col-4 { grid-column: span 12 / span 12; }
   }
-  .btn-nav-register:hover { background: var(--brass); border-color: var(--brass); }
 
-  /* Hero & Nav Custom Buttons (Reference design with Brass Yellow Theme) */
-  .btn-hero-orange,
-  .btn-hero-yellow {
+  /* Jade Pill Buttons */
+  .btn-jade-primary {
     font-family: var(--f-mono);
     font-size: 13.5px;
     font-weight: 600;
-    letter-spacing: 0.03em;
-    background: #E8B923;
-    color: #0A0C10;
-    padding: 14px 26px;
-    border: 1px solid #E8B923;
-    border-radius: 2px;
+    letter-spacing: 0.02em;
+    background: #7B9669;
+    color: #FFFFFF;
+    padding: 13px 28px;
+    border-radius: 9999px;
+    box-shadow: 0 4px 16px rgba(123, 150, 105, 0.35);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     cursor: pointer;
-    min-height: 46px;
   }
-  .btn-hero-orange:hover,
-  .btn-hero-yellow:hover {
-    background: #f0c538;
-    border-color: #f0c538;
+  .btn-jade-primary:hover {
+    background: #688257;
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(232, 185, 35, 0.35);
+    box-shadow: 0 8px 24px rgba(123, 150, 105, 0.45);
   }
 
-  .btn-hero-dark {
+  .btn-jade-dark {
+    font-family: var(--f-mono);
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: #404E3B;
+    color: #FFFFFF;
+    padding: 13px 28px;
+    border-radius: 9999px;
+    box-shadow: 0 4px 16px rgba(64, 78, 59, 0.3);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .btn-jade-dark:hover {
+    background: #2F3B2B;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(64, 78, 59, 0.4);
+  }
+
+  .btn-jade-secondary {
+    font-family: var(--f-mono);
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: #EEF2EB;
+    color: #404E3B;
+    padding: 13px 28px;
+    border: 1px solid #BAC8B1;
+    border-radius: 9999px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .btn-jade-secondary:hover {
+    background: #BAC8B1;
+    color: #404E3B;
+    transform: translateY(-2px);
+  }
+
+  .btn-jade-outline {
     font-family: var(--f-mono);
     font-size: 13.5px;
     font-weight: 500;
-    letter-spacing: 0.03em;
-    background: #191c24;
-    color: #edeae2;
-    padding: 14px 26px;
-    border: 1px solid #2d3340;
-    border-radius: 2px;
+    letter-spacing: 0.02em;
+    background: #FFFFFF;
+    color: #404E3B;
+    padding: 13px 26px;
+    border: 1.5px solid #E6E6E6;
+    border-radius: 9999px;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     cursor: pointer;
-    min-height: 46px;
   }
-  .btn-hero-dark:hover {
-    background: #232834;
-    border-color: #E8B923;
-    color: #ffffff;
+  .btn-jade-outline:hover {
+    background: #F1F5EE;
+    border-color: #7B9669;
+    color: #7B9669;
     transform: translateY(-2px);
   }
 
-  .btn-nav-orange,
-  .btn-nav-yellow {
-    font-family: var(--f-mono);
-    font-size: 12.5px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    background: #E8B923;
-    color: #0A0C10;
-    padding: 9px 20px;
-    border: 1px solid #E8B923;
-    border-radius: 2px;
-    transition: all 0.2s ease;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-  }
-  .btn-nav-orange:hover,
-  .btn-nav-yellow:hover {
-    background: #f0c538;
-    border-color: #f0c538;
-    box-shadow: 0 4px 14px rgba(232, 185, 35, 0.35);
-  }
-
-  @keyframes ribbonFloat {
-    0%, 100% {
-      transform: translateY(0px) rotate(0deg);
-    }
-    50% {
-      transform: translateY(-12px) rotate(2deg);
-    }
-  }
-
-  .animate-ribbon-float {
-    animation: ribbonFloat 8s ease-in-out infinite;
-  }
-
-  /* Section shell */
+  /* Section Shell */
   .section {
     position: relative;
-    padding: 120px 0;
-    border-bottom: var(--edge);
+    padding: 96px 0;
   }
-  .section-alt { background: var(--ink-soft); }
 
-  .section-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 40px;
-    margin-bottom: 64px;
-    flex-wrap: wrap;
-  }
   .section-title {
     font-family: var(--f-display);
-    font-weight: 700;
-    font-size: clamp(2rem, 4.4vw, 3.4rem);
-    line-height: 1.05;
-    letter-spacing: -0.01em;
-    max-width: 640px;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 4.8vw, 3.4rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: #404E3B;
   }
-  .section-note {
-    max-width: 340px;
-    font-size: 15px;
-    color: var(--paper-dim);
-    line-height: 1.65;
-    padding-bottom: 6px;
-  }
-
-  /* Org stamps */
-  .org-stamp {
-    font-family: var(--f-mono);
-    font-size: 11.5px;
-    letter-spacing: .08em;
-    color: var(--paper-dim);
-    border: 1px solid var(--line);
-    padding: 7px 12px;
-  }
-
-  /* Social stamps */
-  .stamp {
-    font-family: var(--f-mono);
-    font-size: 11px;
-    letter-spacing: .08em;
-    border: 1px solid var(--line);
-    padding: 6px 10px;
-    color: var(--paper-dim);
-    transition: border-color .2s ease, color .2s ease;
-    cursor: pointer;
-  }
-  .stamp:hover { border-color: var(--brass); color: var(--brass); }
-
-  /* Reduce animations for accessibility */
-  @media (prefers-reduced-motion: reduce) {
-    .hover-float { transition: none; }
-  }
-
-  @media (max-width: 768px) {
-    .section { padding: 88px 0; }
-    .section-head {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 18px;
-      margin-bottom: 40px;
-    }
-    .section-title {
-      font-size: clamp(1.6rem, 6vw, 2.6rem);
-    }
-    .section-note {
-      max-width: 100%;
-    }
-    .btn-primary {
-      padding: 14px 24px;
-      font-size: 12.5px;
-      width: 100%;
-    }
-    .btn-ghost {
-      padding: 14px 6px;
-      font-size: 12.5px;
-    }
-  }
-
-  @media (max-width: 560px) {
-    .section { padding: 64px 0; }
-    .file-tab {
-      font-size: 11px;
-      padding: 5px 10px;
-      margin-bottom: 20px;
-    }
-    .eyebrow {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-    }
-    .org-stamp {
-      font-size: 10.5px;
-      padding: 6px 10px;
-    }
-    .stamp {
-      font-size: 10px;
-      padding: 8px 12px;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-    }
-  }
-
-  @media (max-width: 400px) {
-    .section { padding: 48px 0; }
-    .section-head {
-      gap: 14px;
-      margin-bottom: 32px;
-    }
-    .section-title {
-      font-size: clamp(1.4rem, 7vw, 2rem);
-    }
-    .file-tab {
-      font-size: 10px;
-      padding: 4px 8px;
-      margin-bottom: 16px;
-    }
-    .btn-primary {
-      padding: 12px 20px;
-      font-size: 12px;
-    }
-  }
-}
-
-/* ============================================================
-   KEYFRAMES
-   ============================================================ */
-@keyframes sweep { to { transform: translate(-50%,-50%) rotate(360deg); } }
-@keyframes ticker { to { transform: translateX(-50%); } }
-
-@media (prefers-reduced-motion: reduce) {
-  .radar-sweep { animation: none !important; }
-  .ticker-track { animation-play-state: paused !important; }
 }

@@ -3,76 +3,90 @@ export const WhyAttendSection = () => {
     {
       index: '01',
       title: 'Cash Prizes & Trophies',
-      desc: "Every track carries its own prize purse, paid out the same day.",
+      desc: "Every track carries its own substantial prize purse, paid out directly on the same day.",
+      badge: '₹1.5L+ Pool',
+      color: 'text-[#7B9669]',
+      span: 'bento-col-8',
+      featured: true,
     },
     {
       index: '02',
-      title: 'Certificate for All',
-      desc: 'Every registered participant leaves with a certificate — win or lose.',
+      title: 'Verified Certificates',
+      desc: 'Every registered participant leaves with an official, verifiable certificate for their portfolio.',
+      badge: 'Official',
+      color: 'text-[#404E3B]',
+      span: 'bento-col-4',
     },
     {
       index: '03',
-      title: 'Judged by Industry',
-      desc: 'Panels pull from working engineers and founders, not just faculty.',
+      title: 'Judged by Industry Experts',
+      desc: 'Panels feature senior engineers, tech founders, and industrial researchers.',
+      badge: 'Mentorship',
+      color: 'text-[#6C8480]',
+      span: 'bento-col-4',
     },
     {
       index: '04',
-      title: 'Cross-College Network',
-      desc: 'Teams travel in from colleges across the country for this one.',
+      title: 'National Networking',
+      desc: 'Connect with top engineering talent and ambitious teams from over 50+ universities.',
+      badge: '50+ Colleges',
+      color: 'text-[#7B9669]',
+      span: 'bento-col-4',
     },
     {
       index: '05',
-      title: 'Live Builds & Exhibits',
-      desc: 'The lawn stays open all day for demos, prototypes, and side projects.',
-    },
-    {
-      index: '06',
-      title: 'Swag Worth Keeping',
-      desc: "Kits, merch, and campus food that doesn't taste like a fest budget.",
+      title: 'Live Builds & Demos',
+      desc: 'Campus lawns stay active all day with prototype demos, robotics tracks, and flight simulators.',
+      badge: 'Interactive',
+      color: 'text-[#404E3B]',
+      span: 'bento-col-4',
     },
   ];
 
   return (
-    <section className="section section-alt" id="why">
+    <section className="section bg-[#F6F8F5] border-b border-[#E6E6E6]" id="why">
       <div className="wrap">
-        <div className="file-tab">FILE 04 — WHY SHOW UP</div>
-        <div className="section-head">
-          <h2 className="section-title">What you actually walk away with.</h2>
-          <p className="section-note">
-            Not just a certificate PDF. Six real reasons teams travel in for this.
-          </p>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F1F5EE] border border-[#BAC8B1] text-[#404E3B] font-mono text-xs font-bold tracking-wide w-fit mb-4">
+          <span className="w-2 h-2 rounded-full bg-[#7B9669]" />
+          <span>KEY HIGHLIGHTS</span>
         </div>
-      </div>
-
-      <div
-        className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 border border-line"
-        style={{ gap: '1px', background: 'var(--line)' }}
-        data-perks
-      >
-        {perks.map((perk, i) => (
-          <div
-            key={perk.index}
-            className="py-[38px] px-8 max-sm:py-7 max-sm:px-5 perk-cell"
-            style={{ background: i % 2 === 1 ? 'var(--ink-soft)' : 'var(--ink)' }}
-          >
-            <div
-              className="font-display font-extrabold leading-none mb-3.5"
-              style={{
-                fontSize: 'clamp(2.4rem, 6vw, 3.2rem)',
-                color: 'transparent',
-                WebkitTextStroke: '1px var(--line)',
-              }}
-            >
-              {perk.index}
-            </div>
-            <div className="font-display font-semibold text-[1.15rem] mb-2.5">
-              {perk.title}
-            </div>
-            <div className="text-sm text-paper-dim leading-[1.6]">
-              {perk.desc}
-            </div>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <h2 className="section-title text-[#404E3B]">Why Attend Discovery 2K26?</h2>
+            <p className="text-[#2E382A] text-base max-w-[560px] mt-2">
+              Beyond competing, Discovery 2K26 offers incredible networking, industry exposure, and immediate rewards.
+            </p>
           </div>
-        ))}
+        </div>
+
+        {/* Bento Grid Perks */}
+        <div className="bento-grid">
+          {perks.map((perk) => (
+            <div
+              key={perk.index}
+              className={`${perk.span} jade-card p-6 sm:p-8 flex flex-col justify-between group ${
+                perk.featured ? 'bg-[#F1F5EE] border-[#BAC8B1]' : ''
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`font-display font-black text-3xl sm:text-4xl ${perk.color}`}>
+                    {perk.index}
+                  </span>
+                  <span className="font-mono text-[11px] font-bold text-[#6C8480] bg-[#EEF2EB] border border-[#BAC8B1] px-3 py-1 rounded-full">
+                    {perk.badge}
+                  </span>
+                </div>
+                <h3 className="font-display font-extrabold text-xl text-[#404E3B] group-hover:text-[#7B9669] transition-colors mb-2">
+                  {perk.title}
+                </h3>
+                <p className="text-[#2E382A] text-sm leading-relaxed">
+                  {perk.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

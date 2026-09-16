@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  DownloadIcon, 
-  SearchIcon, 
-  RefreshCwIcon, 
+import {
+  DownloadIcon,
+  SearchIcon,
+  RefreshCwIcon,
   LogOutIcon,
   UsersIcon,
   TrendingUpIcon,
@@ -91,14 +91,14 @@ const AdminPanel: React.FC = () => {
   });
   const [availableEvents, setAvailableEvents] = useState<string[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
-  
+
   // Filters and search
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [eventFilter, setEventFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  
+
   const { toast } = useToast();
 
   // Use environment variable for API base URL with better fallback logic
@@ -107,12 +107,12 @@ const AdminPanel: React.FC = () => {
     if (import.meta.env.VITE_API_BASE_URL) {
       return import.meta.env.VITE_API_BASE_URL;
     }
-    
+
     // Development mode detection
     if (import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return 'http://localhost:3000/api';
     }
-    
+
     // Production mode - use relative path which will be routed to backend by Vercel
     return '/api';
   };
@@ -139,7 +139,7 @@ const AdminPanel: React.FC = () => {
       fetchRegistrations();
       fetchStats();
     }
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, fetchRegistrations, fetchStats]);
 
   // Handle authentication
   const handleLogin = async () => {
@@ -155,7 +155,7 @@ const AdminPanel: React.FC = () => {
     setLoading(true);
     console.log('Attempting login with API_BASE:', API_BASE);
     console.log('Full URL:', `${API_BASE}/admin/login`);
-    
+
     try {
       const response = await fetch(`${API_BASE}/admin/login`, {
         method: 'POST',
@@ -169,7 +169,7 @@ const AdminPanel: React.FC = () => {
 
       console.log('Login response status:', response.status);
       console.log('Login response ok:', response.ok);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -198,18 +198,18 @@ const AdminPanel: React.FC = () => {
     } catch (error) {
       console.error('Login error:', error);
       let errorMessage = 'Network error';
-      
+
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       // Provide more specific error messages
       if (errorMessage.includes('Failed to fetch')) {
         errorMessage = 'Cannot connect to server. Please check if the backend is running and accessible.';
       } else if (errorMessage.includes('NetworkError')) {
         errorMessage = 'Network connection failed. Please check your internet connection.';
       }
-      
+
       toast({
         title: "Authentication Failed",
         description: errorMessage,
@@ -235,7 +235,7 @@ const AdminPanel: React.FC = () => {
   };
 
   // Fetch registrations with filters
-  const fetchRegistrations = async () => {
+  const fetchRegistrations = useCallback(async () => {
     if (!token) return;
 
     setLoading(true);
@@ -292,16 +292,16 @@ const AdminPanel: React.FC = () => {
       }
     } catch (error) {
       console.error('Fetch error:', error);
-      
+
       let errorMessage = 'Unknown error';
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       if (errorMessage.includes('Failed to fetch')) {
         errorMessage = 'Cannot connect to server. Please check your connection.';
       }
-      
+
       toast({
         title: "Error",
         description: `Failed to fetch registrations: ${errorMessage}`,
@@ -310,16 +310,16 @@ const AdminPanel: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE, currentPage, eventFilter, searchTerm, sortBy, sortOrder, token, toast]);
 
   // Fetch statistics
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     if (!token) return;
 
     try {
       const url = `${API_BASE}/admin/stats`;
       console.log('Fetching stats from:', url);
-      
+
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -334,7 +334,7 @@ const AdminPanel: React.FC = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Stats data:', data);
 
@@ -348,7 +348,7 @@ const AdminPanel: React.FC = () => {
       console.error('Failed to fetch stats:', error);
       // Don't show toast error for stats as it's not critical
     }
-  };
+  }, [API_BASE, token]);
 
   // Export to Excel
   const handleExport = async () => {
@@ -357,7 +357,7 @@ const AdminPanel: React.FC = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      
+
       if (eventFilter && eventFilter !== 'all') {
         params.append('eventFilter', eventFilter);
       }
@@ -405,31 +405,29 @@ const AdminPanel: React.FC = () => {
     if (isAuthenticated && token) {
       fetchRegistrations();
     }
-  }, [eventFilter, sortBy, sortOrder, currentPage, searchTerm, isAuthenticated, token]);
+  }, [eventFilter, sortBy, sortOrder, currentPage, searchTerm, isAuthenticated, token, fetchRegistrations]);
 
+  // Login form
   // Login form
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Background with theme colors */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-muted/20"></div>
-        
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-50">
         {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-blue-100/60 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-amber-100/60 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-indigo-100/60 rounded-full blur-3xl animate-pulse delay-500"></div>
         </div>
 
-        <Card className="w-full max-w-md relative z-10 glass-card border-border/50 bg-card/90 backdrop-blur-xl">
+        <Card className="w-full max-w-md relative z-10 border-slate-200 bg-white/95 backdrop-blur-xl shadow-xl rounded-2xl">
           <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
               <UsersIcon className="h-8 w-8 text-white" />
             </div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            <CardTitle className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-amber-600 bg-clip-text text-transparent">
               Admin Panel
             </CardTitle>
-            <CardDescription className="text-muted-foreground">
+            <CardDescription className="text-slate-600 text-sm">
               Enter admin password to access the Discovery ADCET dashboard
             </CardDescription>
           </CardHeader>
@@ -441,12 +439,12 @@ const AdminPanel: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                className="h-12 bg-background/50 border-border/50 focus:border-primary/50"
+                className="h-12 bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500 text-slate-900"
               />
             </div>
-            <Button 
-              onClick={handleLogin} 
-              className="w-full h-12 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold"
+            <Button
+              onClick={handleLogin}
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-md"
               disabled={loading}
             >
               {loading ? (
@@ -465,41 +463,38 @@ const AdminPanel: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-background">
+    <div className="min-h-screen relative overflow-hidden bg-slate-50 text-slate-900">
       {/* Background with theme colors */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-muted/10"></div>
-        
-        {/* Animated background elements */}
-        <div className="absolute top-10 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-10 right-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-10 left-10 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-10 right-10 w-80 h-80 bg-amber-100/40 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-indigo-100/40 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       <div className="max-w-7xl mx-auto space-y-8 p-6 relative z-10">
         {/* Header */}
-        <Card className="glass-card border-border/30 bg-card/90 backdrop-blur-xl">
+        <Card className="border-slate-200 bg-white/90 backdrop-blur-xl shadow-md rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="space-y-2">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center shadow-xs">
                   <UsersIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                  <CardTitle className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-amber-600 bg-clip-text text-transparent">
                     Discovery ADCET
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground text-lg">
+                  <CardDescription className="text-slate-600 text-base font-medium">
                     Admin Dashboard - Manage registrations and export data
                   </CardDescription>
                 </div>
               </div>
             </div>
-            <Button 
-              onClick={handleLogout} 
-              variant="outline" 
+            <Button
+              onClick={handleLogout}
+              variant="outline"
               size="lg"
-              className="border-border/50 hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive"
+              className="border-slate-300 text-slate-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-600 rounded-xl"
             >
               <LogOutIcon className="h-4 w-4 mr-2" />
               Logout
@@ -510,54 +505,54 @@ const AdminPanel: React.FC = () => {
         {/* Statistics Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl hover:bg-card/90 transition-all duration-300">
+            <Card className="border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Total Registrations</p>
-                    <p className="text-3xl font-bold text-foreground">{stats.overview.totalRegistrations}</p>
-                    <p className="text-xs text-muted-foreground">All participants</p>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-slate-500">Total Registrations</p>
+                    <p className="text-3xl font-extrabold text-slate-900">{stats.overview.totalRegistrations}</p>
+                    <p className="text-xs text-slate-400">All participants</p>
                   </div>
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-xs">
                     <UsersIcon className="h-7 w-7 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl hover:bg-card/90 transition-all duration-300">
+            <Card className="border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Solo Registrations</p>
-                    <p className="text-3xl font-bold text-foreground">{stats.overview.soloRegistrations}</p>
-                    <p className="text-xs text-muted-foreground">Individual participants</p>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-slate-500">Solo Registrations</p>
+                    <p className="text-3xl font-extrabold text-slate-900">{stats.overview.soloRegistrations}</p>
+                    <p className="text-xs text-slate-400">Individual participants</p>
                   </div>
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-xs">
                     <TrendingUpIcon className="h-7 w-7 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl hover:bg-card/90 transition-all duration-300">
+            <Card className="border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Team Registrations</p>
-                    <p className="text-3xl font-bold text-foreground">{stats.overview.teamRegistrations}</p>
-                    <p className="text-xs text-muted-foreground">Team participants</p>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-slate-500">Team Registrations</p>
+                    <p className="text-3xl font-extrabold text-slate-900">{stats.overview.teamRegistrations}</p>
+                    <p className="text-xs text-slate-400">Team participants</p>
                   </div>
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-xs">
                     <TrendingUpIcon className="h-7 w-7 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl hover:bg-card/90 transition-all duration-300">
+            <Card className="border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                    <p className="text-3xl font-bold text-foreground">₹{stats.overview.totalRevenue.toLocaleString()}</p>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-slate-500">Total Revenue</p>
+                    <p className="text-3xl font-extrabold text-slate-900">₹{stats.overview.totalRevenue.toLocaleString()}</p>
                     <p className="text-xs text-muted-foreground">Registration fees</p>
                   </div>
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
@@ -613,19 +608,19 @@ const AdminPanel: React.FC = () => {
                 </Select>
               </div>
               <div className="flex gap-3">
-                <Button 
-                  onClick={fetchRegistrations} 
-                  variant="outline" 
-                  size="lg" 
+                <Button
+                  onClick={fetchRegistrations}
+                  variant="outline"
+                  size="lg"
                   disabled={loading}
                   className="border-border/50 hover:bg-primary/10 hover:border-primary/50"
                 >
                   <RefreshCwIcon className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
-                <Button 
-                  onClick={handleExport} 
-                  size="lg" 
+                <Button
+                  onClick={handleExport}
+                  size="lg"
                   disabled={loading}
                   className="bg-gradient-to-r from-secondary to-accent hover:from-secondary/90 hover:to-accent/90 text-white"
                 >

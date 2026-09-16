@@ -9,7 +9,7 @@ export const performanceUtils = {
     if (!gl) return false;
 
     // Check device memory (if available)
-    const deviceMemory = (navigator as any).deviceMemory;
+    const deviceMemory = (navigator as unknown as { deviceMemory?: number }).deviceMemory;
     if (deviceMemory && deviceMemory < 4) return false;
 
     // Check if mobile device
@@ -27,7 +27,7 @@ export const performanceUtils = {
   },
 
   // Throttle function calls for performance
-  throttle: <T extends (...args: any[]) => any>(func: T, limit: number): T => {
+  throttle: <T extends (...args: unknown[]) => unknown>(func: T, limit: number): T => {
     let lastRun = 0;
     return ((...args: Parameters<T>) => {
       if (Date.now() - lastRun >= limit) {
@@ -38,8 +38,8 @@ export const performanceUtils = {
   },
 
   // Debounce function calls
-  debounce: <T extends (...args: any[]) => any>(func: T, delay: number): T => {
-    let timeoutId: NodeJS.Timeout;
+  debounce: <T extends (...args: unknown[]) => unknown>(func: T, delay: number): T => {
+    let timeoutId: ReturnType<typeof setTimeout>;
     return ((...args: Parameters<T>) => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => func(...args), delay);

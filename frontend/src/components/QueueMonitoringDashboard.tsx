@@ -121,59 +121,59 @@ const QueueMonitoringDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+        <Card className="border-slate-200 bg-white shadow-xs rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Pending</CardTitle>
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats?.pending || 0}</div>
+            <div className="text-2xl font-extrabold text-amber-600">{stats?.pending || 0}</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-slate-200 bg-white shadow-xs rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Processing</CardTitle>
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Processing</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats?.processing || 0}</div>
+            <div className="text-2xl font-extrabold text-blue-600">{stats?.processing || 0}</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-slate-200 bg-white shadow-xs rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Completed</CardTitle>
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Completed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats?.completed || 0}</div>
+            <div className="text-2xl font-extrabold text-emerald-600">{stats?.completed || 0}</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-slate-200 bg-white shadow-xs rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Failed</CardTitle>
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Failed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats?.failed || 0}</div>
+            <div className="text-2xl font-extrabold text-rose-600">{stats?.failed || 0}</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-slate-200 bg-white shadow-xs rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Total</CardTitle>
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.total || 0}</div>
+            <div className="text-2xl font-extrabold text-slate-900">{stats?.total || 0}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Controls */}
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-4 items-center flex-wrap">
         <select 
           value={selectedStatus} 
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="border rounded px-3 py-1"
+          className="border border-slate-300 rounded-xl px-4 py-2 bg-white text-slate-800 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none"
         >
           <option value="all">All Status</option>
           <option value="pending">Pending</option>
@@ -182,60 +182,60 @@ const QueueMonitoringDashboard: React.FC = () => {
           <option value="failed">Failed</option>
         </select>
         
-        <Button onClick={triggerProcessing} disabled={isLoading}>
+        <Button onClick={triggerProcessing} disabled={isLoading} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl px-5">
           {isLoading ? 'Processing...' : 'Process Queue Now'}
         </Button>
         
-        <Button onClick={fetchData} variant="outline" disabled={isLoading}>
+        <Button onClick={fetchData} variant="outline" disabled={isLoading} className="border-slate-300 text-slate-700 rounded-xl">
           Refresh
         </Button>
       </div>
 
       {/* Items Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Queue Items</CardTitle>
+      <Card className="border-slate-200 bg-white shadow-sm rounded-2xl overflow-hidden">
+        <CardHeader className="border-b border-slate-100 bg-slate-50/60 p-5">
+          <CardTitle className="text-lg font-bold text-slate-900">Queue Items</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2">Payment ID</th>
-                  <th className="text-left p-2">Status</th>
-                  <th className="text-left p-2">User</th>
-                  <th className="text-left p-2">Event</th>
-                  <th className="text-left p-2">Attempts</th>
-                  <th className="text-left p-2">Age</th>
-                  <th className="text-left p-2">Error Details</th>
+                <tr className="border-b border-slate-200 bg-slate-50 text-slate-700 font-semibold">
+                  <th className="text-left p-3.5 pl-5">Payment ID</th>
+                  <th className="text-left p-3.5">Status</th>
+                  <th className="text-left p-3.5">User</th>
+                  <th className="text-left p-3.5">Event</th>
+                  <th className="text-left p-3.5">Attempts</th>
+                  <th className="text-left p-3.5">Age</th>
+                  <th className="text-left p-3.5 pr-5">Error Details</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100 text-slate-800">
                 {items.map((item) => (
-                  <tr key={item._id} className="border-b">
-                    <td className="p-2 font-mono text-xs">{item.paymentId.slice(-8)}</td>
-                    <td className="p-2">
+                  <tr key={item._id} className="hover:bg-blue-50/30 transition-colors">
+                    <td className="p-3.5 pl-5 font-mono text-xs font-semibold text-slate-600">{item.paymentId.slice(-8)}</td>
+                    <td className="p-3.5">
                       <Badge variant={getStatusBadgeVariant(item.status)}>
                         {item.status}
                       </Badge>
                     </td>
-                    <td className="p-2">
+                    <td className="p-3.5">
                       <div>
-                        <div className="font-medium">{item.registrationData.leaderName}</div>
-                        <div className="text-gray-500 text-xs">{item.registrationData.leaderEmail}</div>
+                        <div className="font-semibold text-slate-900">{item.registrationData.leaderName}</div>
+                        <div className="text-slate-500 text-xs">{item.registrationData.leaderEmail}</div>
                       </div>
                     </td>
-                    <td className="p-2">{item.registrationData.selectedEvent}</td>
-                    <td className="p-2">{item.attempts}</td>
-                    <td className="p-2">{formatAge(item.createdAt)}</td>
-                    <td className="p-2">
+                    <td className="p-3.5 font-medium">{item.registrationData.selectedEvent}</td>
+                    <td className="p-3.5 font-mono text-xs">{item.attempts}</td>
+                    <td className="p-3.5 text-slate-500 text-xs font-mono">{formatAge(item.createdAt)}</td>
+                    <td className="p-3.5 pr-5">
                       {item.errorMessage && (
-                        <div className="text-xs text-red-500 mt-1 max-w-48 truncate" title={item.errorMessage}>
+                        <div className="text-xs text-rose-600 mt-1 max-w-48 truncate" title={item.errorMessage}>
                           {item.errorMessage}
                         </div>
                       )}
                       {item.status === 'failed' && !item.errorMessage && (
-                        <div className="text-xs text-red-500">Failed</div>
+                        <div className="text-xs text-rose-600 font-semibold">Failed</div>
                       )}
                     </td>
                   </tr>
