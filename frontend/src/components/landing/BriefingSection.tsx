@@ -53,7 +53,7 @@ export const BriefingSection = () => {
           {/* Stats */}
           <div className="flex flex-col">
             {[
-              { num: '24+', label: 'COMPETITIONS\nACROSS 10 DEPARTMENTS' },
+              { num: '28', label: 'EVENTS\nACROSS 11 DEPARTMENTS' },
               { num: '1', label: 'CAMPUS\nONE-DAY FORMAT' },
               { num: '₹1L+', label: 'IN PRIZES\nACROSS ALL TRACKS', redact: true },
               { num: 'All', label: 'PARTICIPANTS\nCERTIFIED' },

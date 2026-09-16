@@ -17,6 +17,7 @@ import { EventsList } from "@/components/EventsList";
 import { EventDetails } from "@/components/EventDetails";
 import { Department } from "@/components/DepartmentGrid";
 import { Event } from "@/data/events";
+import { eventsByDepartment } from "@/data/events";
 
 type ViewState =
   | { type: "home" }
@@ -79,17 +80,12 @@ const Index = memo(() => {
         return;
       }
       const departmentId = event.department.toLowerCase().replace(/[^a-z]/g, "");
-      const departmentMap: Record<string, Department> = {
-        aeronauticalengineering: { id: "aeronautical", name: "Aeronautical Engineering", eventCount: 3 },
-        mechanicalengineering: { id: "mechanical", name: "Mechanical Engineering", eventCount: 3 },
-        electricalengineering: { id: "electrical", name: "Electrical Engineering", eventCount: 3 },
-        civilengineering: { id: "civil", name: "Civil Engineering", eventCount: 3 },
-        computerscienceengineering: { id: "cse", name: "Computer Science Engineering", eventCount: 3 },
-        aidatascience: { id: "aids", name: "AI & Data Science", eventCount: 3 },
-        iotcybersecurity: { id: "iot", name: "IoT & Cyber Security", eventCount: 3 },
-        businessadministration: { id: "bba", name: "Business Administration", eventCount: 1 },
-        foodtechnology: { id: "food", name: "Food Technology", eventCount: 2 },
-      };
+      const departmentMap: Record<string, Department> = Object.fromEntries(
+        Object.entries(eventsByDepartment).map(([id, events]) => [
+          events[0]?.department.toLowerCase().replace(/[^a-z]/g, ""),
+          { id, name: events[0]?.department || id, eventCount: events.length, eventNames: events.map(event => event.name) }
+        ])
+      );
       const department = departmentMap[departmentId];
       if (department) {
         setCurrentView({ type: "events", department });

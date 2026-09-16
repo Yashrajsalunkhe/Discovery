@@ -7,7 +7,7 @@ export const WhyAttendSection = () => {
     },
     {
       index: '02',
-      title: 'Certified, No Exceptions',
+      title: 'Certificate for All',
       desc: 'Every registered participant leaves with a certificate — win or lose.',
     },
     {

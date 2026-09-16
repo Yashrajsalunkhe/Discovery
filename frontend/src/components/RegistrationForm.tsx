@@ -67,6 +67,8 @@ const departments = [
   "IoT & Cyber Security",
   "Business Administration",
   "Food Technology",
+  "Robotics & AI",
+  "BCA",
   "Other"
 ];
 
@@ -79,7 +81,8 @@ const paperPresentationDepartments = [
   "Computer Science Engineering",
   "AI & Data Science",
   "IoT & Cyber Security",
-  "Business Administration"
+  "Business Administration",
+  "BCA"
 ];
 
 const years = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Graduate", "Post Graduate"];
@@ -111,43 +114,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
   const allEvents = getAllEvents();
 
-  // Filter events to show only one Paper Presentation option and exclude closed events
-  const filteredEvents = allEvents.filter((event, index, arr) => {
-    // Exclude Pickle Ball from registration
-    if (event.name === "Pickle Ball") {
-      return false;
-    }
-    
-    // Exclude closed events from registration
-    const closedEvents = [
-      "CAD Master",
-      "Code 2 Compete", 
-      "CodeMania",
-      "PROMPT WARS - Battle of the Minds",
-      "Paper Glider",
-      "RC Simulator",
-      "SETU"
-    ];
-    
-    if (closedEvents.includes(event.name)) {
-      return false;
-    }
-
-    if (event.name === "Paper Presentation") {
-      // Only show the first Paper Presentation event
-      return arr.findIndex(e => e.name === "Paper Presentation") === index;
-    }
-    return true;
-  }).map(event => {
-    // Rename the Paper Presentation to be generic
-    if (event.name === "Paper Presentation") {
-      return {
-        ...event,
-        department: "All Departments"
-      };
-    }
-    return event;
-  });
+  const filteredEvents = allEvents;
 
   // Create dynamic schema based on selected event
   const currentSchema = selectedEvent 

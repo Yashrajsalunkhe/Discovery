@@ -37,7 +37,7 @@ export interface Event {
 
 // Common rules for all Paper Presentation events from the supplied 2026 documents.
 const paperPresentationRules: string[] = [
-  "A maximum of 3 participants are allowed in each team.",
+  "The maximum team size is specified for each department's paper presentation.",
   "Entry fee: ₹100 per participant.",
   "Participants must email their abstract, research paper, and PowerPoint presentation to the event coordinator.",
   "The submitted research paper and presentation must be in .docx format; bring a pen-drive backup of the presentation.",
@@ -53,7 +53,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "aero-paper",
       name: "Paper Presentation",
       department: "Aeronautical Engineering",
-        maxTeamSize: 3,
+        maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present cutting-edge research on advanced aeronautical engineering topics including materials science, structural design, aerodynamics, and UAV technologies. Showcase your academic research and technical expertise to industry professionals.",
@@ -80,7 +80,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
       coordinators: {
         faculty: {
-          name: "Dr. S. Sendhil Kumar",
+          name: "Dr. Sendhil Kumar S",
           phone: "9486172845",
           email: "ssk_aero@adcet.in"
         },
@@ -95,7 +95,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "paper-glider",
       name: "Paper Glider",
       department: "Aeronautical Engineering",
-        maxTeamSize: 3,
+        maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Paper_Glider.png",
       description: "Design and build innovative paper gliders optimized for maximum flight distance and time. Test your aerodynamic knowledge and engineering skills in this exciting hands-on competition where creativity meets physics.",
@@ -152,7 +152,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ],
       coordinators: {
         faculty: {
-          name: "Prof. Mohammed Hashim Y",
+          name: "Mr. Mohammed Hashim Y.",
           phone: "906129305",
           email: "mhy_aero@adcet.in"
         },
@@ -169,7 +169,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "mech-paper",
       name: "Paper Presentation",
       department: "Mechanical Engineering",
-  maxTeamSize: 3,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present innovative research in mechanical engineering covering automation, automotive innovations, thermal systems, manufacturing processes, and renewable energy technologies. Share groundbreaking ideas and technical solutions.",
@@ -289,7 +289,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "elec-paper",
       name: "Paper Presentation",
       department: "Electrical Engineering",
-      maxTeamSize: 3,
+      maxTeamSize: 6,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present cutting-edge research in electrical engineering covering power electronics, renewable energy systems, smart grid technologies, and digital signal processing. Showcase innovative solutions for modern electrical challenges.",
@@ -307,13 +307,13 @@ export const eventsByDepartment: Record<string, Event[]> = {
     ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
-        name: "Mr. I.D.Pharane",
+        name: "Mr. Indrajit D. Pharane",
         phone: "9657240024",
         email: ""
       },
       student: {
-        name: "Mr. Sujal Gaikwad",
-        phone: "9021982438",
+          name: "Nilesh Lohar",
+          phone: "8329293272",
         email: ""
       }
     }
@@ -338,8 +338,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Round 2: Here's the most interesting part, based on of given circuit diagram you have to build the same circuit using the components."
       ],
       coordinators: {
-        faculty: { name: "Mrs. Rutuja S Pawar", phone: "9765317323", email: "" },
-        student: { name: "Ms. Samruddhi Patil", phone: "9021681044", email: "" }
+        faculty: { name: "Mrs. Komal Nagsen Jadhav", phone: "7972037461", email: "" },
+        student: { name: "Sujay Kedge", phone: "9373374002", email: "sujaykedge05@gmail.com" }
       }
     },
     {
@@ -364,8 +364,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Host institute reserves rights related to modification and updating the rules for successful completion of the event."
       ],
       coordinators: {
-        faculty: { name: "Mr. P. D. More", phone: "9657175613", email: "pdm_ele@adcet.in" },
-        student: { name: "Mr. Vivek Borage", phone: "8080220991", email: "vivekborage1711@gmail.com" }
+        faculty: { name: "Mrs. Tejal S Bangdar", phone: "8788312214", email: "" },
+        student: { name: "Ritika Shevade", phone: "8999921327", email: "ritikashevade9@gmail.com" }
       }
     }
   ],
@@ -374,7 +374,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "civil-paper",
       name: "Paper Presentation",
       department: "Civil Engineering",
-      maxTeamSize: 3,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present innovative solutions in civil engineering including sustainable construction materials, smart cities infrastructure, earthquake-resistant design, and water resources management. Address modern urban development challenges.",
@@ -392,13 +392,13 @@ export const eventsByDepartment: Record<string, Event[]> = {
     ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
-        name: "Dr. Vidya A. Lande",
+        name: "Dr. Vidya Abhijeet Lande",
         phone: "7387102650",
         email: ""
       },
       student: {
-        name: "Vivek Lohar",
-        phone: "9309735699",
+        name: "Mr. Chinmay Jadhav",
+        phone: "9309417271",
         email: ""
       }
     }
@@ -420,8 +420,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Entry Fee: Rs. 100/- Per Participant."
       ],
       coordinators: {
-        faculty: { name: "Mr. Atul N. Kolekar", phone: "9545428026", email: "ank_civil@adcet.in" },
-        student: { name: "Aman Attar", phone: "9356709191", email: "" }
+        faculty: { name: "Dr. Shashiraj S. Chougle", phone: "9890154849", email: "" },
+        student: { name: "Mr. Ayush Atugade", phone: "7666290293", email: "atuayush.5203@gmail.com" }
       }
     },
     {
@@ -464,8 +464,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "The organizers reserve the right to modify rules if necessary, and any such changes will be announced before evaluation."
       ],
       coordinators: {
-        faculty: { name: "Dr. Bajirao V. Mane", phone: "9373277474", email: "bvm_civil@adcet.in" },
-        student: { name: "Vedant Bajare", phone: "9172919766", email: "" }
+        faculty: { name: "Mr. Kiran K. Shinde", phone: "9766641010", email: "" },
+        student: { name: "Mr. Varad More", phone: "7249380924", email: "morevarad937@gmail.com" }
       }
     }
   ],
@@ -474,7 +474,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "cse-paper",
       name: "Paper Presentation",
       department: "Computer Science Engineering",
-      maxTeamSize: 3,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present innovative computer science research covering artificial intelligence, blockchain technology, cloud computing, cybersecurity, data science, IoT, and mobile application development. Showcase cutting-edge technological solutions.",
@@ -492,13 +492,13 @@ export const eventsByDepartment: Record<string, Event[]> = {
     ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
-        name: "Dr. B. A. Jadhawar",
+        name: "Dr. Anisa B. Shikalgar",
         phone: "9284068550",
         email: "baj_cse@adcet.in"
       },
       student: {
-        name: "Mr. Swapnil Patil",
-        phone: "9322524034",
+        name: "Parth Lande",
+        phone: "7972467100",
         email: ""
       }
     }
@@ -507,7 +507,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "code-compete",
       name: "Code 2 Compete",
       department: "Computer Science Engineering",
-      maxTeamSize: 1,
+      maxTeamSize: 2,
       entryFee: 100,
       image: "/event-images/code_to_compete.png",
       description: "Individual competitive programming challenge featuring algorithmic problem-solving and data structures. Test your coding skills through multiple rounds including MCQs and intensive programming tasks on HackerRank platform.",
@@ -527,8 +527,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "If any copy cases found in Round1, the participant will be directly eliminated from the contest."
       ],
       coordinators: {
-        faculty: { name: "Mr. Yogesh V. Koli", phone: "9503265322", email: "yvk_cse@adect.in" },
-        student: { name: "Mr. Zahoorahmad Sayyad", phone: "8767354046", email: "zahoor.adcet@gmail.com" }
+        faculty: { name: "Mr. Ajit R. Pradyavant", phone: "7304721566", email: "" },
+        student: { name: "Sudarshan Kosti", phone: "9049575622", email: "sudarshan.kosti811@gmail.com" }
       }
     },
     {
@@ -549,8 +549,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Posters and presentations must be clear, concise, and focused on key aspects."
       ],
       coordinators: {
-        faculty: { name: "Mrs. Shubhangi Patil", phone: "9730623168", email: "spp1_cse@adcet.in" },
-        student: { name: "Mr. Shardul Mane", phone: "9307708830", email: "shardulmane369@gmail.com" }
+        faculty: { name: "Dr. Bhagyashala A. Jadhawar", phone: "9284068550", email: "" },
+        student: { name: "Vinay Niranjan", phone: "7755932511", email: "vinaynirananjan7@gmail.com" }
       }
     }
   ],
@@ -559,7 +559,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "aids-paper",
       name: "Paper Presentation",
       department: "AI & Data Science",
-      maxTeamSize: 3,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present groundbreaking research on AI and data science applications including deep learning, natural language processing, computer vision, predictive analytics, and ethical AI. Explore the future of intelligent systems.",
@@ -577,14 +577,14 @@ export const eventsByDepartment: Record<string, Event[]> = {
     ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
-        name: "Mrs. Priyanka S. Patil",
-        phone: "7875642616",
+        name: "Mrs. Supriya S. Patil",
+        phone: "9096898542",
         email: "psp_aids@adcet.in"
       },
       student: {
-        name: "Kavyanjali Kishor Kamble",
-        phone: "9309079890",
-        email: "kavyanjalikamble29@gmail.com"
+        name: "Rishikesh Dilip Dhapse",
+        phone: "8857869924",
+        email: "rushikeshdhapse81@gmail.com"
       }
     }
     },
@@ -603,15 +603,15 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Any plagiarism results in immediate disqualification."
       ],
       coordinators: {
-        faculty: { name: "Mrs. Smita P. Nalavade", phone: "7498695865", email: "sdp_aids@adcet.in" },
-        student: { name: "Asmita Shinde", phone: "7745019675", email: "" }
+        faculty: { name: "Mrs. Smita Pavan Nalavade", phone: "7498695865", email: "sdp_aids@adcet.in" },
+        student: { name: "Asmita Shinde", phone: "7745019675", email: "asmitashinde2808@gmail.com" }
       }
     },
     {
       id: "prompt-wars",
       name: "PROMPT WARS - Battle of the Minds",
       department: "AI & Data Science",
-      maxTeamSize: 3,
+      maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Coding_Compi.png",
       description: "A timed generative-AI challenge where teams reveal, refine, and submit prompts for a secret scenario.",
@@ -629,7 +629,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ],
       coordinators: {
         faculty: { name: "Prof. Prajakta S. Dabade", phone: "8262975756", email: "psd_aids@adcet.in" },
-        student: { name: "Amit Kadam", phone: "9075768121", email: "" }
+        student: { name: "Amit Kadam", phone: "9075768121", email: "amitkadam1441@gmail.com" }
       }
     }
   ],
@@ -638,7 +638,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "iot-paper",
       name: "Paper Presentation",
       department: "IoT & Cyber Security",
-      maxTeamSize: 3,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present cutting-edge innovations in IoT and cybersecurity covering IoT security, blockchain integration, edge computing, industrial IoT, smart cities, threat detection, and digital forensics. Address modern security challenges.",
@@ -656,14 +656,14 @@ export const eventsByDepartment: Record<string, Event[]> = {
     ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
-        name: "Mr Samish N Kamble",
-        phone: "8856855737",
+          name: "Mr. Samish N. Kamble",
+        phone: "9823723719",
         email: "snk_iot@adcet.in"
       },
       student: {
-        name: "Ms Sakshi Pawar",
-        phone: "9356856211",
-        email: "Pawarsakshee25@gmail.com"
+        name: "Mr. Anoj Pawar",
+        phone: "8446384538",
+        email: "pawaranoj038@gmail.com"
       }
     }
     },
@@ -671,7 +671,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "catch-the-flag",
       name: "Catch the Flag",
       department: "IoT & Cyber Security",
-      maxTeamSize: 2,
+      maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Ideathon.png",
       description: "Brainstorm and pitch innovative IoT solutions addressing real-world challenges. Develop creative technology concepts, create prototypes, and present your ideas to industry experts in this intensive innovation competition.",
@@ -698,26 +698,26 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Submission deadline will be announced by the organizers."
       ],
       coordinators: {
-        faculty: { name: "Mr. Samran Tanvir Chaus", phone: "7840929304", email: "" },
-        student: { name: "Mr. Gaurav Rajguru", phone: "7057565661", email: "" }
+        faculty: { name: "Mrs. Simran Tanvir Chaus", phone: "7840929304", email: "" },
+        student: { name: "Mr. Gaurav Rajguru", phone: "7057565661", email: "gauravrajguru321@gmail.com" }
       }
     },
     {
-      id: "pickle-ball",
-      name: "Pickle Ball",
+      id: "bgmi",
+      name: "BGMI",
       department: "IoT & Cyber Security",
       minTeamSize: 2,
-      maxTeamSize: 2,
+      maxTeamSize: 4,
       entryFee: 100,
-      image: "/event-images/box_cricket.png",
-      description: "A fast-paced pickle ball challenge focused on coordination, strategy, and sportsmanship.",
+      image: "/event-images/Bgmi_dominator.png",
+      description: "A competitive BGMI team challenge focused on coordination, strategy, and sportsmanship.",
       rules: [
-        "Teams consist of 2 participants.",
+        "Teams consist of 4 participants.",
         "Players must follow the event officials' instructions and sportsmanship requirements.",
         "The decision of the officials is final."
       ],
       coordinators: {
-        faculty: { name: "Mr. Samish N. Kamble", phone: "9823723719", email: "" },
+        faculty: { name: "Ms. Vaishali G. Waghmode", phone: "8788172378", email: "" },
         student: { name: "Ms. Dhanshree Tandale", phone: "9022239537", email: "" }
       }
     }
@@ -744,7 +744,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       rules: paperPresentationRules,
       ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
       coordinators: {
-        faculty: { name: "Anuja Salgar", phone: "7447251200", email: "" },
+          faculty: { name: "Ms. Anuja Ashok Salgar", phone: "7447251200", email: "" },
         student: { name: "Sanika Pawar", phone: "7020073670", email: "" }
       }
     },
@@ -752,17 +752,17 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "ad-mad",
       name: "Ad-Mad",
       department: "Business Administration",
-      maxTeamSize: 2,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "A creative advertising challenge where teams develop and present an engaging campaign.",
       rules: [
-        "Teams may have up to 2 participants.",
+        "Teams may have up to 5 participants.",
         "The advertising concept and presentation must be original.",
         "Judges' decisions are final."
       ],
       coordinators: {
-        faculty: { name: "Aman Sayyad", phone: "8530022400", email: "" },
+        faculty: { name: "Mr. Aman Shakil Sayyad", phone: "8530022400", email: "" },
         student: { name: "Parth Yadav", phone: "9604171177", email: "" }
       }
     }
@@ -772,14 +772,14 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "functional-food",
       name: "Paper Presentation",
       department: "Food Technology",
-      maxTeamSize: 3,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present an original food technology research paper, process, or product innovation to a judging panel.",
       rules: paperPresentationRules,
       coordinators: {
         faculty: {
-          name: "Dr. Janki R. Jankar",
+          name: "Dr. Jagruti J. Jankar",
           phone: "7028492068",
           email: "jjj_ft@adcet.in"
         },
@@ -794,7 +794,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "new-product-development",
       name: "New Food Product Development",
       department: "Food Technology",
-      maxTeamSize: 4,
+      maxTeamSize: 3,
       entryFee: 100,
       image: "/event-images/New_Product_Development.png",
       description: "Create and prototype revolutionary new food products with commercial market potential. From concept to prototype, demonstrate innovation in food processing, packaging, preservation, and consumer appeal.",
@@ -806,21 +806,78 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Product should be cost-effective for both producer and consumer.",
         "Create small-scale prototypes and present them at the time of event.",
         "Sensory evaluation will be conducted during the event's official evaluation by a pane of judge.",
-        "Each group/Team must consist of minimum 1 to maximum 4 members.",
+        "Each group/Team must consist of minimum 1 to maximum 3 members.",
         "Each presenter will get a maximum of 5 minutes for their presentation.",
         "All development must adhere to ethical standards, including safety and intellectual property respect."
       ],
       coordinators: {
         faculty: {
-          name: "Mr. Vidhan R. Lade",
-          phone: "9370104546",
+          name: "Dr. Kishor Kailasrao Giram",
+          phone: "8575751111",
           email: ""
         },
         student: {
-          name: "Ms. Gaytri Shinde",
-          phone: "7276206393",
+          name: "Mr. Vidhan R. Lade",
+          phone: "9370104546",
           email: ""
         }
+      }
+    }
+  ],
+  robotics: [
+    {
+      id: "innovatex-robotics-ai",
+      name: "InnovateX - Robotics & AI",
+      department: "Robotics & AI",
+      maxTeamSize: 2,
+      entryFee: 100,
+      image: "/event-images/placeholder.svg",
+      description: "Build and present an innovative robotics or artificial intelligence solution for a real-world problem.",
+      rules: [
+        "Teams may include up to two participants.",
+        "The project must be original and presented by the registered team.",
+        "Teams must bring their prototype, presentation, and supporting documentation.",
+        "Judges' decisions will be final."
+      ],
+      coordinators: {
+        faculty: { name: "Mrs. Rutuja S. Pawar", phone: "9765317323", email: "" },
+        student: { name: "Mr. Shivaji Shivaji Patil", phone: "8767493503", email: "shivajipatil9868@gmail.com" }
+      }
+    }
+  ],
+  bca: [
+    {
+      id: "bca-paper",
+      name: "Paper Presentation",
+      department: "BCA",
+      maxTeamSize: 5,
+      entryFee: 100,
+      image: "/event-images/paper_presentation.png",
+      description: "Present an original paper on an emerging technology, application, or computing solution.",
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+      coordinators: {
+        faculty: { name: "Ms. Piusha U. Magdum", phone: "8767258041", email: "" },
+        student: { name: "Mr. Mateen L. Mulla", phone: "9545289737", email: "" }
+      }
+    },
+    {
+      id: "tech-treasure-hunt",
+      name: "Tech Treasure Hunt",
+      department: "BCA",
+      maxTeamSize: 4,
+      entryFee: 100,
+      image: "/event-images/placeholder.svg",
+      description: "Solve a chain of technology-focused clues and challenges in this fast-paced team competition.",
+      rules: [
+        "Teams may include up to four participants.",
+        "All clues and challenges must be completed within the allotted time.",
+        "Participants must follow the instructions of event coordinators.",
+        "The decision of the organizers will be final."
+      ],
+      coordinators: {
+        faculty: { name: "Ms. Alisha A. Jamadar", phone: "7558296750", email: "" },
+        student: { name: "Mr. Sudharshan J. Sawant", phone: "7028740881", email: "sudharshansawant6@gmail.com" }
       }
     }
   ]

@@ -108,6 +108,28 @@ const departments: DepartmentInfo[] = [
       focus: e.name.includes('New Product') ? 'Development & market thinking' : 'Nutrition & innovation',
     })),
   },
+  {
+    code: 'ROBOTICS',
+    name: 'Robotics & AI',
+    events: (eventsByDepartment['robotics'] || []).map((e) => ({
+      ...e,
+      name: e.name,
+      description: e.description || 'Build and present an innovative robotics or AI solution.',
+      format: 'Prototype challenge',
+      focus: 'Robotics & artificial intelligence',
+    })),
+  },
+  {
+    code: 'BCA',
+    name: 'BCA',
+    events: (eventsByDepartment['bca'] || []).map((e) => ({
+      ...e,
+      name: e.name,
+      description: e.description || 'Take on a technology-focused challenge and showcase your skills.',
+      format: e.name.includes('Paper') ? 'Presentation' : 'Team challenge',
+      focus: e.name.includes('Paper') ? 'Research & communication' : 'Logic & teamwork',
+    })),
+  },
 ];
 
 type ViewState =

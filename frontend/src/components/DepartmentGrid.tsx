@@ -1,69 +1,33 @@
 import styles from './DepartmentGrid.module.css';
 import { eventsByDepartment } from '../data/events';
 
-interface Department {
+export interface Department {
   id: string;
   name: string;
   eventCount: number;
   eventNames: string[];
 }
 
-const departments: Department[] = [
-  {
-    id: "aids",
-    name: "AI & Data Science",
-    eventCount: 3,
-    eventNames: eventsByDepartment.aids?.map(event => event.name) || []
-  },
-  {
-    id: "mechanical", 
-    name: "Mechanical Engineering",
-    eventCount: 3,
-    eventNames: eventsByDepartment.mechanical?.map(event => event.name) || []
-  },
-  {
-    id: "electrical",
-    name: "Electrical Engineering", 
-    eventCount: 3,
-    eventNames: eventsByDepartment.electrical?.map(event => event.name) || []
-  },
-  {
-    id: "civil",
-    name: "Civil Engineering",
-    eventCount: 3,
-    eventNames: eventsByDepartment.civil?.map(event => event.name) || []
-  },
-  {
-    id: "cse",
-    name: "Computer Science Engineering",
-    eventCount: 3,
-    eventNames: eventsByDepartment.cse?.map(event => event.name) || []
-  },
-  {
-    id: "aeronautical",
-    name: "Aeronautical Engineering",
-    eventCount: 3,
-    eventNames: eventsByDepartment.aeronautical?.map(event => event.name) || []
-  },
-  {
-    id: "iot",
-    name: "IoT & Cyber Security",
-    eventCount: 3,
-    eventNames: eventsByDepartment.iot?.map(event => event.name) || []
-  },
-  {
-    id: "bba",
-    name: "Business Administration",
-    eventCount: 2,
-    eventNames: eventsByDepartment.bba?.map(event => event.name) || []
-  },
-  {
-    id: "food",
-    name: "Food Technology",
-    eventCount: 2,
-    eventNames: eventsByDepartment.food?.map(event => event.name) || []
-  }
-];
+const departmentNames: Record<string, string> = {
+  aids: "AI & Data Science",
+  mechanical: "Mechanical Engineering",
+  electrical: "Electrical Engineering",
+  civil: "Civil Engineering",
+  cse: "Computer Science Engineering",
+  aeronautical: "Aeronautical Engineering",
+  iot: "IoT & Cyber Security",
+  bba: "Business Administration",
+  food: "Food Technology",
+  robotics: "Robotics & AI",
+  bca: "BCA"
+};
+
+const departments: Department[] = Object.entries(eventsByDepartment).map(([id, events]) => ({
+  id,
+  name: departmentNames[id] || id,
+  eventCount: events.length,
+  eventNames: events.map(event => event.name)
+}));
 
 interface DepartmentGridProps {
   onDepartmentSelect: (department: Department) => void;
@@ -78,7 +42,7 @@ export const DepartmentGrid = ({ onDepartmentSelect }: DepartmentGridProps) => {
             Choose Your Department
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Explore events across 9 departments and showcase your skills in your area of expertise
+            Explore events across {departments.length} departments and showcase your skills in your area of expertise
           </p>
         </div>
         
@@ -114,5 +78,3 @@ export const DepartmentGrid = ({ onDepartmentSelect }: DepartmentGridProps) => {
     </section>
   );
 };
-
-export type { Department };

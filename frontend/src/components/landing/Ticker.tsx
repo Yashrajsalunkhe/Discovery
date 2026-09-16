@@ -1,7 +1,7 @@
 export const Ticker = () => {
   const items = [
-    { text: '24+ EVENTS', bold: true },
-    { text: '10 DEPARTMENTS', bold: true },
+    { text: '28 EVENTS', bold: true },
+    { text: '11 DEPARTMENTS', bold: true },
     { text: 'ONE DAY ON CAMPUS', bold: false },
     { text: 'ADCET, ASHTA', bold: false },
     { text: 'NATIONAL LEVEL', bold: false },
