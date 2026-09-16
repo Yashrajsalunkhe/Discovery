@@ -7,9 +7,13 @@ export const HeroLanding: React.FC = () => {
   const radarBlips = [
     { label: 'AI/DS', top: '30%', left: '62%' },
     { label: 'MECH', top: '64%', left: '28%' },
-    { label: 'E&TC', top: '22%', left: '24%' },
+    { label: 'CSE', top: '22%', left: '24%' },
+    { label: 'Electrical', top: '40%', left: '40%' },
+    { label: 'Food Technology', top: '50%', left: '50%' },
+    { label: 'Aeronautical', top: '60%', left: '60%' },
+    { label: 'CHEM', top: '70%', left: '70%' },
     { label: 'CIVIL', top: '70%', left: '66%' },
-    { label: 'ROBOTICS', top: '48%', left: '82%' },
+    { label: 'ROBOTICS In AI ', top: '48%', left: '82%' },
   ];
 
   return (
@@ -65,13 +69,6 @@ export const HeroLanding: React.FC = () => {
       <div className="wrap relative z-10 w-full">
         <div className="max-w-[920px] flex flex-col justify-center">
 
-          {/* Top Subhead / Department Kicker */}
-          <div className="font-mono text-[10px] sm:text-[12.5px] font-semibold tracking-[0.08em] sm:tracking-[0.14em] text-[#97a0ac] uppercase mb-4 sm:mb-8 flex items-center gap-1.5 sm:gap-2 flex-wrap">
-            <span>ADCET ASHTA</span>
-            <span className="text-[#3d4554] font-normal">/</span>
-            <span className="text-[#edeae2]">ARTIFICIAL INTELLIGENCE & DATA SCIENCE</span>
-          </div>
-
           {/* Main Title */}
           <h1
             className="font-display font-black leading-[0.88] tracking-[-0.02em] text-[#EDEAE2] mb-3 sm:mb-4 uppercase select-none max-w-full"
@@ -97,13 +94,13 @@ export const HeroLanding: React.FC = () => {
 
           {/* Sub-brand / Tag */}
           <div className="font-mono text-[11px] sm:text-[13px] tracking-[0.16em] sm:tracking-[0.26em] text-[#E8B923] uppercase font-semibold mb-5 sm:mb-6">
-            NEUROVERSE SYMPOSIUM
+            Annasaheb Dange College of Engineering and Technology (ADCET), Ashta
           </div>
 
           {/* Minimalist Subtitle Paragraph */}
           <div className="space-y-1 text-[#97a0ac] text-[14px] sm:text-[17px] font-normal leading-[1.6] max-w-[480px] mb-7 sm:mb-10">
             <p className="text-[#edeae2] font-medium text-[15px] sm:text-[17px]">Code it. Create it. Play for it.</p>
-            <p className="text-[#7e8794] text-[13px] sm:text-[14px]">National Level Event • 29th September 2026</p>
+            <p className="text-[#7e8794] text-[13px] sm:text-[14px]">National Level Event • 10th October 2026</p>
           </div>
 
           {/* Action Buttons */}
