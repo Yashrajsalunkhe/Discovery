@@ -183,7 +183,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         }, 200);
       }
     }
-  }, [participationType, teamSize, form, append, remove]);
+  }, [participationType, teamSize, form, append, remove, selectedEvent?.name]);
 
   const handleEventChange = (eventId: string) => {
     const event = allEvents.find(e => e.id === eventId);
@@ -424,7 +424,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           email: registrationData.leaderEmail,
           contact: registrationData.leaderMobile,
         },
-        handler: async (razorpayResponse: any) => {
+        handler: async (razorpayResponse: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
           try {
             setPaymentStatus('confirming-registration');
             toast({
@@ -440,41 +440,41 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                 ...registrationData,
                 paymentId: razorpayResponse.razorpay_payment_id,
                 orderId: razorpayResponse.razorpay_order_id,
-                signature: razorpayResponse.razorpay_signature
+                signature: razorpayResponse.razorpay_signature,
               })
             });
 
-            const result = await registerRes.json();
-            if (result.success && result.registrationId) {
+            const registerResult = await registerRes.json();
+            if (registerRes.ok && registerResult.success) {
               setPaymentStatus('success');
               setIsSubmitted(true);
               toast({
-                title: "Registration Successful!",
-                description: "Your registration has been confirmed. You will receive a confirmation email shortly.",
+                title: "Registration Confirmed!",
+                description: `Registration ID: ${registerResult.registrationId}. Confirmation email sent.`,
               });
-            } else if (result.success) {
+            } else if (registerRes.status === 202) {
               setPaymentStatus('pending');
               setIsSubmitted(true);
               toast({
                 title: "Payment Received",
-                description: "Your registration is being confirmed. Please do not make another payment.",
+                description: registerResult.message || "Your registration is queued and will be processed shortly.",
               });
             } else {
               setPaymentStatus('failed');
-              setPaymentError(result.error || "Registration failed after successful payment. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id);
+              setPaymentError(registerResult.error || "Failed to finalize registration");
               toast({
-                title: "Registration Failed",
-                description: "Payment was successful but registration failed. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id,
+                title: "Registration Notice",
+                description: registerResult.error || "Payment was successful, but registration processing is pending.",
                 variant: "destructive",
               });
             }
-          } catch (err) {
-            console.error('Registration error:', err);
+          } catch (err: unknown) {
             setPaymentStatus('failed');
-            setPaymentError("Registration failed after successful payment. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id);
+            const msg = err instanceof Error ? err.message : "Error processing registration";
+            setPaymentError(msg);
             toast({
-              title: "Registration Failed",
-              description: "Payment was successful but registration failed. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id,
+              title: "Error",
+              description: msg,
               variant: "destructive",
             });
           } finally {
@@ -484,13 +484,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         modal: {
           ondismiss: () => {
             setIsSubmitting(false);
-            setPaymentStatus('idle');
-            setPaymentError("Payment was cancelled. Please try again to complete your registration.");
-            toast({
-              title: "Payment Cancelled",
-              description: "Payment is mandatory to complete registration. Please try again.",
-              variant: "destructive",
-            });
+            if (paymentStatus !== 'success' && paymentStatus !== 'pending') {
+              setPaymentStatus('idle');
+            }
           }
         },
         theme: {
@@ -498,9 +494,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         }
       };
 
-      // Create Razorpay instance and open payment modal
-      const razorpay = new (window as any).Razorpay(options);
-      razorpay.on('payment.failed', (response: any) => {
+      type RazorpayInstance = { on: (event: string, cb: (res: { error?: { description?: string } }) => void) => void; open: () => void };
+      const RazorpayConstructor = (window as unknown as { Razorpay: new (opts: unknown) => RazorpayInstance }).Razorpay;
+      const razorpay = new RazorpayConstructor(options);
+      razorpay.on('payment.failed', (response: { error?: { description?: string } }) => {
         setIsSubmitting(false);
         setPaymentStatus('failed');
         const errorMessage = response.error?.description || 'Payment failed. Please try again.';
@@ -581,62 +578,64 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8 flex flex-col">
-      <div className="max-w-3xl mx-auto flex-1">
+    <div className="min-h-screen pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8 flex flex-col bg-slate-50">
+      <div className="max-w-3xl mx-auto flex-1 w-full">
         {/* Back Button */}
         {onBack && (
           <div className="flex items-center gap-4 mb-6 sm:mb-8">
-            <button onClick={onBack} className="font-mono text-[11px] tracking-[.08em] text-paper-dim py-2 pb-2.5 border-b border-line hover:text-brass hover:border-brass transition-colors duration-200 flex items-center gap-2">
+            <button onClick={onBack} className="font-mono text-[11px] font-semibold tracking-[.08em] text-slate-600 py-2 pb-2.5 border-b border-slate-200 hover:text-blue-600 hover:border-blue-600 transition-colors duration-200 flex items-center gap-2">
               <ArrowLeft className="h-3.5 w-3.5" />
               {eventTitle ? "BACK TO EVENTS" : "BACK TO HOME"}
             </button>
           </div>
         )}
         
-        <Card className="relative border-line bg-panel">
-          <CardHeader className="text-center border-b border-line">
-            <div className="file-tab mx-auto mb-4">REGISTRATION</div>
-            <div className="flex items-center justify-center mb-4">
-              <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-brass mr-2" />
-              <CardTitle className="text-2xl sm:text-3xl font-bold text-paper">Event Registration</CardTitle>
+        <Card className="relative border-indigo-100 bg-white/95 backdrop-blur-xl shadow-2xl rounded-2xl overflow-hidden">
+          <CardHeader className="text-center border-b border-indigo-100 bg-gradient-to-b from-indigo-50/70 to-white p-6 sm:p-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-100 border border-indigo-200 text-indigo-700 font-mono text-xs font-bold tracking-wide mx-auto mb-3">
+              OFFICIAL REGISTRATION
+            </div>
+            <div className="flex items-center justify-center mb-2">
+              <UserPlus className="h-7 w-7 text-indigo-600 mr-2.5" />
+              <CardTitle className="text-2xl sm:text-3xl font-black text-slate-900">Event Registration</CardTitle>
             </div>
             {eventTitle && (
-              <CardDescription className="text-base sm:text-lg text-paper-dim">
-                Register for: <span className="font-semibold text-brass">{eventTitle}</span>
+              <CardDescription className="text-base sm:text-lg text-slate-600">
+                Registering for: <span className="font-bold text-indigo-600">{eventTitle}</span>
               </CardDescription>
             )}
-            <CardDescription className="text-paper-mute">
-              Fill out the registration form step by step to complete your registration.
+            <CardDescription className="text-slate-500 text-sm">
+              Complete the quick registration form to generate your event ticket.
             </CardDescription>
           </CardHeader>
           
           {/* Registration Closed Message */}
           {registrationsClosed && (
             <div className="mx-6 mt-6 mb-4">
-              <div className="bg-crimson/10 border-2 border-crimson/30 rounded-lg p-6 text-center">
-                <div className="text-6xl mb-4">🚫</div>
-                <h3 className="text-2xl font-bold text-crimson mb-3">
+              <div className="bg-rose-50 border-2 border-rose-200 rounded-xl p-6 text-center">
+                <div className="text-5xl mb-3">🚫</div>
+                <h3 className="text-2xl font-bold text-rose-700 mb-2">
                   Registrations Are Now Closed
                 </h3>
-                <p className="text-crimson/80 text-lg">
+                <p className="text-rose-600 text-base">
                   Thank you for your interest in Discovery 2K26. Online registrations have ended.
                 </p>
               </div>
             </div>
           )}
           
-          <CardContent>
+          <CardContent className="p-6 sm:p-8">
             {/* Loading Overlay for Payment Processing */}
             {(paymentStatus === 'payment-processing' || paymentStatus === 'confirming-registration') && (
-              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
+              <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center rounded-2xl">
                 <div className="text-center space-y-4">
-                  <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+                  <Loader2 className="h-12 w-12 animate-spin mx-auto text-blue-600" />
                   <div>
-                    <p className="text-lg font-semibold">
+                    <p className="text-lg font-bold text-slate-900">
                       {paymentStatus === 'payment-processing' && 'Processing Payment...'}
                       {paymentStatus === 'confirming-registration' && 'Confirming Registration...'}
                     </p>
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-sm text-slate-500 mt-2">
                       {paymentStatus === 'payment-processing' && 'Please complete the payment in the popup window'}
                       {paymentStatus === 'confirming-registration' && 'Please wait while we confirm your registration'}
                     </p>
@@ -649,9 +648,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 
                 {/* Leader Details Section */}
-                <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
-                    <User className="h-5 w-5 text-brass" />
+                <div className="bg-slate-50/70 p-6 rounded-xl border border-slate-200/90 shadow-xs">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900">
+                    <User className="h-5 w-5 text-blue-600" />
                     Leader (Main Registrant) Details
                   </h3>
                   

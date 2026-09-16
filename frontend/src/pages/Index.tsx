@@ -7,6 +7,8 @@ import {
   DepartmentExplorer,
   ScheduleTimeline,
   WhyAttendSection,
+  FAQSection,
+  VenueSection,
   SeamDivider,
   RegisterCTA,
   FooterLanding,
@@ -18,6 +20,7 @@ import { EventDetails } from "@/components/EventDetails";
 import { Department } from "@/components/DepartmentGrid";
 import { Event } from "@/data/events";
 import { eventsByDepartment } from "@/data/events";
+import { useNavigate } from "react-router-dom";
 
 type ViewState =
   | { type: "home" }
@@ -27,6 +30,7 @@ type ViewState =
 
 const Index = memo(() => {
   const [currentView, setCurrentView] = useState<ViewState>({ type: "home" });
+  const navigate = useNavigate();
 
   // Initialize GSAP scroll animations for the landing page
   useGsapAnimations();
@@ -50,27 +54,6 @@ const Index = memo(() => {
     setCurrentView({ type: "registration", event });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
-
-  const handleNavigation = useCallback(
-    (section: string) => {
-      if (section === "home") {
-        handleBackToHome();
-      } else if (section === "registration") {
-        setCurrentView({ type: "registration" });
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        if (currentView.type !== "home") {
-          setCurrentView({ type: "home" });
-          setTimeout(() => {
-            document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
-          }, 100);
-        } else {
-          document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
-        }
-      }
-    },
-    [currentView.type, handleBackToHome]
-  );
 
   const handleBackToEvents = useCallback(() => {
     if (currentView.type === "event-details" || currentView.type === "registration") {
@@ -96,7 +79,7 @@ const Index = memo(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentView, handleBackToHome]);
 
-  // --- Sub-views use the new mission-control nav/footer ---
+  // Sub-views
   if (currentView.type === "registration") {
     return (
       <div className="min-h-screen flex flex-col">
@@ -139,9 +122,9 @@ const Index = memo(() => {
     );
   }
 
-  // --- Home / Landing Page ---
+  // Main Home Landing View with Award-Winning Components
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
       <Navbar />
       <HeroLanding />
       <Ticker />
@@ -149,9 +132,22 @@ const Index = memo(() => {
       <DepartmentExplorer />
       <ScheduleTimeline />
       <WhyAttendSection />
+      <FAQSection />
+      <VenueSection />
       <SeamDivider />
       <RegisterCTA />
       <FooterLanding />
+
+      {/* Floating Quick Registration Action Button */}
+      <div className="fixed bottom-6 right-6 z-[400] hidden sm:block">
+        <button
+          onClick={() => navigate('/register')}
+          className="btn-jade-primary shadow-2xl py-3 px-6 text-sm font-bold flex items-center gap-2 border border-[#BAC8B1] animate-bounce"
+        >
+          <span>⚡ Quick Register</span>
+          <span className="text-xs font-mono bg-white text-[#404E3B] px-2 py-0.5 rounded-full">₹1.5L Pool</span>
+        </button>
+      </div>
     </div>
   );
 });

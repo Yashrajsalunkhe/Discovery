@@ -38,11 +38,11 @@ export const validateTeamMember = (member: Partial<BaseTeamMember>): string[] =>
 export const validateExtendedTeamMember = (member: Partial<ExtendedTeamMember>): string[] => {
   const errors = validateTeamMember(member);
 
-  if (!member.department || !DEPARTMENTS.includes(member.department as any)) {
+  if (!member.department || !(DEPARTMENTS as readonly string[]).includes(member.department)) {
     errors.push("Please select a valid department");
   }
 
-  if (!member.year || !ACADEMIC_YEARS.includes(member.year as any)) {
+  if (!member.year || !(ACADEMIC_YEARS as readonly string[]).includes(member.year)) {
     errors.push("Please select a valid academic year");
   }
 
@@ -274,7 +274,7 @@ export const filterTeamsByPaymentStatus = (teams: Team[], status: string): Team[
 };
 
 // Data transformation functions for API compatibility
-export const transformTeamToRegistration = (team: Team): any => {
+export const transformTeamToRegistration = (team: Team): Record<string, unknown> => {
   return {
     _id: team.id,
     leaderName: team.leader.name,
@@ -298,30 +298,31 @@ export const transformTeamToRegistration = (team: Team): any => {
   };
 };
 
-export const transformRegistrationToTeam = (registration: any): Team => {
-  const leader: any = {
-    id: `leader_${registration._id}`,
-    name: registration.leaderName,
-    email: registration.leaderEmail,
-    mobile: registration.leaderMobile,
-    college: registration.leaderCollege,
-    department: registration.leaderDepartment,
-    year: registration.leaderYear,
-    city: registration.leaderCity,
+export const transformRegistrationToTeam = (registration: Record<string, unknown>): Team => {
+  const leader = {
+    id: `leader_${registration._id as string}`,
+    name: (registration.leaderName as string) || '',
+    email: (registration.leaderEmail as string) || '',
+    mobile: (registration.leaderMobile as string) || '',
+    college: (registration.leaderCollege as string) || '',
+    department: (registration.leaderDepartment as string) || '',
+    year: (registration.leaderYear as string) || '',
+    city: (registration.leaderCity as string) || '',
     isLeader: true,
-    teamId: registration._id,
-    registrationId: registration._id
+    teamId: registration._id as string,
+    registrationId: registration._id as string
   };
 
-  const members = (registration.teamMembers || []).map((member: any, index: number) => ({
-    id: `member_${registration._id}_${index}`,
-    name: member.name,
-    email: member.email,
-    mobile: member.mobile,
-    college: member.college,
-    department: registration.leaderDepartment, // Assuming same department
-    year: registration.leaderYear, // Assuming same year
-    city: registration.leaderCity // Assuming same city
+  const rawMembers = (registration.teamMembers as Array<{ name?: string; email?: string; mobile?: string; college?: string }>) || [];
+  const members = rawMembers.map((member, index: number) => ({
+    id: `member_${registration._id as string}_${index}`,
+    name: member.name || '',
+    email: member.email || '',
+    mobile: member.mobile || '',
+    college: member.college || '',
+    department: (registration.leaderDepartment as string) || '',
+    year: (registration.leaderYear as string) || '',
+    city: (registration.leaderCity as string) || ''
   }));
 
   return {
