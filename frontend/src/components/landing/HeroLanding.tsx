@@ -11,9 +11,9 @@ export const HeroLanding: React.FC = () => {
     { label: 'Electrical', top: '40%', left: '40%' },
     { label: 'Food Technology', top: '50%', left: '50%' },
     { label: 'Aeronautical', top: '60%', left: '60%' },
-    { label: 'CHEM', top: '70%', left: '70%' },
-    { label: 'CIVIL', top: '70%', left: '66%' },
-    { label: 'ROBOTICS In AI ', top: '48%', left: '82%' },
+    { label: 'BCA & BBA', top: '70%', left: '70%' },
+    { label: 'CIVIL', top: '80%', left: '66%' },
+    { label: 'ROBOTICS In AI ', top: '48%', left: '12%' },
   ];
 
   return (
