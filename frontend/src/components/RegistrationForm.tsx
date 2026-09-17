@@ -22,14 +22,17 @@ import { cn } from "@/lib/utils";
 // Team member schema
 const teamMemberSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  college: z.string().min(2, "Please enter college name"),
+  college: z.string().min(1, "Please select college"),
+  collegeOther: z.string().optional(),
+  mobile: z.string().regex(/^\d{10,15}$/, "Mobile number should contain only digits"),
 });
 
 // Function to create dynamic registration schema based on event
 const createRegistrationSchema = (maxTeamSize: number = 4, minTeamSize: number = 1, isPaperPresentation: boolean = false) => z.object({
   // Leader details
   leaderName: z.string().min(2, "Name must be at least 2 characters"),
-  leaderCollege: z.string().min(2, "Please enter your college name"),
+  leaderCollege: z.string().min(1, "Please select your college"),
+  leaderCollegeOther: z.string().optional(),
   leaderEmail: z.string().email("Please enter a valid email address"),
   leaderMobile: z.string().regex(/^\d{10,15}$/, "Mobile number should contain only digits"),
   leaderDepartment: z.string().min(1, "Please select your department"),
@@ -50,6 +53,24 @@ const createRegistrationSchema = (maxTeamSize: number = 4, minTeamSize: number =
   
   // Team members (conditional)
   teamMembers: z.array(teamMemberSchema).optional(),
+}).superRefine((values, context) => {
+  if (values.leaderCollege === "Other" && !values.leaderCollegeOther?.trim()) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["leaderCollegeOther"],
+      message: "Please enter your college name",
+    });
+  }
+
+  values.teamMembers?.forEach((member, index) => {
+    if (member.college === "Other" && !member.collegeOther?.trim()) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["teamMembers", index, "collegeOther"],
+        message: "Please enter college name",
+      });
+    }
+  });
 });
 
 // Default schema
@@ -86,6 +107,7 @@ const paperPresentationDepartments = [
 ];
 
 const years = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Graduate", "Post Graduate"];
+const colleges = ["ADCET", "Other"];
 
 interface RegistrationFormProps {
   eventTitle?: string;
@@ -114,7 +136,13 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
   const allEvents = getAllEvents();
 
-  const filteredEvents = allEvents;
+  const paperPresentationEvent = allEvents.find((event) => event.name === "Paper Presentation");
+  const filteredEvents = [
+    ...allEvents.filter((event) => event.name !== "Paper Presentation"),
+    ...(paperPresentationEvent
+      ? [{ ...paperPresentationEvent, id: "paper-presentation", department: "Multiple Departments", maxTeamSize: 6 }]
+      : []),
+  ];
 
   // Create dynamic schema based on selected event
   const currentSchema = selectedEvent 
@@ -126,6 +154,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
     defaultValues: {
       leaderName: "",
       leaderCollege: "",
+      leaderCollegeOther: "",
       leaderEmail: "",
       leaderMobile: "",
       leaderDepartment: "",
@@ -163,7 +192,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       if (currentMembers.length < targetMemberCount) {
         // Add empty members
         for (let i = currentMembers.length; i < targetMemberCount; i++) {
-          append({ name: "", college: "" });
+          append({ name: "", college: "", collegeOther: "", mobile: "" });
         }
       } else if (currentMembers.length > targetMemberCount) {
         // Remove excess members
@@ -186,7 +215,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   }, [participationType, teamSize, form, append, remove]);
 
   const handleEventChange = (eventId: string) => {
-    const event = allEvents.find(e => e.id === eventId);
+    const event = filteredEvents.find(e => e.id === eventId);
     setSelectedEvent(event || null);
     form.setValue("selectedEvent", eventId);
     
@@ -352,31 +381,23 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         throw new Error('Payment is not configured. Please contact the event organizers.');
       }
 
-      // If Paper Presentation is selected, find the correct event based on department
-      let finalEventDetails = selectedEvent;
-      if (selectedEvent?.name === "Paper Presentation" && values.paperPresentationDept) {
-        const paperPresentationEvent = allEvents.find(event => 
-          event.name === "Paper Presentation" && 
-          event.department === values.paperPresentationDept
-        );
-        if (paperPresentationEvent) {
-          finalEventDetails = paperPresentationEvent;
-        }
-      }
-
       const registrationData = {
         leaderName: values.leaderName,
         leaderEmail: values.leaderEmail,
         leaderMobile: values.leaderMobile,
-        leaderCollege: values.leaderCollege,
+        leaderCollege: values.leaderCollege === "Other" ? values.leaderCollegeOther : values.leaderCollege,
         leaderDepartment: values.leaderDepartment,
         leaderYear: values.leaderYear,
         leaderCity: values.leaderCity,
-        selectedEvent: finalEventDetails?.name || values.selectedEvent,
+        selectedEvent: selectedEvent?.name || values.selectedEvent,
         paperPresentationDept: values.paperPresentationDept || '',
         participationType: values.participationType,
         teamSize: values.teamSize || 1,
-        teamMembers: values.teamMembers || [],
+        teamMembers: (values.teamMembers || []).map((member) => ({
+          name: member.name,
+          college: member.college === "Other" ? member.collegeOther : member.college,
+          mobile: member.mobile,
+        })),
         totalFee: feeBreakdown?.totalAmount || 0,
         baseFee: feeBreakdown?.baseFee || 0,
         processingCharges: feeBreakdown?.processingCharges || 0
@@ -676,13 +697,40 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>College *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your college name" {...field} />
-                          </FormControl>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select college" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {colleges.map((college) => (
+                                <SelectItem key={college} value={college}>
+                                  {college}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
+                    {form.watch("leaderCollege") === "Other" && (
+                      <FormField
+                        control={form.control}
+                        name="leaderCollegeOther"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>College Name *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter your college name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
                     <FormField
                       control={form.control}
@@ -1061,8 +1109,49 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>College *</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select college" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {colleges.map((college) => (
+                                        <SelectItem key={college} value={college}>
+                                          {college}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {form.watch(`teamMembers.${index}.college`) === "Other" && (
+                              <FormField
+                                control={form.control}
+                                name={`teamMembers.${index}.collegeOther`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>College Name *</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Enter college name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            )}
+
+                            <FormField
+                              control={form.control}
+                              name={`teamMembers.${index}.mobile`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Mobile Number *</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Enter college name" {...field} />
+                                    <Input type="tel" placeholder="eg. 9876543210" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
