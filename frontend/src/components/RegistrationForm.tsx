@@ -103,6 +103,7 @@ const paperPresentationDepartments = [
   "AI & Data Science",
   "IoT & Cyber Security",
   "Business Administration",
+  "Food Technology",
   "BCA"
 ];
 
@@ -140,7 +141,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const filteredEvents = [
     ...allEvents.filter((event) => event.name !== "Paper Presentation"),
     ...(paperPresentationEvent
-      ? [{ ...paperPresentationEvent, id: "paper-presentation", department: "Multiple Departments", maxTeamSize: 6 }]
+      ? [{ ...paperPresentationEvent, id: "paper-presentation", department: "Multiple Departments", minTeamSize: 2, maxTeamSize: 6 }]
       : []),
   ];
 
@@ -302,6 +303,31 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         }, 300);
       }
     }
+  };
+
+  const handlePaperPresentationDepartmentChange = (department: string) => {
+    const paperEvent = allEvents.find(
+      (event) => event.name === "Paper Presentation" && event.department === department
+    );
+
+    if (!paperEvent) {
+      return;
+    }
+
+    const paperRegistrationEvent = {
+      ...paperEvent,
+      id: "paper-presentation",
+      department: "Multiple Departments",
+      minTeamSize: 2,
+    };
+    const maxTeamSize = paperRegistrationEvent.maxTeamSize;
+    const nextTeamSize = Math.min(Math.max(teamSize, 2), maxTeamSize);
+
+    setSelectedEvent(paperRegistrationEvent);
+    setParticipationType("team");
+    form.setValue("participationType", "team");
+    setTeamSize(nextTeamSize);
+    form.setValue("teamSize", nextTeamSize);
   };
 
   const handleParticipationTypeChange = (type: "solo" | "team") => {
@@ -929,7 +955,13 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                             <FormLabel>Select Department for Paper Presentation *</FormLabel>
                             <div className="flex items-center gap-3">
                               <div className="flex-1">
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select
+                                  onValueChange={(value) => {
+                                    field.onChange(value);
+                                    handlePaperPresentationDepartmentChange(value);
+                                  }}
+                                  defaultValue={field.value}
+                                >
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Choose department" />
@@ -1105,6 +1137,20 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
                             <FormField
                               control={form.control}
+                              name={`teamMembers.${index}.mobile`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Mobile Number *</FormLabel>
+                                  <FormControl>
+                                    <Input type="tel" placeholder="eg. 9876543210" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
                               name={`teamMembers.${index}.college`}
                               render={({ field }) => (
                                 <FormItem>
@@ -1144,19 +1190,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                               />
                             )}
 
-                            <FormField
-                              control={form.control}
-                              name={`teamMembers.${index}.mobile`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Mobile Number *</FormLabel>
-                                  <FormControl>
-                                    <Input type="tel" placeholder="eg. 9876543210" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
                           </div>
                         </div>
                       ))}

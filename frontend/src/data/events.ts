@@ -507,7 +507,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "code-compete",
       name: "Code 2 Compete",
       department: "Computer Science Engineering",
-      maxTeamSize: 2,
+      maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/code_to_compete.png",
       description: "Individual competitive programming challenge featuring algorithmic problem-solving and data structures. Test your coding skills through multiple rounds including MCQs and intensive programming tasks on HackerRank platform.",
