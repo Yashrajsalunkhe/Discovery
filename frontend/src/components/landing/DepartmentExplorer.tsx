@@ -88,7 +88,7 @@ const departments: DepartmentInfo[] = [
   },
   {
     code: 'BBA',
-    name: 'Business Administration',
+    name: 'BBA',
     events: (eventsByDepartment['bba'] || []).map((e) => ({
       ...e,
       name: e.name,
@@ -227,8 +227,8 @@ export const DepartmentExplorer = () => {
                     {dept.name}
                   </span>
                   <span className="relative z-[1] font-mono text-[11px] tracking-[.08em] text-brass">
-                    {dept.events.length} EVT
-                  </span>
+                    {dept.events.length} Events
+                                      </span>
                 </button>
               ))}
             </div>

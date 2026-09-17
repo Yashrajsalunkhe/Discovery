@@ -16,7 +16,7 @@ const departmentNames: Record<string, string> = {
   cse: "Computer Science Engineering",
   aeronautical: "Aeronautical Engineering",
   iot: "IoT & Cyber Security",
-  bba: "Business Administration",
+  bba: "BBA",
   food: "Food Technology",
   robotics: "Robotics & AI",
   bca: "BCA"
