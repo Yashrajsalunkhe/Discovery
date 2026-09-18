@@ -740,6 +740,139 @@
   background: var(--registration-ink);
 }
 
+/* ============================================================
+   EVENT DETAILS — Neo-brutalist information layout
+   ============================================================ */
+.event-details-page {
+  --event-paper: #f4f0e6;
+  --event-ink: #111318;
+  --event-yellow: #ffd21f;
+  --event-pink: #ff6b9d;
+  background: var(--event-paper);
+  color: var(--event-ink);
+}
+
+.event-details-page > div {
+  width: 100%;
+  max-width: 56rem;
+}
+
+.event-details-page .festival-card {
+  border: 3px solid var(--event-ink) !important;
+  border-radius: 0 !important;
+  background: #fffdf7 !important;
+  color: var(--event-ink) !important;
+  box-shadow: 6px 6px 0 var(--event-pink) !important;
+}
+
+.event-details-page .festival-card > div {
+  border-color: var(--event-ink);
+}
+
+.event-details-page .festival-card h3,
+.event-details-page .festival-card h4,
+.event-details-page .festival-card .text-foreground,
+.event-details-page .festival-card .text-muted-foreground {
+  color: var(--event-ink) !important;
+}
+
+.event-details-page .festival-card h3 {
+  font-size: 1.2rem;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.event-details-page .festival-card h3 svg {
+  color: var(--event-ink) !important;
+  background: var(--event-yellow);
+  border: 2px solid var(--event-ink);
+  padding: 3px;
+  width: 2rem;
+  height: 2rem;
+}
+
+.event-details-page .festival-card [class*="bg-muted"] {
+  background: #f0ebdf !important;
+  border: 2px solid var(--event-ink);
+  border-radius: 0 !important;
+}
+
+.event-details-page .festival-card [class*="bg-muted"]:hover {
+  background: var(--event-yellow) !important;
+}
+
+.event-details-page .festival-card [class*="bg-primary"],
+.event-details-page .festival-card [class*="bg-secondary"] {
+  background: var(--event-yellow) !important;
+  color: var(--event-ink) !important;
+  border-radius: 0 !important;
+}
+
+.event-details-page > div > .flex:first-child button,
+.event-details-page button {
+  border-radius: 0 !important;
+  font-weight: 800;
+}
+
+.event-details-page > div > .flex:first-child button:first-child {
+  color: var(--event-ink);
+  border-bottom: 3px solid var(--event-ink);
+}
+
+.event-details-page > div > .flex:first-child button:first-child:hover {
+  background: var(--event-pink);
+}
+
+.event-details-page .text-gradient {
+  color: var(--event-ink) !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor;
+}
+
+.event-details-page .bg-amber-400\/10 {
+  background: var(--event-yellow) !important;
+  border: 3px solid var(--event-ink) !important;
+  border-radius: 0 !important;
+  color: var(--event-ink);
+  box-shadow: 6px 6px 0 var(--event-ink);
+}
+
+.event-details-page .bg-amber-400\/10 .text-muted-foreground,
+.event-details-page .bg-amber-400\/10 .text-amber-500 {
+  color: var(--event-ink) !important;
+}
+
+.event-details-page .bg-amber-400\/10 button,
+.event-details-page .bg-primary {
+  background: var(--event-yellow) !important;
+  color: var(--event-ink) !important;
+  border: 3px solid var(--event-ink) !important;
+  box-shadow: 3px 3px 0 var(--event-ink);
+}
+
+.event-details-page .bg-primary:hover,
+.event-details-page .bg-amber-400\/10 button:hover {
+  background: var(--event-pink) !important;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--event-ink);
+}
+
+.event-details-page .text-primary,
+.event-details-page .text-secondary,
+.event-details-page .text-accent {
+  color: var(--event-ink) !important;
+}
+
+.event-details-page .border-primary\/30 {
+  border-color: var(--event-ink) !important;
+}
+
+@media (max-width: 640px) {
+  .event-details-page .festival-card {
+    box-shadow: 4px 4px 0 var(--event-pink) !important;
+  }
+}
+
 @media (max-width: 640px) {
   .registration-card {
     box-shadow: 6px 6px 0 var(--registration-ink) !important;
