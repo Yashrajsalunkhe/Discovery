@@ -1,7 +1,6 @@
-import nodemailer from "nodemailer";
-import { Transporter } from "nodemailer";
-import path from 'path';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -9,51 +8,68 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-const emailUser = process.env.EMAIL_USER;
-const emailPass = process.env.EMAIL_PASS;
+const resendApiKey = process.env.RESEND_API_KEY;
 const emailEnabled = process.env.EMAIL_ENABLED === 'true';
+const senderEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
 console.log('Email config check:', {
   emailEnabled,
-  emailUser: emailUser ? 'Set' : 'Missing',
-  emailPass: emailPass ? 'Set' : 'Missing',
+  resendApiKey: resendApiKey ? 'Set' : 'Missing',
+  senderEmail,
   nodeEnv: process.env.NODE_ENV
 });
 
-if (emailEnabled && (!emailUser || !emailPass)) {
-  throw new Error('EMAIL_USER and EMAIL_PASS must be set in environment variables');
+if (emailEnabled && !resendApiKey) {
+  throw new Error('RESEND_API_KEY must be set in environment variables when EMAIL_ENABLED is true');
 }
 
-let transporter: Transporter;
+let resend: Resend | null = null;
 
-if (emailEnabled) {
-  transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: emailUser,
-      pass: emailPass
-    },
-    secure: true,
-    port: 465,
-    requireTLS: true,
-    connectionTimeout: 60000,
-    greetingTimeout: 30000,
-    socketTimeout: 60000,
-    pool: true,
-    maxConnections: 5,
-    maxMessages: 10
-  });
-
-  transporter.verify((error) => {
-    if (error) {
-      console.log("Email transporter error:", error);
-    } else {
-      console.log("Email transporter is ready");
-    }
-  });
+if (emailEnabled && resendApiKey) {
+  resend = new Resend(resendApiKey);
+  console.log('✅ Resend email client initialized');
 } else {
-  transporter = nodemailer.createTransport({ jsonTransport: true });
-  console.log('Email sending is disabled (EMAIL_ENABLED is not true)');
+  console.log('Email sending is disabled (EMAIL_ENABLED is not true or RESEND_API_KEY missing)');
 }
 
-export default transporter;
+export interface SendMailOptions {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  replyTo?: string;
+  headers?: Record<string, string>;
+}
+
+/**
+ * Send an email via Resend HTTP API.
+ * Works reliably on Vercel serverless (no SMTP connection needed).
+ */
+export async function sendMail(options: SendMailOptions): Promise<{ id: string } | null> {
+  if (!emailEnabled || !resend) {
+    console.log('📧 Email disabled, skipping send to:', options.to);
+    return null;
+  }
+
+  const { data, error } = await resend.emails.send({
+    from: options.from,
+    to: [options.to],
+    subject: options.subject,
+    html: options.html,
+    text: options.text,
+    replyTo: options.replyTo ? [options.replyTo] : undefined,
+    headers: options.headers,
+  });
+
+  if (error) {
+    console.error('❌ Resend email error:', error);
+    throw new Error(`Resend email failed: ${error.message}`);
+  }
+
+  console.log('✅ Email sent via Resend:', data?.id, 'to:', options.to);
+  return data;
+}
+
+export { resend, senderEmail };
+export default resend;
