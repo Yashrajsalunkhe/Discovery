@@ -14,6 +14,7 @@ export const FooterLanding: React.FC<FooterLandingProps> = ({ compact = false })
     { label: 'Department Tracks', hash: 'tracks' },
     { label: 'Schedule', hash: 'schedule' },
     { label: 'Why Attend', hash: 'why' },
+    { label: 'FAQ', hash: 'faq' },
   ];
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
@@ -107,22 +108,43 @@ export const FooterLanding: React.FC<FooterLandingProps> = ({ compact = false })
         </div>}
 
         {/* Bottom */}
-        {!compact && <div className="flex flex-col sm:flex-row justify-between items-center pt-6 gap-4 font-mono text-xs font-bold">
+        <div className={`flex flex-col sm:flex-row justify-between items-center gap-4 font-mono text-xs font-bold ${compact ? 'pb-6' : 'pt-6'}`}>
           <div className="text-[#0F1115]/70">
-            DISCOVERY 2K26 — ADCET, ASHTA. ALL ROUNDS RUN ON CAMPUS.
+            Created by{' '}
+            <a
+              href="https://www.adityaa.me/"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-[#0F1115] hover:underline"
+            >
+              Aditya Padale
+            </a>
+            ,{' '}
+            <a
+              href="https://www.yashrajsalunkhe.in/"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-[#0F1115] hover:underline"
+            >
+              Yashraj Salunkhe
+            </a>
+            , Kunal shitole, Chinmay deshmukh.
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <span className="bg-white text-[#0F1115] px-2.5 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115]">
+          {!compact && <div className="flex gap-2 flex-wrap">
+            <a href="https://www.instagram.com/adcet_ashta" target="_blank" rel="noreferrer" className="bg-white text-[#0F1115] px-2.5 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115] hover:bg-[#FFCC00] transition-colors">
               INSTAGRAM
-            </span>
-            <span className="bg-white text-[#0F1115] px-2.5 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115]">
+            </a>
+            <a href="https://www.linkedin.com/school/annasaheb-dange-college-of-engineering-and-technology-ashta/posts/" target="_blank" rel="noreferrer" className="bg-white text-[#0F1115] px-2.5 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115] hover:bg-[#FFCC00] transition-colors">
               LINKEDIN
-            </span>
-            <span className="bg-white text-[#0F1115] px-2.5 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115]">
-              WHATSAPP
-            </span>
-          </div>
-        </div>}
+            </a>
+            <a href="https://www.youtube.com/channel/UCM4WFVdIWyPvxWiVfMHhYFg" target="_blank" rel="noreferrer" className="bg-white text-[#0F1115] px-2.5 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115] hover:bg-[#FFCC00] transition-colors">
+              YOUTUBE
+            </a>
+            <a href="https://www.facebook.com/adcet.ac.in" target="_blank" rel="noreferrer" className="bg-white text-[#0F1115] px-2.5 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115] hover:bg-[#FFCC00] transition-colors">
+              FACEBOOK
+            </a>
+          </div>}
+        </div>
 
         {/* Big DISCOVERY typography like NEUROVERSE */}
         <div className={`${compact ? 'mt-0 pt-0 border-t-0' : 'mt-8 pt-6 border-t-2 border-[#0F1115]'} relative flex flex-col sm:flex-row items-center justify-center gap-4 overflow-hidden select-none`}>

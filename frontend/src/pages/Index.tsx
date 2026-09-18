@@ -7,6 +7,7 @@ import {
   DepartmentExplorer,
   ScheduleTimeline,
   WhyAttendSection,
+  FAQSection,
   SeamDivider,
   RegisterCTA,
   FooterLanding,
@@ -149,6 +150,7 @@ const Index = memo(() => {
       <DepartmentExplorer />
       <ScheduleTimeline />
       <WhyAttendSection />
+      <FAQSection />
       <RegisterCTA />
       <FooterLanding />
     </div>

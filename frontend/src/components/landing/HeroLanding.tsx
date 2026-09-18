@@ -152,7 +152,7 @@ export const HeroLanding: React.FC = () => {
 
           <div className="flex items-center gap-2 bg-[#FFCC00] px-3.5 py-1.5 border border-[#0F1115] shadow-[3px_3px_0px_#0F1115]">
             <Trophy className="w-4 h-4 text-[#0F1115]" />
-            <span>28 Events • ₹2.5L+ Cash Prizes</span>
+            <span>28 Events • ₹1.5L Cash Prizes</span>
           </div>
         </div>
 

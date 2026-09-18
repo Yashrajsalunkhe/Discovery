@@ -30,7 +30,7 @@ const RegisterPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <RegistrationForm onBack={() => navigate('/')} />
-      <FooterLanding compact />
+      <FooterLanding />
     </div>
   );
 };

@@ -70,7 +70,7 @@ export const BriefingSection = () => {
             {[
               { num: '28', label: 'EVENTS ACROSS\n11 DEPARTMENTS' },
               { num: '1', label: 'CAMPUS\nONE-DAY FORMAT' },
-              { num: '₹1L+', label: 'IN PRIZES\nACROSS ALL TRACKS', redact: true },
+              { num: '₹1.5L', label: 'IN PRIZES\nACROSS ALL TRACKS', redact: true },
               { num: 'ALL', label: 'PARTICIPANTS\nOFFICIALLY CERTIFIED' },
             ].map((stat, i, arr) => (
               <div
