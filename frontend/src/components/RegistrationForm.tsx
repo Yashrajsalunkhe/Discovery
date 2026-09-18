@@ -628,20 +628,20 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8 flex flex-col">
+    <div className="registration-page min-h-screen pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8 flex flex-col">
       <div className="max-w-3xl mx-auto flex-1">
         {/* Back Button */}
         {onBack && (
           <div className="flex items-center gap-4 mb-6 sm:mb-8">
-            <button onClick={onBack} className="font-mono text-[11px] tracking-[.08em] text-paper-dim py-2 pb-2.5 border-b border-line hover:text-brass hover:border-brass transition-colors duration-200 flex items-center gap-2">
+            <button onClick={onBack} className="registration-back font-mono text-[11px] tracking-[.08em] text-paper-dim py-2 pb-2.5 border-b border-line hover:text-brass hover:border-brass transition-colors duration-200 flex items-center gap-2">
               <ArrowLeft className="h-3.5 w-3.5" />
               {eventTitle ? "BACK TO EVENTS" : "BACK TO HOME"}
             </button>
           </div>
         )}
 
-        <Card className="relative border-line bg-panel">
-          <CardHeader className="text-center border-b border-line">
+        <Card className="registration-card relative border-line bg-panel">
+          <CardHeader className="registration-header text-center border-b border-line">
             <div className="file-tab mx-auto mb-4">REGISTRATION</div>
             <div className="flex items-center justify-center mb-4">
               <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-brass mr-2" />
@@ -672,7 +672,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
             </div>
           )}
 
-          <CardContent>
+          <CardContent className="registration-content">
             {/* Loading Overlay for Payment Processing */}
             {(paymentStatus === 'payment-processing' || paymentStatus === 'confirming-registration') && (
               <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
@@ -696,7 +696,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
                   {/* Leader Details Section */}
-                  <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                  <div className="registration-section bg-ink-soft/50 p-6 rounded-lg border border-line">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
                       <User className="h-5 w-5 text-brass" />
                       Leader (Main Registrant) Details
@@ -853,7 +853,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                   </div>
 
                   {/* Event Selection Section */}
-                  <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                  <div className="registration-section bg-ink-soft/50 p-6 rounded-lg border border-line">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
                       <Award className="h-5 w-5 text-brass" />
                       Event Selection
@@ -998,7 +998,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                   </div>
 
                   {/* Team Size & Fees Section */}
-                  <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                  <div className="registration-section bg-ink-soft/50 p-6 rounded-lg border border-line">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
                       <Users className="h-5 w-5 text-brass" />
                       Team Size & Fees
@@ -1107,7 +1107,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
 
                   {/* Team Members Section - Only show if team is selected */}
                   {participationType === "team" && teamSize > 1 && (
-                    <div ref={teamMembersRef} className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                    <div ref={teamMembersRef} className="registration-section bg-ink-soft/50 p-6 rounded-lg border border-line">
                       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
                         <Users className="h-5 w-5 text-brass" />
                         {selectedEvent?.name === "Pickle Ball" ? "Pickle Ball Team Members" : "Team Member Details"}
@@ -1115,7 +1115,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
 
                       <div className="space-y-6">
                         {fields.map((field, index) => (
-                          <div key={field.id} className="p-4 border rounded-lg space-y-4">
+                          <div key={field.id} className="registration-team-member p-4 border rounded-lg space-y-4">
                             <div className="flex items-center justify-between">
                               <h4 className="font-medium">Member {index + 2}</h4>
                             </div>
@@ -1225,7 +1225,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                   )}
 
                   {/* Fee Display with Breakdown */}
-                  <div className="bg-brass/5 p-4 rounded-lg border border-brass/30">
+                  <div className="registration-callout registration-fee bg-brass/5 p-4 rounded-lg border border-brass/30">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium">
@@ -1268,7 +1268,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                   </div>
 
                   {/* Payment Notice */}
-                  <div className="bg-brass/5 border border-brass/20 p-4 rounded-lg">
+                  <div className="registration-callout bg-brass/5 border border-brass/20 p-4 rounded-lg">
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0">
                         <svg className="h-5 w-5 text-brass" fill="currentColor" viewBox="0 0 20 20">
@@ -1292,7 +1292,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                         type="button"
                         variant="outline"
                         onClick={onBack}
-                        className="flex-1"
+                        className="registration-secondary flex-1"
                       >
                         Back
                       </Button>

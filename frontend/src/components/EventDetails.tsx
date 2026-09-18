@@ -48,8 +48,8 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
   };
 
   return (
-    <section className="pt-20 pb-8 sm:pt-32 sm:pb-20 px-2 sm:px-6 lg:px-8 min-h-screen flex justify-center">
-      <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto">`
+    <section className="event-details-page pt-20 pb-8 sm:pt-32 sm:pb-20 px-2 sm:px-6 lg:px-8 min-h-screen flex justify-center">
+      <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <Button variant="ghost" onClick={onBack} className="hover:bg-primary/20 w-fit">
