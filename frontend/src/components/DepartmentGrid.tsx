@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import styles from './DepartmentGrid.module.css';
 import { eventsByDepartment } from '../data/events';
 
@@ -30,10 +31,19 @@ const departments: Department[] = Object.entries(eventsByDepartment).map(([id, e
 }));
 
 interface DepartmentGridProps {
-  onDepartmentSelect: (department: Department) => void;
+  onDepartmentSelect?: (department: Department) => void;
 }
 
 export const DepartmentGrid = ({ onDepartmentSelect }: DepartmentGridProps) => {
+  const navigate = useNavigate();
+
+  const handleSelect = (dept: Department) => {
+    if (onDepartmentSelect) {
+      onDepartmentSelect(dept);
+    }
+    navigate(`/department/${dept.id}`);
+  };
+
   return (
     <section id="departments" className="py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -49,7 +59,7 @@ export const DepartmentGrid = ({ onDepartmentSelect }: DepartmentGridProps) => {
         <div className={styles.agFormatContainer}>
           <div className={styles.agCoursesBox}>
             {departments.map((dept, index) => (
-              <div key={dept.id} className={styles.agCoursesItem} onClick={() => onDepartmentSelect(dept)}>
+              <div key={dept.id} className={styles.agCoursesItem} onClick={() => handleSelect(dept)}>
                 <div className={styles.agCoursesItemLink}>
                   <div className={styles.agCoursesItemBg}></div>
                   <div className={styles.agCoursesItemTitle}>

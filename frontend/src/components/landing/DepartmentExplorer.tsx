@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { eventsByDepartment, type Event } from '@/data/events';
 
 interface DepartmentInfo {
+  id: string;
   code: string;
   name: string;
   events: (Event & { format: string; focus: string })[];
@@ -10,6 +12,7 @@ interface DepartmentInfo {
 // Build department data from the existing events.ts data
 const departments: DepartmentInfo[] = [
   {
+    id: 'aids',
     code: 'AI&DS',
     name: 'AI & Data Science',
     events: (eventsByDepartment['aids'] || []).map((e) => ({
@@ -21,6 +24,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'mechanical',
     code: 'MECH',
     name: 'Mechanical Engineering',
     events: (eventsByDepartment['mechanical'] || []).map((e) => ({
@@ -32,6 +36,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'electrical',
     code: 'EE',
     name: 'Electrical Engineering',
     events: (eventsByDepartment['electrical'] || []).map((e) => ({
@@ -43,6 +48,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'civil',
     code: 'CIVIL',
     name: 'Civil Engineering',
     events: (eventsByDepartment['civil'] || []).map((e) => ({
@@ -54,6 +60,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'cse',
     code: 'CSE',
     name: 'Computer Science Engineering',
     events: (eventsByDepartment['cse'] || []).map((e) => ({
@@ -65,6 +72,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'aeronautical',
     code: 'AERO',
     name: 'Aeronautical Engineering',
     events: (eventsByDepartment['aeronautical'] || []).map((e) => ({
@@ -76,6 +84,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'iot',
     code: 'IOT&CS',
     name: 'IoT & Cyber Security',
     events: (eventsByDepartment['iot'] || []).map((e) => ({
@@ -87,6 +96,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'bba',
     code: 'BBA',
     name: 'BBA',
     events: (eventsByDepartment['bba'] || []).map((e) => ({
@@ -98,6 +108,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'food',
     code: 'FOOD',
     name: 'Food Technology',
     events: (eventsByDepartment['food'] || []).map((e) => ({
@@ -109,6 +120,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'robotics',
     code: 'ROBOTICS',
     name: 'Robotics & AI',
     events: (eventsByDepartment['robotics'] || []).map((e) => ({
@@ -120,6 +132,7 @@ const departments: DepartmentInfo[] = [
     })),
   },
   {
+    id: 'bca',
     code: 'BCA',
     name: 'BCA',
     events: (eventsByDepartment['bca'] || []).map((e) => ({
@@ -138,15 +151,27 @@ type ViewState =
   | { type: 'detail'; departmentIndex: number; eventIndex: number };
 
 export const DepartmentExplorer = () => {
+  const navigate = useNavigate();
   const [view, setView] = useState<ViewState>({ type: 'list' });
 
   const handleDepartmentClick = useCallback((index: number) => {
-    setView({ type: 'events', departmentIndex: index });
-  }, []);
+    const dept = departments[index];
+    if (dept) {
+      navigate(`/department/${dept.id}`);
+    } else {
+      setView({ type: 'events', departmentIndex: index });
+    }
+  }, [navigate]);
 
   const handleEventClick = useCallback((deptIndex: number, eventIndex: number) => {
-    setView({ type: 'detail', departmentIndex: deptIndex, eventIndex });
-  }, []);
+    const dept = departments[deptIndex];
+    const event = dept?.events[eventIndex];
+    if (dept && event) {
+      navigate(`/department/${dept.id}/event/${event.id}`);
+    } else {
+      setView({ type: 'detail', departmentIndex: deptIndex, eventIndex });
+    }
+  }, [navigate]);
 
   const handleBackToList = useCallback(() => {
     setView({ type: 'list' });
@@ -169,198 +194,205 @@ export const DepartmentExplorer = () => {
     : null;
 
   return (
-    <section className="section section-alt" id="tracks">
-      <div className="wrap">
-        <div className="file-tab">FILE 02 — DEPARTMENTS</div>
-        <div className="section-head">
-          <h2 className="section-title">Choose a department. Find your event.</h2>
-          <p className="section-note">
-            Select a department to see its events, then select an event for the format and focus.
-          </p>
-        </div>
-      </div>
+    <section className="py-16 sm:py-24 bg-[#FAFAF8] text-[#0F1115] border-b-2 border-[#0F1115]" id="tracks">
+      <div className="max-w-[1320px] mx-auto px-4 sm:px-8">
 
-      <div className="max-w-[var(--container)] mx-auto px-8 pt-[18px] max-md:px-4 max-sm:px-3">
-        <div
-          className="overflow-hidden border border-line rounded-[28px] max-sm:rounded-[18px]"
-          style={{
-            background: 'linear-gradient(180deg, rgba(18,21,27,0.98), rgba(10,12,16,0.96))',
-            boxShadow: '0 24px 60px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)',
-          }}
-        >
-          {/* Department grid — hidden when viewing events */}
-          {!isEvents && (
-            <div
-              className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-[18px] p-[18px] max-md:gap-3 max-md:p-3 max-sm:gap-2.5 max-sm:p-2.5"
-              style={{
-                background: `
-                  radial-gradient(circle at top left, rgba(61,107,255,0.12), transparent 28%),
-                  radial-gradient(circle at bottom right, rgba(232,185,35,0.09), transparent 26%),
-                  var(--ink)
-                `,
-              }}
-            >
-              {departments.map((dept, i) => (
-                <button
-                  key={dept.code}
-                  onClick={() => handleDepartmentClick(i)}
-                  className="relative min-h-[210px] max-md:min-h-[170px] max-sm:min-h-[130px] flex flex-col items-start justify-between gap-[18px] max-sm:gap-3 p-5 max-md:p-4 max-sm:p-4 text-left overflow-hidden rounded-[20px] max-sm:rounded-[14px] border border-line transition-all duration-250 hover:-translate-y-1 hover:border-brass/60 hover:shadow-[0_16px_28px_rgba(0,0,0,0.2)] group"
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(18,21,27,0.96), rgba(14,16,22,0.98))',
-                  }}
-                >
-                  {/* Gradient overlay on hover */}
-                  <div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-250"
-                    style={{
-                      background: i % 3 === 1
-                        ? 'linear-gradient(135deg, rgba(61,107,255,0.18), transparent 46%)'
-                        : i % 3 === 2
-                        ? 'linear-gradient(135deg, rgba(225,75,75,0.14), transparent 46%)'
-                        : 'linear-gradient(135deg, rgba(232,185,35,0.14), transparent 46%)',
-                    }}
-                  />
-                  <span className="relative z-[1] font-mono text-[11px] tracking-[.08em] text-paper-mute">
-                    0{i + 1}
+        {/* Editorial Section Tab Tag */}
+        <div className="inline-flex items-center gap-2 font-mono text-xs font-bold tracking-widest bg-[#FFCC00] text-[#0F1115] px-3 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115] mb-6">
+          <span>FILE 02</span>
+          <span>//</span>
+          <span>DEPARTMENT EXPLORER & TRACKS</span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10 items-end">
+          <div className="lg:col-span-8">
+            <h2 className="font-display font-black text-3xl sm:text-5xl uppercase tracking-tight text-[#0F1115] leading-[0.95]">
+              Choose a department. <span className="bg-[#FFCC00] px-2 border-2 border-[#0F1115] inline-block">Find your event.</span>
+            </h2>
+          </div>
+          <div className="lg:col-span-4">
+            <p className="font-body text-base text-[#0F1115]/80 font-medium leading-relaxed border-l-3 border-[#FFCC00] pl-4 py-1">
+              Select a department to view all 28 events, rulebooks, coordinators, entry fees, and registration details.
+            </p>
+          </div>
+        </div>
+        {/* Grid View of Departments */}
+        {!isEvents && !isDetail && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {departments.map((dept, i) => (
+              <button
+                key={dept.code}
+                onClick={() => handleDepartmentClick(i)}
+                className="relative p-6 text-left bg-white border-2 border-[#0F1115] shadow-[4px_4px_0px_#0F1115] hover:bg-[#FFCC00] hover:shadow-[6px_6px_0px_#0F1115] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 group flex flex-col justify-between min-h-[170px]"
+              >
+                <div className="flex items-center justify-between w-full mb-3">
+                  <span className="font-mono text-xs font-black bg-[#0F1115] text-[#FFCC00] px-2 py-0.5 border border-[#0F1115]">
+                    {String(i + 1).padStart(2, '0')} // {dept.code}
                   </span>
-                  <span className="relative z-[1] font-display text-[1.15rem] font-semibold leading-[1.25] max-w-[88%]">
+                  <span className="font-mono text-xs font-bold text-[#0F1115] bg-[#FFCC00] px-2 py-0.5 border border-[#0F1115] group-hover:bg-[#0F1115] group-hover:text-[#FFCC00]">
+                    {dept.events.length} {dept.events.length === 1 ? 'EVENT' : 'EVENTS'}
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="font-display font-black text-xl text-[#0F1115] leading-snug group-hover:underline">
                     {dept.name}
+                  </h3>
+                </div>
+
+                <div className="pt-4 flex items-center justify-between border-t border-[#0F1115]/10 mt-3 font-mono text-xs font-bold text-[#0F1115]">
+                  <span>EXPLORE TRACK</span>
+                  <span className="text-sm font-black group-hover:translate-x-1 transition-transform">→</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Events View for selected department */}
+        {isEvents && activeDept && !isDetail && (
+          <div className="bg-white border-2 border-[#0F1115] shadow-[6px_6px_0px_#0F1115]">
+            {/* Header */}
+            <div className="p-6 sm:p-8 bg-[#FFCC00] border-b-2 border-[#0F1115] flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <button
+                  onClick={handleBackToList}
+                  className="font-mono text-xs font-bold tracking-widest text-[#0F1115] bg-white px-3 py-1 border border-[#0F1115] hover:bg-[#0F1115] hover:text-[#FFCC00] transition-colors mb-3 inline-block"
+                >
+                  ← BACK TO DEPARTMENTS
+                </button>
+                <div className="font-mono text-xs font-bold text-[#0F1115] uppercase tracking-wider mb-1">
+                  DEPARTMENT {String((view as { departmentIndex: number }).departmentIndex + 1).padStart(2, '0')} // {activeDept.code}
+                </div>
+                <h3 className="font-display font-black text-2xl sm:text-4xl text-[#0F1115] uppercase">
+                  {activeDept.name}
+                </h3>
+              </div>
+              <div className="font-mono text-xs font-black bg-[#0F1115] text-[#FFCC00] px-3 py-1.5 border border-[#0F1115]">
+                {activeDept.events.length} {activeDept.events.length === 1 ? 'EVENT' : 'EVENTS'} TOTAL
+              </div>
+            </div>
+
+            {/* Event list */}
+            <div className="p-6 sm:p-8 grid gap-4">
+              {activeDept.events.map((event, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleEventClick((view as { departmentIndex: number }).departmentIndex, i)}
+                  className="w-full flex items-center justify-between gap-4 p-4 text-left bg-[#FAFAF8] border-2 border-[#0F1115] shadow-[3px_3px_0px_#0F1115] hover:bg-[#FFCC00] hover:shadow-[5px_5px_0px_#0F1115] transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-xs font-bold bg-[#0F1115] text-[#FFCC00] px-2 py-0.5">
+                      E{String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="font-display font-bold text-base sm:text-lg text-[#0F1115]">
+                      {event.name}
+                    </span>
+                  </div>
+                  <span className="font-mono text-xs font-black bg-[#0F1115] text-[#FAFAF8] px-3 py-1 group-hover:bg-white group-hover:text-[#0F1115]">
+                    VIEW EVENT →
                   </span>
-                  <span className="relative z-[1] font-mono text-[11px] tracking-[.08em] text-brass">
-                    {dept.events.length} Events
-                                      </span>
                 </button>
               ))}
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Events view */}
-          {isEvents && activeDept && !isDetail && (
-            <div className="p-0 max-md:p-0" style={{
-              minHeight: '430px',
-              background: 'linear-gradient(180deg, rgba(9,11,15,0.96), rgba(15,18,24,0.97))',
-            }}>
-              {/* Header */}
-              <div className="flex items-start justify-between gap-6 mx-0 mb-[18px] p-[22px_18px_18px] border-b border-line"
-                style={{ background: 'linear-gradient(180deg, rgba(19,23,31,0.9), rgba(17,20,26,0.75))' }}>
-                <div>
-                  <button
-                    onClick={handleBackToList}
-                    className="font-mono text-[11px] tracking-[.08em] text-paper-dim pb-2.5 border-b border-line hover:text-brass hover:border-brass transition-colors duration-200 mb-2.5 block"
-                  >
-                    ← BACK TO DEPARTMENTS
-                  </button>
-                  <div className="text-brass font-mono text-[11px] tracking-[.1em] mb-2.5">
-                    DEPARTMENT {String((view as { departmentIndex: number }).departmentIndex + 1).padStart(2, '0')} / {activeDept.code}
-                  </div>
-                  <h3 className="font-display font-semibold" style={{ fontSize: 'clamp(1.3rem, 2vw, 1.9rem)', lineHeight: 1.15 }}>
-                    {activeDept.name}
-                  </h3>
-                </div>
-                <div className="text-paper-mute font-mono text-[11px] whitespace-nowrap">
-                  {activeDept.events.length} {activeDept.events.length === 1 ? 'EVENT' : 'EVENTS'}
+        {/* Event detail view */}
+        {selectedEvent && activeDept && (
+          <div className="bg-white border-2 border-[#0F1115] shadow-[6px_6px_0px_#0F1115] p-6 sm:p-10">
+            <button
+              onClick={handleBackToEvents}
+              className="font-mono text-xs font-bold tracking-widest text-[#0F1115] bg-[#FFCC00] px-3 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115] hover:bg-[#0F1115] hover:text-[#FFCC00] transition-colors mb-6 inline-block"
+            >
+              ← BACK TO EVENTS
+            </button>
+
+            <div className="font-mono text-xs font-bold text-[#0F1115]/60 uppercase tracking-widest mb-1">
+              {activeDept.name}
+            </div>
+            <h4 className="font-display font-black text-2xl sm:text-4xl text-[#0F1115] uppercase mb-4">
+              {selectedEvent.name}
+            </h4>
+            <p className="font-body text-base sm:text-lg text-[#0F1115]/80 leading-relaxed max-w-3xl mb-6">
+              {selectedEvent.description || 'Event details will be announced by the department organizers.'}
+            </p>
+
+            {/* Event Attributes Badges */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#FAFAF8] p-4 border-2 border-[#0F1115] mb-8 font-mono text-xs">
+              <div>
+                <div className="font-bold text-[#0F1115]/60">FORMAT</div>
+                <div className="font-black text-[#0F1115] text-sm">{selectedEvent.format}</div>
+              </div>
+              <div>
+                <div className="font-bold text-[#0F1115]/60">FOCUS</div>
+                <div className="font-black text-[#0F1115] text-sm">{selectedEvent.focus}</div>
+              </div>
+              <div>
+                <div className="font-bold text-[#0F1115]/60">TEAM SIZE</div>
+                <div className="font-black text-[#0F1115] text-sm">
+                  {selectedEvent.minTeamSize && selectedEvent.minTeamSize > 1
+                    ? `${selectedEvent.minTeamSize}-${selectedEvent.maxTeamSize} Members`
+                    : `Up to ${selectedEvent.maxTeamSize} Member${selectedEvent.maxTeamSize === 1 ? '' : 's'}`}
                 </div>
               </div>
-
-              {/* Event list */}
-              <div className="grid gap-3 px-[18px] max-md:px-3 pb-[18px]">
-                {activeDept.events.map((event, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleEventClick((view as { departmentIndex: number }).departmentIndex, i)}
-                    className="w-full flex items-center justify-between gap-5 py-[15px] px-4 text-left text-paper-dim rounded-[14px] border border-line transition-all duration-200 hover:text-paper hover:border-brass/65 hover:translate-x-0.5"
-                    style={{ background: 'rgba(17,20,26,0.8)' }}
-                  >
-                    <span className="max-w-[78%]">{event.name}</span>
-                    <span className="font-mono text-[11px] tracking-[.08em] text-brass">VIEW</span>
-                  </button>
-                ))}
+              <div>
+                <div className="font-bold text-[#0F1115]/60">ENTRY FEE</div>
+                <div className="font-black text-[#0F1115] text-sm">₹{selectedEvent.entryFee} / Participant</div>
               </div>
             </div>
-          )}
 
-          {/* Event detail view */}
-          {selectedEvent && activeDept && (
-            <div className="p-[18px_18px_26px] min-h-[300px]" style={{
-              background: 'linear-gradient(180deg, rgba(9,11,15,0.96), rgba(15,18,24,0.97))',
-            }}>
-              <button
-                onClick={handleBackToEvents}
-                className="font-mono text-[11px] tracking-[.08em] text-paper-dim py-2 pb-2.5 border-b border-line hover:text-brass hover:border-brass transition-colors duration-200 mb-[22px] block"
-              >
-                ← BACK TO EVENTS
-              </button>
-              <div className="text-brass font-mono text-[11px] tracking-[.1em] mb-2.5">
-                {activeDept.name}
-              </div>
-              <h4 className="font-display" style={{ fontSize: 'clamp(1.2rem, 3.5vw, 1.6rem)' }}>
-                {selectedEvent.name}
-              </h4>
-              <p className="text-paper-dim text-[15px] max-w-[620px] leading-[1.7]">
-                {selectedEvent.description || 'Event details will be announced by the organizers.'}
-              </p>
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-[22px] mt-5 text-paper-mute font-mono text-[11px] tracking-[.04em]">
-                <span className="flex gap-2 items-center">
-                  FORMAT <strong className="text-paper-dim font-medium">{selectedEvent.format}</strong>
-                </span>
-                <span className="flex gap-2 items-center">
-                  FOCUS <strong className="text-paper-dim font-medium">{selectedEvent.focus}</strong>
-                </span>
-                <span className="flex gap-2 items-center">
-                  TEAM <strong className="text-paper-dim font-medium">
-                    {selectedEvent.minTeamSize && selectedEvent.minTeamSize > 1
-                      ? `${selectedEvent.minTeamSize}-${selectedEvent.maxTeamSize} participants`
-                      : `Up to ${selectedEvent.maxTeamSize} participant${selectedEvent.maxTeamSize === 1 ? '' : 's'}`}
-                  </strong>
-                </span>
-                <span className="flex gap-2 items-center">
-                  FEE <strong className="text-paper-dim font-medium">₹{selectedEvent.entryFee} / participant</strong>
-                </span>
-              </div>
-
-              <div className="grid gap-5 mt-7 md:grid-cols-2">
-                {selectedEvent.rules && selectedEvent.rules.length > 0 && (
-                  <div className="border border-line rounded-[14px] p-4" style={{ background: 'rgba(17,20,26,0.8)' }}>
-                    <h5 className="font-mono text-[11px] tracking-[.1em] text-brass mb-3">RULES & GUIDELINES</h5>
-                    <ol className="space-y-2 text-paper-dim text-sm leading-[1.6] list-decimal list-inside">
-                      {selectedEvent.rules.map((rule, index) => <li key={index}>{rule}</li>)}
-                    </ol>
-                  </div>
-                )}
-                {selectedEvent.specifications && selectedEvent.specifications.length > 0 && (
-                  <div className="border border-line rounded-[14px] p-4" style={{ background: 'rgba(17,20,26,0.8)' }}>
-                    <h5 className="font-mono text-[11px] tracking-[.1em] text-brass mb-3">SPECIFICATIONS</h5>
-                    <ul className="space-y-2 text-paper-dim text-sm leading-[1.6] list-disc list-inside">
-                      {selectedEvent.specifications.filter(Boolean).map((spec, index) => <li key={index}>{spec}</li>)}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              {selectedEvent.coordinators && (
-                <div className="mt-5 border border-line rounded-[14px] p-4" style={{ background: 'rgba(17,20,26,0.8)' }}>
-                  <h5 className="font-mono text-[11px] tracking-[.1em] text-brass mb-3">EVENT COORDINATORS</h5>
-                  <div className="grid gap-4 sm:grid-cols-2 text-sm text-paper-dim">
-                    {selectedEvent.coordinators.faculty && (
-                      <div>
-                        <div className="text-paper font-medium">Faculty: {selectedEvent.coordinators.faculty.name}</div>
-                        <div>{selectedEvent.coordinators.faculty.phone}</div>
-                        {selectedEvent.coordinators.faculty.email && <div className="break-all">{selectedEvent.coordinators.faculty.email}</div>}
-                      </div>
-                    )}
-                    {selectedEvent.coordinators.student && (
-                      <div>
-                        <div className="text-paper font-medium">Student: {selectedEvent.coordinators.student.name}</div>
-                        <div>{selectedEvent.coordinators.student.phone}</div>
-                        {selectedEvent.coordinators.student.email && <div className="break-all">{selectedEvent.coordinators.student.email}</div>}
-                      </div>
-                    )}
-                  </div>
+            {/* Rules & Specs */}
+            <div className="grid gap-6 md:grid-cols-2 mb-6">
+              {selectedEvent.rules && selectedEvent.rules.length > 0 && (
+                <div className="border-2 border-[#0F1115] p-5 bg-[#FAFAF8]">
+                  <h5 className="font-mono text-xs font-black tracking-widest text-[#0F1115] bg-[#FFCC00] px-2 py-0.5 border border-[#0F1115] inline-block mb-4">
+                    RULES & GUIDELINES
+                  </h5>
+                  <ol className="space-y-2 font-body text-sm text-[#0F1115]/90 leading-relaxed list-decimal list-inside">
+                    {selectedEvent.rules.map((rule, index) => <li key={index}>{rule}</li>)}
+                  </ol>
+                </div>
+              )}
+              {selectedEvent.specifications && selectedEvent.specifications.length > 0 && (
+                <div className="border-2 border-[#0F1115] p-5 bg-[#FAFAF8]">
+                  <h5 className="font-mono text-xs font-black tracking-widest text-[#0F1115] bg-[#FFCC00] px-2 py-0.5 border border-[#0F1115] inline-block mb-4">
+                    SPECIFICATIONS
+                  </h5>
+                  <ul className="space-y-2 font-body text-sm text-[#0F1115]/90 leading-relaxed list-disc list-inside">
+                    {selectedEvent.specifications.filter(Boolean).map((spec, index) => <li key={index}>{spec}</li>)}
+                  </ul>
                 </div>
               )}
             </div>
-          )}
-        </div>
+
+            {/* Coordinators */}
+            {selectedEvent.coordinators && (
+              <div className="border-2 border-[#0F1115] p-5 bg-[#FFCC00]/20">
+                <h5 className="font-mono text-xs font-black tracking-widest text-[#0F1115] bg-[#0F1115] text-[#FFCC00] px-2 py-0.5 inline-block mb-3">
+                  EVENT COORDINATORS
+                </h5>
+                <div className="grid gap-4 sm:grid-cols-2 font-mono text-xs text-[#0F1115]">
+                  {selectedEvent.coordinators.faculty && (
+                    <div>
+                      <div className="font-bold">Faculty: {selectedEvent.coordinators.faculty.name}</div>
+                      <div>Phone: {selectedEvent.coordinators.faculty.phone}</div>
+                      {selectedEvent.coordinators.faculty.email && <div className="break-all">Email: {selectedEvent.coordinators.faculty.email}</div>}
+                    </div>
+                  )}
+                  {selectedEvent.coordinators.student && (
+                    <div>
+                      <div className="font-bold">Student: {selectedEvent.coordinators.student.name}</div>
+                      <div>Phone: {selectedEvent.coordinators.student.phone}</div>
+                      {selectedEvent.coordinators.student.email && <div className="break-all">Email: {selectedEvent.coordinators.student.email}</div>}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
     </section>
   );

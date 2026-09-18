@@ -38,19 +38,19 @@ const createRegistrationSchema = (maxTeamSize: number = 4, minTeamSize: number =
   leaderDepartment: z.string().min(1, "Please select your department"),
   leaderYear: z.string().min(1, "Please select your year of study"),
   leaderCity: z.string().min(2, "Please enter your city"),
-  
+
   // Event selection
   selectedEvent: z.string().min(1, "Please select an event"),
-  paperPresentationDept: isPaperPresentation 
+  paperPresentationDept: isPaperPresentation
     ? z.string().min(1, "Please select a department for paper presentation")
     : z.string().optional(),
-  
+
   // Team details
   participationType: z.enum(["solo", "team"], {
     required_error: "Please select participation type",
   }),
   teamSize: z.number().min(minTeamSize).max(maxTeamSize).optional(),
-  
+
   // Team members (conditional)
   teamMembers: z.array(teamMemberSchema).optional(),
 }).superRefine((values, context) => {
@@ -80,7 +80,7 @@ type RegistrationFormValues = z.infer<typeof defaultRegistrationSchema>;
 
 const departments = [
   "Aeronautical Engineering",
-  "Mechanical Engineering", 
+  "Mechanical Engineering",
   "Electrical Engineering",
   "Civil Engineering",
   "Computer Science Engineering",
@@ -96,7 +96,7 @@ const departments = [
 // Departments that have paper presentation events
 const paperPresentationDepartments = [
   "Aeronautical Engineering",
-  "Mechanical Engineering", 
+  "Mechanical Engineering",
   "Electrical Engineering",
   "Civil Engineering",
   "Computer Science Engineering",
@@ -116,7 +116,7 @@ interface RegistrationFormProps {
   showFooter?: boolean;
 }
 
-export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: RegistrationFormProps) => {
+export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: RegistrationFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -124,10 +124,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const [teamSize, setTeamSize] = useState<number>(1);
   const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown | null>(null);
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
-  
+
   // Registration closure state
   const [registrationsClosed] = useState(false); // Set to true to close registrations
-  
+
   // Enhanced payment states
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating-order' | 'payment-processing' | 'confirming-registration' | 'success' | 'pending' | 'failed'>('idle');
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -146,7 +146,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   ];
 
   // Create dynamic schema based on selected event
-  const currentSchema = selectedEvent 
+  const currentSchema = selectedEvent
     ? createRegistrationSchema(selectedEvent.maxTeamSize, selectedEvent.minTeamSize || 1, selectedEvent.name === "Paper Presentation")
     : defaultRegistrationSchema;
 
@@ -178,18 +178,18 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   useEffect(() => {
     const calculatedFee = calculateTeamFee(participationType, teamSize, 100);
     setFeeBreakdown(calculatedFee);
-    
+
     if (participationType === "solo") {
       setTeamSize(1);
       form.setValue("teamSize", 1);
       form.setValue("teamMembers", []);
     } else {
       form.setValue("teamSize", teamSize);
-      
+
       // Adjust team members array
       const currentMembers = form.getValues("teamMembers") || [];
       const targetMemberCount = teamSize - 1; // -1 because leader is separate
-      
+
       if (currentMembers.length < targetMemberCount) {
         // Add empty members
         for (let i = currentMembers.length; i < targetMemberCount; i++) {
@@ -201,12 +201,12 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           remove(i);
         }
       }
-      
+
       // Auto-scroll to team members section when team members are added for Box Cricket
       if (selectedEvent?.name === "Pickle Ball" && targetMemberCount > 0) {
         setTimeout(() => {
-          teamMembersRef.current?.scrollIntoView({ 
-            behavior: 'smooth', 
+          teamMembersRef.current?.scrollIntoView({
+            behavior: 'smooth',
             block: 'start',
             inline: 'nearest'
           });
@@ -219,11 +219,11 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
     const event = filteredEvents.find(e => e.id === eventId);
     setSelectedEvent(event || null);
     form.setValue("selectedEvent", eventId);
-    
+
     // Check if it's a Paper Presentation event
     const isPaperPresentation = event?.name === "Paper Presentation";
     setShowPaperPresentationDept(isPaperPresentation);
-    
+
     if (!isPaperPresentation) {
       form.setValue("paperPresentationDept", "");
     }
@@ -232,7 +232,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
     if (event) {
       const minTeamSize = event.minTeamSize || 1;
       const maxTeamSize = event.maxTeamSize;
-      
+
       if (maxTeamSize === 1) {
         // Force solo participation for events with maxTeamSize 1
         setParticipationType("solo");
@@ -249,7 +249,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
         // Reset team size if current size exceeds event's max or is below min
         if (teamSize > maxTeamSize || (participationType === "solo" && teamSize < minTeamSize) || (participationType === "team" && teamSize < Math.max(minTeamSize, 2))) {
           let newTeamSize;
-          
+
           if (participationType === "team") {
             // For team mode, ensure minimum is 2 (or event minTeamSize if higher)
             newTeamSize = Math.max(minTeamSize, 2);
@@ -258,10 +258,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
             // For solo mode or undetermined, use event requirements
             newTeamSize = Math.max(minTeamSize, Math.min(teamSize, maxTeamSize));
           }
-          
+
           setTeamSize(newTeamSize);
           form.setValue("teamSize", newTeamSize);
-          
+
           // Set appropriate participation type based on team size and event requirements
           if (newTeamSize === 1 && minTeamSize === 1 && participationType !== "team") {
             setParticipationType("solo");
@@ -272,7 +272,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           }
         }
       }
-      
+
       // Auto-scroll to team members section for Box Cricket
       if (event?.name === "Pickle Ball" && minTeamSize > 1) {
         // Show helpful toast
@@ -281,16 +281,16 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           description: "Please add details for all team members below.",
           duration: 4000,
         });
-        
+
         // Use setTimeout to ensure the DOM has been updated and team members section is visible
         setTimeout(() => {
           if (teamMembersRef.current) {
-            teamMembersRef.current.scrollIntoView({ 
-              behavior: 'smooth', 
+            teamMembersRef.current.scrollIntoView({
+              behavior: 'smooth',
               block: 'start',
               inline: 'nearest'
             });
-            
+
             // Add a subtle highlight effect
             teamMembersRef.current.style.transition = 'all 0.3s ease';
             teamMembersRef.current.style.transform = 'scale(1.02)';
@@ -333,7 +333,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const handleParticipationTypeChange = (type: "solo" | "team") => {
     const minTeamSize = selectedEvent?.minTeamSize || 1;
     const maxTeamSize = selectedEvent?.maxTeamSize || 4;
-    
+
     // Don't allow team participation for events with maxTeamSize 1
     if (type === "team" && maxTeamSize === 1) {
       toast({
@@ -343,7 +343,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       });
       return;
     }
-    
+
     // Don't allow solo participation for events with minTeamSize > 1
     if (type === "solo" && minTeamSize > 1) {
       toast({
@@ -356,7 +356,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
     setParticipationType(type);
     form.setValue("participationType", type);
-    
+
     if (type === "solo") {
       setTeamSize(1);
     } else {
@@ -369,10 +369,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
   const handleTeamSizeChange = (size: number) => {
     const minTeamSize = selectedEvent?.minTeamSize || 1;
     const maxTeamSize = selectedEvent?.maxTeamSize || 4;
-    
+
     // For team mode, minimum should be 2 (unless event specifically requires more)
     const effectiveMinSize = Math.max(minTeamSize, 2);
-    
+
     // Validate against event's maxTeamSize
     if (size > maxTeamSize) {
       toast({
@@ -382,7 +382,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       });
       return;
     }
-    
+
     // Validate against effective minimum (at least 2 for team mode)
     if (size < effectiveMinSize) {
       toast({
@@ -392,7 +392,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       });
       return;
     }
-    
+
     setTeamSize(size);
   };
 
@@ -400,7 +400,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
     setIsSubmitting(true);
     setPaymentStatus('creating-order');
     setPaymentError(null);
-    
+
     try {
       const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
       if (!razorpayKeyId) {
@@ -433,12 +433,12 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
       const orderRes = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           participationType: values.participationType,
           teamSize: values.teamSize || 1,
           baseFeePerMember: 100,
-          currency: "INR", 
-          receipt: `receipt_${Date.now()}` ,
+          currency: "INR",
+          receipt: `receipt_${Date.now()}`,
           registrationData
         })
       });
@@ -450,7 +450,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
 
       const orderId = orderResult.order?.id;
       const backendFeeBreakdown = orderResult.feeBreakdown;
-      
+
       if (!orderId) {
         throw new Error('Order creation failed - no order ID received');
       }
@@ -558,9 +558,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
           variant: "destructive",
         });
       });
-      
+
       razorpay.open();
-      
+
     } catch (error) {
       console.error('Error:', error);
       setIsSubmitting(false);
@@ -585,7 +585,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
               {paymentStatus === 'pending' ? 'Payment Received' : 'Registration Successful!'}
             </h2>
             <p className="text-paper-dim mb-4">
-              Thank you for registering{eventTitle ? ` for ${eventTitle}` : ""}. 
+              Thank you for registering{eventTitle ? ` for ${eventTitle}` : ""}.
               {paymentStatus === 'pending'
                 ? 'Your payment was received successfully. Your registration is being confirmed.'
                 : 'Your payment has been confirmed and registration is complete.'}
@@ -603,14 +603,14 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
               You will receive a confirmation email with payment receipt and further instructions shortly.
             </p>
             <div className="space-y-2">
-              <Button 
+              <Button
                 onClick={() => {
                   setIsSubmitted(false);
                   setPaymentStatus('idle');
                   setPaymentError(null);
                   form.reset();
-                }} 
-                variant="outline" 
+                }}
+                variant="outline"
                 className="w-full border-line text-paper hover:bg-panel-2"
               >
                 Register Another Participant
@@ -639,7 +639,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
             </button>
           </div>
         )}
-        
+
         <Card className="relative border-line bg-panel">
           <CardHeader className="text-center border-b border-line">
             <div className="file-tab mx-auto mb-4">REGISTRATION</div>
@@ -656,7 +656,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
               Fill out the registration form step by step to complete your registration.
             </CardDescription>
           </CardHeader>
-          
+
           {/* Registration Closed Message */}
           {registrationsClosed && (
             <div className="mx-6 mt-6 mb-4">
@@ -671,7 +671,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
               </div>
             </div>
           )}
-          
+
           <CardContent>
             {/* Loading Overlay for Payment Processing */}
             {(paymentStatus === 'payment-processing' || paymentStatus === 'confirming-registration') && (
@@ -694,192 +694,192 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
             <Form {...form}>
               <div className={registrationsClosed ? "opacity-50 pointer-events-none" : ""}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                
-                {/* Leader Details Section */}
-                <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
-                    <User className="h-5 w-5 text-brass" />
-                    Leader (Main Registrant) Details
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="leaderName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your full name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
 
-                    <FormField
-                      control={form.control}
-                      name="leaderCollege"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>College *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select college" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {colleges.map((college) => (
-                                <SelectItem key={college} value={college}>
-                                  {college}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  {/* Leader Details Section */}
+                  <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
+                      <User className="h-5 w-5 text-brass" />
+                      Leader (Main Registrant) Details
+                    </h3>
 
-                    {form.watch("leaderCollege") === "Other" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
-                        name="leaderCollegeOther"
+                        name="leaderName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>College Name *</FormLabel>
+                            <FormLabel>Full Name *</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter your college name" {...field} />
+                              <Input placeholder="Enter your full name" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    )}
 
-                    <FormField
-                      control={form.control}
-                      name="leaderEmail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email *</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="your.email@example.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="leaderMobile"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Mobile Number *</FormLabel>
-                          <FormControl>
-                            <Input type="tel" placeholder="eg. 9876543210" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="leaderDepartment"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Department *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select department" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {departments.map((dept) => (
-                                <SelectItem key={dept} value={dept}>
-                                  {dept}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="leaderYear"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Year of Study *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select year" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {years.map((year) => (
-                                <SelectItem key={year} value={year}>
-                                  {year}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="leaderCity"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>City *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your city" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Event Selection Section */}
-                <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
-                    <Award className="h-5 w-5 text-brass" />
-                    Event Selection
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="selectedEvent"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Select Event *</FormLabel>
-                          <Popover open={eventSelectOpen} onOpenChange={setEventSelectOpen}>
-                            <PopoverTrigger asChild>
+                      <FormField
+                        control={form.control}
+                        name="leaderCollege"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>College *</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  aria-expanded={eventSelectOpen}
-                                  className={cn(
-                                    "w-full justify-between",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value
-                                    ? (() => {
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select college" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {colleges.map((college) => (
+                                  <SelectItem key={college} value={college}>
+                                    {college}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {form.watch("leaderCollege") === "Other" && (
+                        <FormField
+                          control={form.control}
+                          name="leaderCollegeOther"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>College Name *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Enter your college name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      <FormField
+                        control={form.control}
+                        name="leaderEmail"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email *</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="your.email@example.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="leaderMobile"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Mobile Number *</FormLabel>
+                            <FormControl>
+                              <Input type="tel" placeholder="eg. 9876543210" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="leaderDepartment"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Department *</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select department" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {departments.map((dept) => (
+                                  <SelectItem key={dept} value={dept}>
+                                    {dept}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="leaderYear"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Year of Study *</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select year" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {years.map((year) => (
+                                  <SelectItem key={year} value={year}>
+                                    {year}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="leaderCity"
+                        render={({ field }) => (
+                          <FormItem className="md:col-span-2">
+                            <FormLabel>City *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter your city" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Event Selection Section */}
+                  <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
+                      <Award className="h-5 w-5 text-brass" />
+                      Event Selection
+                    </h3>
+
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="selectedEvent"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Select Event *</FormLabel>
+                            <Popover open={eventSelectOpen} onOpenChange={setEventSelectOpen}>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={eventSelectOpen}
+                                    className={cn(
+                                      "w-full justify-between",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value
+                                      ? (() => {
                                         const event = filteredEvents.find(e => e.id === field.value);
                                         return event ? (
                                           <div className="flex flex-col items-start">
@@ -888,438 +888,438 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = true }: Regi
                                           </div>
                                         ) : "Choose an event";
                                       })()
-                                    : "Choose an event"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[280px] max-w-[400px] p-0" align="start">
-                              <Command>
-                                <CommandInput placeholder="Search by event name or department..." className="h-9" />
-                                <CommandEmpty>No event found.</CommandEmpty>
-                                <CommandList>
-                                  <CommandGroup>
-                                    {filteredEvents.map((event) => (
-                                      <CommandItem
-                                        key={event.id}
-                                        value={`${event.name} ${event.department}`}
-                                        onSelect={() => {
-                                          handleEventChange(event.id);
-                                          setEventSelectOpen(false);
-                                        }}
-                                        className="flex items-center justify-between"
-                                      >
-                                        <div className="flex flex-col">
-                                          <span className="font-medium">{event.name}</span>
-                                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                            <span>{event.department}</span>
-                                            <span>•</span>
-                                            <span>
-                                              {event.minTeamSize && event.minTeamSize > 1 
-                                                ? `${event.minTeamSize}-${event.maxTeamSize} members` 
-                                                : `Max ${event.maxTeamSize} ${event.maxTeamSize === 1 ? 'member' : 'members'}`
-                                              }
-                                            </span>
+                                      : "Choose an event"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[280px] max-w-[400px] p-0" align="start">
+                                <Command>
+                                  <CommandInput placeholder="Search by event name or department..." className="h-9" />
+                                  <CommandEmpty>No event found.</CommandEmpty>
+                                  <CommandList>
+                                    <CommandGroup>
+                                      {filteredEvents.map((event) => (
+                                        <CommandItem
+                                          key={event.id}
+                                          value={`${event.name} ${event.department}`}
+                                          onSelect={() => {
+                                            handleEventChange(event.id);
+                                            setEventSelectOpen(false);
+                                          }}
+                                          className="flex items-center justify-between"
+                                        >
+                                          <div className="flex flex-col">
+                                            <span className="font-medium">{event.name}</span>
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                              <span>{event.department}</span>
+                                              <span>•</span>
+                                              <span>
+                                                {event.minTeamSize && event.minTeamSize > 1
+                                                  ? `${event.minTeamSize}-${event.maxTeamSize} members`
+                                                  : `Max ${event.maxTeamSize} ${event.maxTeamSize === 1 ? 'member' : 'members'}`
+                                                }
+                                              </span>
+                                            </div>
                                           </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-xs font-medium text-primary">₹{event.entryFee}</span>
-                                          <Check
-                                            className={cn(
-                                              "h-4 w-4",
-                                              field.value === event.id ? "opacity-100" : "opacity-0"
-                                            )}
-                                          />
-                                        </div>
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            💡 Click to search by event name or department
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {showPaperPresentationDept && (
-                      <FormField
-                        control={form.control}
-                        name="paperPresentationDept"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Select Department for Paper Presentation *</FormLabel>
-                            <div className="flex items-center gap-3">
-                              <div className="flex-1">
-                                <Select
-                                  onValueChange={(value) => {
-                                    field.onChange(value);
-                                    handlePaperPresentationDepartmentChange(value);
-                                  }}
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Choose department" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {paperPresentationDepartments.map((dept) => (
-                                      <SelectItem key={dept} value={dept}>
-                                        {dept}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-
-                              {/* Download button for paper submission doc */}
-                              <div className="whitespace-nowrap">
-                                <a
-                                  href="/docs/Paper_Submission_Discovery2k25.docx"
-                                  download
-                                  className="inline-flex items-center px-3 py-2 border border-primary/30 rounded-md text-sm bg-primary/5 hover:bg-primary/10"
-                                  title="Download paper submission template"
-                                >
-                                  Download Template
-                                </a>
-                              </div>
-                            </div>
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-xs font-medium text-primary">₹{event.entryFee}</span>
+                                            <Check
+                                              className={cn(
+                                                "h-4 w-4",
+                                                field.value === event.id ? "opacity-100" : "opacity-0"
+                                              )}
+                                            />
+                                          </div>
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              💡 Click to search by event name or department
+                            </p>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    )}
-                  </div>
-                </div>
 
-                {/* Team Size & Fees Section */}
-                <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
-                    <Users className="h-5 w-5 text-brass" />
-                    Team Size & Fees
-                  </h3>
-                  
-                  <div className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="participationType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Do you want to participate solo or as a team? *</FormLabel>
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                handleParticipationTypeChange(value as "solo" | "team");
-                              }}
-                              defaultValue={field.value}
-                              className="flex gap-6"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem 
-                                  value="solo" 
-                                  id="solo" 
-                                  disabled={(selectedEvent?.minTeamSize || 1) > 1}
-                                />
-                                <Label 
-                                  htmlFor="solo" 
-                                  className={`cursor-pointer ${(selectedEvent?.minTeamSize || 1) > 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                  Solo (₹100)
-                                  {(selectedEvent?.minTeamSize || 1) > 1 && (
-                                    <span className="text-xs text-muted-foreground block">
-                                      Not available for this event
-                                    </span>
-                                  )}
-                                </Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem 
-                                  value="team" 
-                                  id="team" 
-                                  disabled={selectedEvent?.maxTeamSize === 1}
-                                />
-                                <Label 
-                                  htmlFor="team" 
-                                  className={`cursor-pointer ${selectedEvent?.maxTeamSize === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                  Team (₹100 per member)
-                                  {selectedEvent?.maxTeamSize === 1 && (
-                                    <span className="text-xs text-muted-foreground block">
-                                      Not available for this event
-                                    </span>
-                                  )}
-                                </Label>
-                              </div>
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {participationType === "team" && selectedEvent && (
-                      <div className="space-y-4">
-                        <div>
-                          <Label className="text-sm font-medium">Select Team Size *</Label>
-                          <div className="flex gap-2 mt-2 flex-wrap">
-                            {Array.from(
-                              { length: selectedEvent.maxTeamSize - Math.max(selectedEvent.minTeamSize || 1, 2) + 1 }, 
-                              (_, i) => Math.max(selectedEvent.minTeamSize || 1, 2) + i
-                            ).map((size) => (
-                              <Button
-                                key={size}
-                                type="button"
-                                variant={teamSize === size ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => handleTeamSizeChange(size)}
-                                disabled={size > selectedEvent.maxTeamSize || size < Math.max(selectedEvent.minTeamSize || 1, 2)}
-                              >
-                                {size} Members
-                              </Button>
-                            ))}
-                          </div>
-                          {selectedEvent.maxTeamSize === 1 && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                              This event only allows solo participation.
-                            </p>
-                          )}
-                          {(selectedEvent.minTeamSize || 1) > 1 && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                              This event requires teams of at least {selectedEvent.minTeamSize} members. Solo participation is not allowed.
-                            </p>
-                          )}
-                          {!(selectedEvent.minTeamSize && selectedEvent.minTeamSize > 1) && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                              💡 For 1 member, use Solo participation. Team mode is for 2+ members.
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Team Members Section - Only show if team is selected */}
-                {participationType === "team" && teamSize > 1 && (
-                  <div ref={teamMembersRef} className="bg-ink-soft/50 p-6 rounded-lg border border-line">
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
-                      <Users className="h-5 w-5 text-brass" />
-                      {selectedEvent?.name === "Pickle Ball" ? "Pickle Ball Team Members" : "Team Member Details"}
-                    </h3>
-                    
-                    <div className="space-y-6">
-                      {fields.map((field, index) => (
-                        <div key={field.id} className="p-4 border rounded-lg space-y-4">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium">Member {index + 2}</h4>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                              control={form.control}
-                              name={`teamMembers.${index}.name`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Name *</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="Enter member name" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`teamMembers.${index}.mobile`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Mobile Number *</FormLabel>
-                                  <FormControl>
-                                    <Input type="tel" placeholder="eg. 9876543210" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`teamMembers.${index}.college`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>College *</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      {showPaperPresentationDept && (
+                        <FormField
+                          control={form.control}
+                          name="paperPresentationDept"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Select Department for Paper Presentation *</FormLabel>
+                              <div className="flex items-center gap-3">
+                                <div className="flex-1">
+                                  <Select
+                                    onValueChange={(value) => {
+                                      field.onChange(value);
+                                      handlePaperPresentationDepartmentChange(value);
+                                    }}
+                                    defaultValue={field.value}
+                                  >
                                     <FormControl>
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Select college" />
+                                        <SelectValue placeholder="Choose department" />
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      {colleges.map((college) => (
-                                        <SelectItem key={college} value={college}>
-                                          {college}
+                                      {paperPresentationDepartments.map((dept) => (
+                                        <SelectItem key={dept} value={dept}>
+                                          {dept}
                                         </SelectItem>
                                       ))}
                                     </SelectContent>
                                   </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                                </div>
 
-                            {form.watch(`teamMembers.${index}.college`) === "Other" && (
+                                {/* Download button for paper submission doc */}
+                                <div className="whitespace-nowrap">
+                                  <a
+                                    href="/docs/Paper_Submission_Discovery2k25.docx"
+                                    download
+                                    className="inline-flex items-center px-3.5 py-2 border-2 border-amber-500 bg-amber-400 text-slate-950 font-bold rounded-md text-sm hover:bg-amber-500 shadow-sm transition-all"
+                                    title="Download paper submission template"
+                                  >
+                                    Download Template
+                                  </a>
+                                </div>
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Team Size & Fees Section */}
+                  <div className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
+                      <Users className="h-5 w-5 text-brass" />
+                      Team Size & Fees
+                    </h3>
+
+                    <div className="space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="participationType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Do you want to participate solo or as a team? *</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  handleParticipationTypeChange(value as "solo" | "team");
+                                }}
+                                defaultValue={field.value}
+                                className="flex gap-6"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem
+                                    value="solo"
+                                    id="solo"
+                                    disabled={(selectedEvent?.minTeamSize || 1) > 1}
+                                  />
+                                  <Label
+                                    htmlFor="solo"
+                                    className={`cursor-pointer ${(selectedEvent?.minTeamSize || 1) > 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                  >
+                                    Solo (₹100)
+                                    {(selectedEvent?.minTeamSize || 1) > 1 && (
+                                      <span className="text-xs text-muted-foreground block">
+                                        Not available for this event
+                                      </span>
+                                    )}
+                                  </Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem
+                                    value="team"
+                                    id="team"
+                                    disabled={selectedEvent?.maxTeamSize === 1}
+                                  />
+                                  <Label
+                                    htmlFor="team"
+                                    className={`cursor-pointer ${selectedEvent?.maxTeamSize === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                  >
+                                    Team (₹100 per member)
+                                    {selectedEvent?.maxTeamSize === 1 && (
+                                      <span className="text-xs text-muted-foreground block">
+                                        Not available for this event
+                                      </span>
+                                    )}
+                                  </Label>
+                                </div>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {participationType === "team" && selectedEvent && (
+                        <div className="space-y-4">
+                          <div>
+                            <Label className="text-sm font-medium">Select Team Size *</Label>
+                            <div className="flex gap-2 mt-2 flex-wrap">
+                              {Array.from(
+                                { length: selectedEvent.maxTeamSize - Math.max(selectedEvent.minTeamSize || 1, 2) + 1 },
+                                (_, i) => Math.max(selectedEvent.minTeamSize || 1, 2) + i
+                              ).map((size) => (
+                                <Button
+                                  key={size}
+                                  type="button"
+                                  variant={teamSize === size ? "default" : "outline"}
+                                  size="sm"
+                                  onClick={() => handleTeamSizeChange(size)}
+                                  disabled={size > selectedEvent.maxTeamSize || size < Math.max(selectedEvent.minTeamSize || 1, 2)}
+                                >
+                                  {size} Members
+                                </Button>
+                              ))}
+                            </div>
+                            {selectedEvent.maxTeamSize === 1 && (
+                              <p className="text-sm text-muted-foreground mt-2">
+                                This event only allows solo participation.
+                              </p>
+                            )}
+                            {(selectedEvent.minTeamSize || 1) > 1 && (
+                              <p className="text-sm text-muted-foreground mt-2">
+                                This event requires teams of at least {selectedEvent.minTeamSize} members. Solo participation is not allowed.
+                              </p>
+                            )}
+                            {!(selectedEvent.minTeamSize && selectedEvent.minTeamSize > 1) && (
+                              <p className="text-sm text-muted-foreground mt-2">
+                                💡 For 1 member, use Solo participation. Team mode is for 2+ members.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Team Members Section - Only show if team is selected */}
+                  {participationType === "team" && teamSize > 1 && (
+                    <div ref={teamMembersRef} className="bg-ink-soft/50 p-6 rounded-lg border border-line">
+                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-paper">
+                        <Users className="h-5 w-5 text-brass" />
+                        {selectedEvent?.name === "Pickle Ball" ? "Pickle Ball Team Members" : "Team Member Details"}
+                      </h3>
+
+                      <div className="space-y-6">
+                        {fields.map((field, index) => (
+                          <div key={field.id} className="p-4 border rounded-lg space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-medium">Member {index + 2}</h4>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <FormField
                                 control={form.control}
-                                name={`teamMembers.${index}.collegeOther`}
+                                name={`teamMembers.${index}.name`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>College Name *</FormLabel>
+                                    <FormLabel>Name *</FormLabel>
                                     <FormControl>
-                                      <Input placeholder="Enter college name" {...field} />
+                                      <Input placeholder="Enter member name" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
                                 )}
                               />
-                            )}
 
+                              <FormField
+                                control={form.control}
+                                name={`teamMembers.${index}.mobile`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Mobile Number *</FormLabel>
+                                    <FormControl>
+                                      <Input type="tel" placeholder="eg. 9876543210" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`teamMembers.${index}.college`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>College *</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select college" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {colleges.map((college) => (
+                                          <SelectItem key={college} value={college}>
+                                            {college}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              {form.watch(`teamMembers.${index}.college`) === "Other" && (
+                                <FormField
+                                  control={form.control}
+                                  name={`teamMembers.${index}.collegeOther`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>College Name *</FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Enter college name" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              )}
+
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Payment Error Display */}
+                  {paymentError && (
+                    <div className="bg-destructive/10 border border-destructive/30 p-4 rounded-lg">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 rounded-full bg-destructive/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-destructive text-sm font-bold">!</span>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-destructive mb-1">Payment Issue</h3>
+                          <p className="text-sm text-destructive/80 mb-3">{paymentError}</p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setPaymentError(null);
+                              setPaymentStatus('idle');
+                            }}
+                            className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                          >
+                            Try Again
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Fee Display with Breakdown */}
+                  <div className="bg-brass/5 p-4 rounded-lg border border-brass/30">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">
+                          Participation: {participationType === "solo" ? "Solo" : `Team of ${teamSize}`}
+                        </p>
+                        {selectedEvent && (
+                          <p className="text-sm text-muted-foreground">Event: {selectedEvent.name}</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-brass flex items-center gap-1">
+                          <IndianRupee className="h-5 w-5" />
+                          {feeBreakdown?.totalAmount?.toFixed(2) || '0.00'}
+                        </p>
+                        <p className="text-xs text-paper-mute">
+                          ₹100/- per member
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Fee Breakdown */}
+                    {feeBreakdown && (
+                      <div className="mt-3 pt-3 border-t border-brass/20">
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Event Fee:</span>
+                            <span>{formatCurrency(feeBreakdown.baseFee)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Processing Charges:</span>
+                            <span>{formatCurrency(feeBreakdown.processingCharges)}</span>
+                          </div>
+                          <div className="flex justify-between font-medium pt-1 border-t border-brass/20">
+                            <span>Total Payable:</span>
+                            <span>{formatCurrency(feeBreakdown.totalAmount)}</span>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Payment Error Display */}
-                {paymentError && (
-                  <div className="bg-destructive/10 border border-destructive/30 p-4 rounded-lg">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-6 h-6 rounded-full bg-destructive/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-destructive text-sm font-bold">!</span>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-destructive mb-1">Payment Issue</h3>
-                        <p className="text-sm text-destructive/80 mb-3">{paymentError}</p>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setPaymentError(null);
-                            setPaymentStatus('idle');
-                          }}
-                          className="border-destructive/30 text-destructive hover:bg-destructive/10"
-                        >
-                          Try Again
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Fee Display with Breakdown */}
-                <div className="bg-brass/5 p-4 rounded-lg border border-brass/30">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">
-                        Participation: {participationType === "solo" ? "Solo" : `Team of ${teamSize}`}
-                      </p>
-                      {selectedEvent && (
-                        <p className="text-sm text-muted-foreground">Event: {selectedEvent.name}</p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-brass flex items-center gap-1">
-                        <IndianRupee className="h-5 w-5" />
-                        {feeBreakdown?.totalAmount?.toFixed(2) || '0.00'}
-                      </p>
-                      <p className="text-xs text-paper-mute">
-                        ₹100/- per member
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Fee Breakdown */}
-                  {feeBreakdown && (
-                    <div className="mt-3 pt-3 border-t border-brass/20">
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Event Fee:</span>
-                          <span>{formatCurrency(feeBreakdown.baseFee)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Processing Charges:</span>
-                          <span>{formatCurrency(feeBreakdown.processingCharges)}</span>
-                        </div>
-                        <div className="flex justify-between font-medium pt-1 border-t border-brass/20">
-                          <span>Total Payable:</span>
-                          <span>{formatCurrency(feeBreakdown.totalAmount)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Payment Notice */}
-                <div className="bg-brass/5 border border-brass/20 p-4 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-brass" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-semibold text-brass">Payment Information</h4>
-                      <p className="text-sm text-paper-dim mt-1">
-                        Registration will only be confirmed after successful payment. The processing charges shown above include payment gateway fees to ensure you receive the exact event fee amount. You will be redirected to a secure payment gateway to complete the transaction.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 pt-4">
-                  {onBack && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={onBack}
-                      className="flex-1"
-                    >
-                      Back
-                    </Button>
-                  )}
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting || !selectedEvent || registrationsClosed}
-                    className="flex-1 bg-brass text-ink hover:bg-brass/90 font-mono text-[13px] tracking-[.06em]"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {paymentStatus === 'creating-order' && 'Creating Order...'}
-                        {paymentStatus === 'payment-processing' && 'Processing Payment...'}
-                        {paymentStatus === 'confirming-registration' && 'Confirming Registration...'}
-                        {paymentStatus === 'idle' && 'Submitting...'}
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="mr-2 h-4 w-4" />
-                        <span className="hidden xs:inline">Proceed to Payment</span>
-                        <span className="xs:hidden">Payment</span> ({formatCurrency(feeBreakdown?.totalAmount || 0)})
-                      </>
                     )}
-                  </Button>
-                </div>
-              </form>
+                  </div>
+
+                  {/* Payment Notice */}
+                  <div className="bg-brass/5 border border-brass/20 p-4 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 text-brass" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-brass">Payment Information</h4>
+                        <p className="text-sm text-paper-dim mt-1">
+                          Registration will only be confirmed after successful payment. The processing charges shown above include payment gateway fees to ensure you receive the exact event fee amount. You will be redirected to a secure payment gateway to complete the transaction.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 pt-4">
+                    {onBack && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onBack}
+                        className="flex-1"
+                      >
+                        Back
+                      </Button>
+                    )}
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || !selectedEvent || registrationsClosed}
+                      className="flex-1 bg-brass text-ink hover:bg-brass/90 font-mono text-[13px] tracking-[.06em]"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {paymentStatus === 'creating-order' && 'Creating Order...'}
+                          {paymentStatus === 'payment-processing' && 'Processing Payment...'}
+                          {paymentStatus === 'confirming-registration' && 'Confirming Registration...'}
+                          {paymentStatus === 'idle' && 'Submitting...'}
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="mr-2 h-4 w-4" />
+                          <span className="hidden xs:inline">Proceed to Payment</span>
+                          <span className="xs:hidden">Payment</span> ({formatCurrency(feeBreakdown?.totalAmount || 0)})
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
               </div>
             </Form>
           </CardContent>
