@@ -80,7 +80,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
       coordinators: {
         faculty: {
-          name: "Dr. Sendhil Kumar S",
+          name: "Dr. S. Sendhil Kumar",
           phone: "9486172845",
           email: "ssk_aero@adcet.in"
         },
@@ -139,16 +139,27 @@ export const eventsByDepartment: Record<string, Event[]> = {
     },
     {
       id: "rc-simulator",
-      name: "RC Simulator",
+      name: "Flight Simulator",
       department: "Aeronautical Engineering", 
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Water_rocket.png",
-      description: "Experience realistic drone flight simulation with precision control challenges. Test your piloting skills through take-off, maneuvering, and safe landing procedures using professional flight simulation equipment.",
+      description: "Test your aircraft control and landing precision in the Phoenix RC Flight Simulator.",
       rules: [
-        "Each participant will get a briefing session and one trial attempt before the main round.",
-        "Participants must successfully take off, maneuver, and land the drone safely using the simulator.",
-        "Performance will be judged on control, safety, and smooth landing within the given time."
+        "Each participant receives 2 minutes of familiarization with the transmitter/controller.",
+        "Familiarization time is not included in the competition time or score.",
+        "A valid cycle requires a controlled take-off, the required flight or maneuver, and a safe landing on the designated runway.",
+        "A landing outside the runway, crash, loss of control, or significant aircraft damage makes the cycle invalid.",
+        "Round 1 qualifiers proceed to Round 2. The event coordinator's decision is final."
+      ],
+      gameplay: [
+        "Round 1 - Basic Flight: 3 minutes in Ground View. Complete as many valid take-off, maneuver, and runway landing cycles as possible.",
+        "Round 2 - Cockpit View and Aerobatics: 3 minutes for qualified participants. Complete the required loops or rolls before landing on the runway."
+      ],
+      scoring: [
+        "Each valid flight cycle earns 1 point. The participant with the highest Round 1 score qualifies, and the participant with the most valid Round 2 cycles wins.",
+        "In case of a tie, the coordinator will conduct a tie-breaker flight with conditions and tasks decided by the coordinator.",
+        "FLY SMART - CONTROL THE AIRCRAFT - LAND WITH PRECISION."
       ],
       coordinators: {
         faculty: {
@@ -289,7 +300,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "elec-paper",
       name: "Paper Presentation",
       department: "Electrical Engineering",
-      maxTeamSize: 6,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present cutting-edge research in electrical engineering covering power electronics, renewable energy systems, smart grid technologies, and digital signal processing. Showcase innovative solutions for modern electrical challenges.",
@@ -309,7 +320,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       faculty: {
         name: "Mr. Indrajit D. Pharane",
         phone: "9657240024",
-        email: ""
+        email: "idp_ele@adcet.in"
       },
       student: {
           name: "Nilesh Lohar",
@@ -356,7 +367,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ],
       rules: [
         "Only two participants are permitted per team.",
-        "The answer paper will be distributed at the commencement of the event.",
+        "The question paper will be distributed at the commencement of the event.",
         "College ID cards and event registration receipts must be brought on the day of the event.",
         "Decision of Judges will be final."
       ],
@@ -394,7 +405,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       faculty: {
         name: "Dr. Vidya Abhijeet Lande",
         phone: "7387102650",
-        email: ""
+        email: "vmp_civil@adcet.in"
       },
       student: {
         name: "Mr. Chinmay Jadhav",
@@ -494,7 +505,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       faculty: {
         name: "Dr. Anisa B. Shikalgar",
         phone: "9284068550",
-        email: "baj_cse@adcet.in"
+        email: "abs_cse@adcet.in"
       },
       student: {
         name: "Parth Lande",
@@ -507,7 +518,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "code-compete",
       name: "Code 2 Compete",
       department: "Computer Science Engineering",
-      maxTeamSize: 1,
+      maxTeamSize: 2,
       entryFee: 100,
       image: "/event-images/code_to_compete.png",
       description: "Individual competitive programming challenge featuring algorithmic problem-solving and data structures. Test your coding skills through multiple rounds including MCQs and intensive programming tasks on HackerRank platform.",
@@ -577,9 +588,9 @@ export const eventsByDepartment: Record<string, Event[]> = {
     ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
-        name: "Mrs. Supriya S. Patil",
+        name: "Mrs. Supriya Abhijeet Pati",
         phone: "9096898542",
-        email: "psp_aids@adcet.in"
+        email: "sap_aids@adcet.in"
       },
       student: {
         name: "Rishikesh Dilip Dhapse",
@@ -656,7 +667,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
     ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
     coordinators: {
       faculty: {
-          name: "Mr. Samish N. Kamble",
+          name: "Prof. S. N. Kamble",
         phone: "9823723719",
         email: "snk_iot@adcet.in"
       },
@@ -744,7 +755,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       rules: paperPresentationRules,
       ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
       coordinators: {
-          faculty: { name: "Ms. Anuja Ashok Salgar", phone: "7447251200", email: "" },
+          faculty: { name: "Ms. Anuja Ashok Salgar", phone: "7447251200", email: "aas_bba@adcet.in" },
         student: { name: "Sanika Pawar", phone: "7020073670", email: "" }
       }
     },
@@ -841,7 +852,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ],
       coordinators: {
         faculty: { name: "Mrs. Rutuja S. Pawar", phone: "9765317323", email: "" },
-        student: { name: "Mr. Shivaji Shivaji Patil", phone: "8767493503", email: "shivajipatil9868@gmail.com" }
+        student: { name: "Mr. Shivaji shivaji Patil", phone: "8767493503", email: "shivajipatil9868@gmail.com" }
       }
     }
   ],
@@ -857,7 +868,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       rules: paperPresentationRules,
       ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
       coordinators: {
-        faculty: { name: "Ms. Piusha U. Magdum", phone: "8767258041", email: "" },
+        faculty: { name: "Ms. Piusha U. Magdum", phone: "8767258041", email: "pum_bca@adcet.in" },
         student: { name: "Mr. Mateen L. Mulla", phone: "9545289737", email: "" }
       }
     },
