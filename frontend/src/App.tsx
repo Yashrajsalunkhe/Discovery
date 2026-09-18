@@ -7,6 +7,8 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
+import DepartmentEventsPage from "./pages/DepartmentEventsPage";
+import EventDetailPage from "./pages/EventDetailPage";
 import QueueMonitoringDashboard from "./components/QueueMonitoringDashboard";
 import { RegistrationForm } from "./components/RegistrationForm";
 import { Navbar, FooterLanding } from "./components/landing";
@@ -22,6 +24,17 @@ const queryClient = new QueryClient({
   },
 });
 
+const RegisterPage = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <RegistrationForm onBack={() => navigate('/')} />
+      <FooterLanding />
+    </div>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -36,13 +49,10 @@ const App = () => (
       >
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/register" element={
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              <RegistrationForm />
-              <FooterLanding />
-            </div>
-          } />
+          <Route path="/department/:deptId" element={<DepartmentEventsPage />} />
+          <Route path="/event/:eventId" element={<EventDetailPage />} />
+          <Route path="/department/:deptId/event/:eventId" element={<EventDetailPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/queuedata" element={
             <div className="min-h-screen bg-gray-50 p-4 sm:p-6">

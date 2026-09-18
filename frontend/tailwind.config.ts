@@ -25,6 +25,7 @@ export default {
         display: ["'Unbounded'", "sans-serif"],
         body: ["'IBM Plex Sans'", "sans-serif"],
         mono: ["'IBM Plex Mono'", "monospace"],
+        handwritten: ["'Caveat'", "cursive"],
         // Keep old aliases for any existing components that still reference them
         orbitron: ["'Unbounded'", "sans-serif"],
         poppins: ["'IBM Plex Sans'", "sans-serif"],

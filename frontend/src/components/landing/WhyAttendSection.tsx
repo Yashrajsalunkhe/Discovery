@@ -3,76 +3,87 @@ export const WhyAttendSection = () => {
     {
       index: '01',
       title: 'Cash Prizes & Trophies',
-      desc: "Every track carries its own prize purse, paid out the same day.",
+      desc: "Every track carries its own prize purse, paid out on the same day during the closing ceremony.",
     },
     {
       index: '02',
-      title: 'Certificate for All',
-      desc: 'Every registered participant leaves with a certificate — win or lose.',
+      title: 'Official Certification for All',
+      desc: 'Every registered participant leaves with an official national event certificate — win or lose.',
     },
     {
       index: '03',
-      title: 'Judged by Industry',
-      desc: 'Panels pull from working engineers and founders, not just faculty.',
+      title: 'Judged by Industry Leaders',
+      desc: 'Panels pull from active software engineers, founders, and industry domain specialists.',
     },
     {
       index: '04',
-      title: 'Cross-College Network',
-      desc: 'Teams travel in from colleges across the country for this one.',
+      title: 'Cross-College Networking',
+      desc: 'Teams travel in from engineering institutions across the state and country.',
     },
     {
       index: '05',
-      title: 'Live Builds & Exhibits',
-      desc: 'The lawn stays open all day for demos, prototypes, and side projects.',
+      title: 'Live Builds & Technical Exhibits',
+      desc: 'The central campus quad stays active all day for project demos, hardware builds, and exhibits.',
     },
     {
       index: '06',
-      title: 'Swag Worth Keeping',
-      desc: "Kits, merch, and campus food that doesn't taste like a fest budget.",
+      title: 'Event Kits & Campus Food',
+      desc: "Comprehensive event kit, badge, schedule pass, and on-campus food included for all participants.",
     },
   ];
 
   return (
-    <section className="section section-alt" id="why">
-      <div className="wrap">
-        <div className="file-tab">FILE 04 — WHY SHOW UP</div>
-        <div className="section-head">
-          <h2 className="section-title">What you actually walk away with.</h2>
-          <p className="section-note">
-            Not just a certificate PDF. Six real reasons teams travel in for this.
-          </p>
-        </div>
-      </div>
+    <section className="py-16 sm:py-24 bg-[#FAFAF8] text-[#0F1115] border-b-2 border-[#0F1115]" id="why">
+      <div className="max-w-[1320px] mx-auto px-4 sm:px-8">
 
-      <div
-        className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 border border-line"
-        style={{ gap: '1px', background: 'var(--line)' }}
-        data-perks
-      >
-        {perks.map((perk, i) => (
-          <div
-            key={perk.index}
-            className="py-[38px] px-8 max-sm:py-7 max-sm:px-5 perk-cell"
-            style={{ background: i % 2 === 1 ? 'var(--ink-soft)' : 'var(--ink)' }}
-          >
-            <div
-              className="font-display font-extrabold leading-none mb-3.5"
-              style={{
-                fontSize: 'clamp(2.4rem, 6vw, 3.2rem)',
-                color: 'transparent',
-                WebkitTextStroke: '1px var(--line)',
-              }}
-            >
-              {perk.index}
-            </div>
-            <div className="font-display font-semibold text-[1.15rem] mb-2.5">
-              {perk.title}
-            </div>
-            <div className="text-sm text-paper-dim leading-[1.6]">
-              {perk.desc}
-            </div>
+        {/* Editorial Section Tab Tag */}
+        <div className="inline-flex items-center gap-2 font-mono text-xs font-bold tracking-widest bg-[#FFCC00] text-[#0F1115] px-3 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115] mb-6">
+          <span>FILE 04</span>
+          <span>//</span>
+          <span>WHY SHOW UP & PERKS</span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12 items-end">
+          <div className="lg:col-span-8">
+            <h2 className="font-display font-black text-3xl sm:text-5xl uppercase tracking-tight text-[#0F1115] leading-[0.95]">
+              What you actually <span className="bg-[#FFCC00] px-2 border-2 border-[#0F1115] inline-block">walk away with.</span>
+            </h2>
           </div>
-        ))}
+          <div className="lg:col-span-4">
+            <p className="font-body text-base text-[#0F1115]/80 font-medium leading-relaxed border-l-3 border-[#FFCC00] pl-4 py-1">
+              Not just a certificate PDF. Six concrete reasons engineering teams travel in for Discovery 2K26.
+            </p>
+          </div>
+        </div>
+
+        {/* Perks Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {perks.map((perk) => (
+            <div
+              key={perk.index}
+              className="p-6 sm:p-8 bg-white border-2 border-[#0F1115] shadow-[5px_5px_0px_#0F1115] hover:bg-[#FFCC00] hover:shadow-[7px_7px_0px_#0F1115] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 group flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-display font-black text-4xl text-[#0F1115] group-hover:scale-110 transition-transform">
+                  {perk.index}
+                </span>
+                <span className="font-mono text-[10px] font-black bg-[#0F1115] text-[#FFCC00] px-2 py-0.5">
+                  FEATURE
+                </span>
+              </div>
+
+              <div>
+                <h3 className="font-display font-black text-xl text-[#0F1115] uppercase mb-2">
+                  {perk.title}
+                </h3>
+                <p className="font-body text-sm text-[#0F1115]/80 leading-relaxed">
+                  {perk.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
     </section>
   );

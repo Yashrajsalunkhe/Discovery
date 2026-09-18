@@ -149,7 +149,6 @@ const Index = memo(() => {
       <DepartmentExplorer />
       <ScheduleTimeline />
       <WhyAttendSection />
-      <SeamDivider />
       <RegisterCTA />
       <FooterLanding />
     </div>

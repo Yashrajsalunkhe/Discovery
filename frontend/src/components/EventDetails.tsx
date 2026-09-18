@@ -56,15 +56,18 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Events
           </Button>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             {event.name === "Paper Presentation" && event.ruleBookFile && (
-              <Button variant="outline" onClick={handleDownloadRuleBook} className="hidden sm:flex hover:bg-primary/10">
-                <Download className="h-4 w-4 mr-2" />
+              <Button
+                onClick={handleDownloadRuleBook}
+                className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold border-2 border-amber-500 shadow-sm flex items-center justify-center w-full sm:w-auto px-4 py-2"
+              >
+                <Download className="h-4 w-4 mr-2 text-slate-950" />
                 Download Template
               </Button>
             )}
             {onRegister && (
-              <Button onClick={onRegister} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+              <Button onClick={onRegister} className="bg-primary hover:bg-primary/90 text-white font-semibold w-full sm:w-auto px-4 py-2">
                 <UserPlus className="h-4 w-4 mr-2" />
                 Register Now
               </Button>
@@ -115,6 +118,28 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                 </p>
               </CardContent>
             </Card>
+          )}
+
+          {/* Paper Submission Template Callout */}
+          {event.name === "Paper Presentation" && event.ruleBookFile && (
+            <div className="bg-amber-400/10 border-2 border-amber-500/60 rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="font-bold text-amber-500 text-base sm:text-lg flex items-center gap-2">
+                  <Download className="h-5 w-5 flex-shrink-0 text-amber-500" />
+                  Paper Presentation Format & Template (.docx)
+                </div>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Download the official paper presentation template for abstract format, guidelines, and submission structure.
+                </p>
+              </div>
+              <Button
+                onClick={handleDownloadRuleBook}
+                className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold border-2 border-amber-500 shadow-sm flex items-center gap-2 px-5 py-2.5 whitespace-nowrap w-full sm:w-auto"
+              >
+                <Download className="h-4 w-4 text-slate-950" />
+                Download Template (.docx)
+              </Button>
+            </div>
           )}
 
           {/* Topics */}
