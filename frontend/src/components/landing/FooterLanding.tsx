@@ -1,7 +1,11 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-export const FooterLanding: React.FC = () => {
+interface FooterLandingProps {
+  compact?: boolean;
+}
+
+export const FooterLanding: React.FC<FooterLandingProps> = ({ compact = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,7 +38,7 @@ export const FooterLanding: React.FC = () => {
     <footer className="py-16 bg-[#FAFAF8] text-[#0F1115] border-t-2 border-[#0F1115]">
       <div className="max-w-[1320px] mx-auto px-4 sm:px-8">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-12 border-b-2 border-[#0F1115]">
+        {!compact && <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-12 border-b-2 border-[#0F1115]">
 
           {/* Brand */}
           <div className="lg:col-span-4 space-y-3">
@@ -100,10 +104,10 @@ export const FooterLanding: React.FC = () => {
             </div>
           </div>
 
-        </div>
+        </div>}
 
         {/* Bottom */}
-        <div className="flex flex-col sm:flex-row justify-between items-center pt-6 gap-4 font-mono text-xs font-bold">
+        {!compact && <div className="flex flex-col sm:flex-row justify-between items-center pt-6 gap-4 font-mono text-xs font-bold">
           <div className="text-[#0F1115]/70">
             DISCOVERY 2K26 — ADCET, ASHTA. ALL ROUNDS RUN ON CAMPUS.
           </div>
@@ -118,10 +122,10 @@ export const FooterLanding: React.FC = () => {
               WHATSAPP
             </span>
           </div>
-        </div>
+        </div>}
 
         {/* Big DISCOVERY typography like NEUROVERSE */}
-        <div className="mt-8 pt-6 border-t-2 border-[#0F1115] relative flex flex-col sm:flex-row items-center justify-center gap-4 overflow-hidden select-none">
+        <div className={`${compact ? 'mt-0 pt-0 border-t-0' : 'mt-8 pt-6 border-t-2 border-[#0F1115]'} relative flex flex-col sm:flex-row items-center justify-center gap-4 overflow-hidden select-none`}>
           <h1 className="font-display font-black text-[#FFCC00] uppercase text-[11.5vw] xl:text-[145px] leading-none tracking-tighter drop-shadow-[4px_4px_0px_#0F1115] [-webkit-text-stroke:2px_#0F1115] text-center w-full">
             DISCOVERY.
           </h1>
