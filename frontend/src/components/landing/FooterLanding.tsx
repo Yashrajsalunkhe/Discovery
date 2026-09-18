@@ -34,7 +34,7 @@ export const FooterLanding: React.FC = () => {
     <footer className="py-16 bg-[#FAFAF8] text-[#0F1115] border-t-2 border-[#0F1115]">
       <div className="max-w-[1320px] mx-auto px-4 sm:px-8">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-12 border-b-2 border-[#0F1115]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8">
 
           {/* Brand */}
           <div className="lg:col-span-4 space-y-3">
@@ -77,8 +77,7 @@ export const FooterLanding: React.FC = () => {
               ORGANIZED BY
             </div>
             <div className="font-mono text-xs font-bold text-[#0F1115] space-y-1.5">
-              <p>Student Council, ADCET</p>
-              <p>Department Technical Clubs</p>
+              <p>ADCET Team</p>
               <p>ADCET Ashta Faculty Cell</p>
             </div>
           </div>
@@ -93,20 +92,24 @@ export const FooterLanding: React.FC = () => {
                 href="mailto:discovery@adcet.ac.in"
                 className="hover:bg-[#FFCC00] hover:px-1 transition-all inline-block break-all"
               >
-                discovery@adcet.ac.in
+                discovery2k26@adcet.in
               </a>
               <p>ADCET, Ashta, Sangli</p>
-              <p>16.95°N · 74.40°E</p>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=16.9463,74.4092"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:bg-[#FFCC00] hover:px-1 transition-all inline-block"
+              >
+                16.95°N · 74.40°E
+              </a>
             </div>
           </div>
 
         </div>
 
         {/* Bottom */}
-        <div className="flex flex-col sm:flex-row justify-between items-center pt-6 gap-4 font-mono text-xs font-bold">
-          <div className="text-[#0F1115]/70">
-            DISCOVERY 2K26 — ADCET, ASHTA. ALL ROUNDS RUN ON CAMPUS.
-          </div>
+        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 font-mono text-xs font-bold">
           <div className="flex gap-2 flex-wrap">
             <span className="bg-white text-[#0F1115] px-2.5 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115]">
               INSTAGRAM

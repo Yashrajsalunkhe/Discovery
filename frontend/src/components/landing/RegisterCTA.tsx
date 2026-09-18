@@ -8,7 +8,13 @@ export const RegisterCTA = () => {
       <div className="max-w-[1320px] mx-auto px-4 sm:px-8 relative z-10">
 
         {/* High Impact Yellow Editorial Banner Card */}
-        <div className="bg-[#FFCC00] border-3 border-[#0F1115] shadow-[8px_8px_0px_#0F1115] p-8 sm:p-14 text-center relative overflow-hidden">
+        <div
+          className="bg-[#FFCC00] border-3 border-[#0F1115] shadow-[8px_8px_0px_#0F1115] p-8 sm:p-14 text-center relative overflow-hidden"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(15, 17, 21, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 17, 21, 0.08) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+          }}
+        >
 
           {/* Section Tag */}
           <div className="inline-flex items-center gap-2 font-mono text-xs font-black tracking-widest bg-[#0F1115] text-[#FFCC00] px-3 py-1 mb-6">
