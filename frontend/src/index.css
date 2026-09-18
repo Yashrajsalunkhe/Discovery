@@ -1,6 +1,22 @@
+@import url('https://fonts.cdnfonts.com/css/ethnocentric');
+
+@font-face {
+  font-family: 'Ethnocentric';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Ethnocentric Rg'), local('Ethnocentric'), url('https://fonts.cdnfonts.com/s/6220/ethnocentric%20rg.woff') format('woff');
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .font-ethnocentric {
+    font-family: 'Ethnocentric', 'Ethnocentric Rg', 'Unbounded', sans-serif;
+  }
+}
 
 /* ============================================================
    DISCOVERY 2K26 — Mission-Control Design System
