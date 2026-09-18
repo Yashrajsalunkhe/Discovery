@@ -44,9 +44,7 @@ export const BriefingSection = () => {
               It's organized end-to-end by students — the same clubs that run the department's year-round technical work — with faculty mentors backing every track. Outside teams are welcome on every event; there is no home-team advantage built into the judging.
             </p>
             <div className="flex gap-2.5 mt-[34px] flex-wrap">
-              <div className="org-stamp">AISA</div>
-              <div className="org-stamp">NEXUS CLUB</div>
-              <div className="org-stamp">TECHASTRA CLUB</div>
+              <div className="org-stamp">ADCET Team</div>
             </div>
           </div>
 

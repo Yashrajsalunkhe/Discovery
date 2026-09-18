@@ -47,9 +47,7 @@ export const FooterLanding = () => {
             <div className="font-mono text-[11.5px] tracking-[.12em] text-paper-mute mb-[18px]">
               ORGANIZED BY
             </div>
-            <p className="text-paper-dim text-[14.5px] leading-[2.1]">AISA — Technical Cell</p>
-            <p className="text-paper-dim text-[14.5px] leading-[2.1]">Nexus Club, ADCET</p>
-            <p className="text-paper-dim text-[14.5px] leading-[2.1]">TechAstra Club, ADCET</p>
+            <p className="text-paper-dim text-[14.5px] leading-[2.1]">ADCET Team</p>
           </div>
 
           {/* Contact */}
@@ -58,10 +56,10 @@ export const FooterLanding = () => {
               CONTACT
             </div>
             <a
-              href="mailto:discovery@adcet.ac.in"
+              href="mailto:discovery2k26@adcet.in"
               className="block text-paper-dim text-[14.5px] leading-[2.1] transition-colors duration-200 hover:text-brass"
             >
-              discovery@adcet.ac.in
+              discovery2k26@adcet.in
             </a>
             <p className="text-paper-dim text-[14.5px] leading-[2.1]">ADCET, Ashta, Sangli — 416301</p>
             <p className="text-paper-dim text-[14.5px] leading-[2.1]">16.95°N · 74.40°E</p>
