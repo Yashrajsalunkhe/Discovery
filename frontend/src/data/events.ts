@@ -100,29 +100,29 @@ export const eventsByDepartment: Record<string, Event[]> = {
       image: "/event-images/Paper_Glider.png",
       description: "Design and build innovative paper gliders optimized for maximum flight distance and time. Test your aerodynamic knowledge and engineering skills in this exciting hands-on competition where creativity meets physics.",
       specifications: [
-        "Rockets must be constructed exclusively from paper, tape, and adhesive (glue, glue sticks, etc.).",
-        "Prohibited materials include, but are not limited to: cardboard, plastic, metal, wood, foam, or any pre-fabricated components.",
-        "Maximum Length: 30 cm; Maximum Diameter: 5 cm; Maximum Weight: 50 grams.",
-        "The rocket will be weighed by the judges before each launch attempt.",
-        "The rocket must be a single, self-contained unit with no external devices or components for guidance, deployment, or active stabilization."
+        "One A4-size paper sheet will be provided to each participant; no extra paper or materials are allowed.",
+        "The glider must be made only by folding, creasing, rolling, or tearing the provided paper, as permitted by the organizers.",
+        "Glue, tape, staples, pins, clips, rubber bands, scissors, blades, cutters, and other tools or materials are prohibited.",
+        "The glider must be built at the venue and submitted for inspection before launch. No changes are allowed after inspection."
       ],
       rules: [
-        "The competition is open to all enrolled engineering students.",
-        "Teams must consist of a minimum of two (2) and a maximum of three (3) members.",
-        "Each team may only submit one (1) rocket for the competition.",
-        "All rockets must pass a pre-flight inspection by the judges to verify adherence to all material and specification rules before being cleared for launch."
+        "Each participant gets 10-15 minutes to construct one glider and three flight attempts; the best valid attempt counts.",
+        "Only one participant may hand-launch from the designated launch line within the time limit.",
+        "The glider must be released by hand without excessive force or a mechanical launching device.",
+        "The judges' decision is final and binding."
       ],
       gameplay: [
-        "Each team will be given two (2) official launch attempts. The best score from these two attempts will be used for final ranking.",
-        "The final score will be a combination of flight duration (measured in seconds) and horizontal distance (measured in meters)."
+        "Categories may include maximum flight time, maximum distance, best glider design, and accuracy landing.",
+        "Distance is measured from the launch line to the first point where the glider touches the ground.",
+        "Flight time is measured from release until the glider first touches the ground.",
+        "A flight touching a wall, ceiling, person, or other obstruction may be declared invalid."
       ],
       safetyRegulations: [
-        "All participants, judges, and spectators must be at a safe distance from the launch pad as designated by event staff.",
-        "All team members within the designated launch area must wear safety goggles, which will be provided.",
-        "Any team or individual found to be engaging in unsafe behavior will be immediately disqualified."
+        "Participants must follow coordinator instructions, keep the work area clean, and launch only from the designated area.",
+        "The event may be stopped or a flight invalidated if it creates a safety issue."
       ],
       disqualification: [
-        "A team will be disqualified for failure to meet rocket specifications, use of unapproved materials, tampering with the official launch system, or unsportsmanlike conduct."
+        "Using unauthorized paper, materials, tools, or a pre-made glider; receiving outside assistance; interfering with another flight; or disrespecting judges may result in disqualification."
       ],
       coordinators: {
         faculty: {
