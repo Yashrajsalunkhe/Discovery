@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Calendar, MapPin, Trophy } from 'lucide-react';
 
 interface TimeLeft {
   days: number;
@@ -48,21 +49,8 @@ export const HeroLanding: React.FC = () => {
       className="hero-editorial-bg relative min-h-[90vh] lg:min-h-[94vh] pt-[100px] sm:pt-[125px] pb-12 sm:pb-20 flex flex-col items-center justify-center overflow-hidden border-b-2 border-[#0F1115] text-[#0F1115] select-none text-center"
       id="top"
     >
-      {/* Background Grid & Architectural Crosshairs */}
+      {/* Background Grid & Accents */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-24 left-6 font-mono text-[10px] text-[#0F1115]/40 tracking-widest hidden md:block">
-          [ FIG 01. — HERO CENTERPIECE // NATL-FEST-2026 ]
-        </div>
-        <div className="absolute top-24 right-6 font-mono text-[10px] text-[#0F1115]/40 tracking-widest hidden md:block">
-          COORDINATES: 16.9463° N, 74.4092° E
-        </div>
-
-        {/* Editorial Crosshairs */}
-        <div className="absolute top-20 left-6 text-[#0F1115]/25 font-mono text-sm">+</div>
-        <div className="absolute top-20 right-6 text-[#0F1115]/25 font-mono text-sm">+</div>
-        <div className="absolute bottom-6 left-6 text-[#0F1115]/25 font-mono text-sm">+</div>
-        <div className="absolute bottom-6 right-6 text-[#0F1115]/25 font-mono text-sm">+</div>
-
         {/* Dynamic Glow Accents */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#FFCC00]/15 rounded-full filter blur-3xl pointer-events-none" />
       </div>
@@ -153,17 +141,17 @@ export const HeroLanding: React.FC = () => {
         {/* Key Event Metadata Info Badges */}
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 pt-1 font-mono text-xs sm:text-sm font-bold text-[#0F1115]">
           <div className="flex items-center gap-2 bg-[#FFFFFF] px-3.5 py-1.5 border border-[#0F1115] shadow-[3px_3px_0px_#0F1115]">
-            <span>📅</span>
+            <Calendar className="w-4 h-4 text-[#0F1115]" />
             <span>10th Oct 2026</span>
           </div>
 
           <div className="flex items-center gap-2 bg-[#FFFFFF] px-3.5 py-1.5 border border-[#0F1115] shadow-[3px_3px_0px_#0F1115]">
-            <span>📍</span>
+            <MapPin className="w-4 h-4 text-[#0F1115]" />
             <span>ADCET Campus, Ashta</span>
           </div>
 
           <div className="flex items-center gap-2 bg-[#FFCC00] px-3.5 py-1.5 border border-[#0F1115] shadow-[3px_3px_0px_#0F1115]">
-            <span>🏆</span>
+            <Trophy className="w-4 h-4 text-[#0F1115]" />
             <span>28 Events • ₹2.5L+ Cash Prizes</span>
           </div>
         </div>
