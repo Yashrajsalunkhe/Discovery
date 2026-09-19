@@ -46,7 +46,7 @@ export const HeroLanding: React.FC = () => {
 
   return (
     <header
-      className="hero-editorial-bg relative min-h-[90vh] lg:min-h-[94vh] pt-[100px] sm:pt-[125px] pb-12 sm:pb-20 flex flex-col items-center justify-center overflow-hidden border-b-2 border-[#0F1115] text-[#0F1115] select-none text-center"
+      className="hero-editorial-bg relative min-h-[92vh] lg:min-h-[94vh] pt-[92px] sm:pt-[125px] pb-10 sm:pb-20 flex flex-col items-center justify-center overflow-hidden border-b-2 border-[#0F1115] text-[#0F1115] select-none text-center"
       id="top"
     >
       {/* Background Grid & Accents */}
@@ -56,7 +56,7 @@ export const HeroLanding: React.FC = () => {
       </div>
 
       {/* Main Centered Content Container */}
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-8 w-full z-10 flex flex-col items-center justify-center my-auto space-y-7 sm:space-y-9">
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-8 w-full z-10 flex flex-col items-center justify-center my-auto space-y-6 sm:space-y-9">
 
         {/* Eyebrow Tag Header */}
         <div className="inline-flex items-center justify-center gap-3">
@@ -70,7 +70,7 @@ export const HeroLanding: React.FC = () => {
         <div className="space-y-3 w-full flex flex-col items-center">
           <h1
             className="font-ethnocentric uppercase text-[#0F1115] leading-[0.9] tracking-tight text-center drop-shadow-sm transition-all"
-            style={{ fontSize: 'clamp(2.5rem, 7.5vw, 6.5rem)' }}
+            style={{ fontSize: 'clamp(3.1rem, 9.5vw, 8rem)' }}
           >
             DISCOVERY 2026
           </h1>
@@ -82,55 +82,55 @@ export const HeroLanding: React.FC = () => {
         </div>
 
         {/* Tagline Slogan */}
-        <p className="font-display font-extrabold text-2xl sm:text-3xl text-[#0F1115] tracking-tight">
+        <p className="font-display font-extrabold text-xl sm:text-3xl text-[#0F1115] tracking-tight">
           Code it. Create it. Play for it.
         </p>
 
         {/* STREAMLINED CENTERED LIVE COUNTDOWN TIMER */}
-        <div className="w-full max-w-[680px] bg-[#FFFFFF] border-3 border-[#0F1115] p-5 sm:p-7 shadow-[8px_8px_0px_#0F1115] relative">
+        <div className="w-full max-w-[570px] bg-[#FFFFFF] border-3 border-[#0F1115] p-3.5 sm:p-5 shadow-[6px_6px_0px_#0F1115] relative">
           
-          <div className="flex items-center justify-center gap-2 font-mono text-xs font-bold tracking-widest text-[#0F1115]/70 uppercase mb-4">
+          <div className="flex items-center justify-center gap-2 font-mono text-[10px] sm:text-xs font-bold tracking-widest text-[#0F1115]/70 uppercase mb-3 sm:mb-4">
             <span className="w-2 h-2 rounded-full bg-[#0F1115] animate-ping" />
             <span>EVENT STARTS IN (OCT 10, 2026)</span>
           </div>
 
-          <div className="grid grid-cols-4 gap-2.5 sm:gap-5">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
             {/* DAYS */}
-            <div className="bg-[#0F1115] text-[#FFCC00] p-3 sm:p-4 text-center border-2 border-[#0F1115] shadow-[3px_3px_0px_#FFCC00]">
-              <div className="font-display font-black text-2xl sm:text-4xl tracking-tight">
+            <div className="bg-[#0F1115] text-[#FFCC00] p-2 sm:p-3 text-center border-2 border-[#0F1115] shadow-[2px_2px_0px_#FFCC00]">
+              <div className="font-display font-black text-xl sm:text-3xl tracking-tight">
                 {formatNumber(timeLeft.days)}
               </div>
-              <div className="font-mono text-[9px] sm:text-[11px] font-bold tracking-wider uppercase mt-1 text-[#FAFAF8]/80">
+              <div className="font-mono text-[8px] sm:text-[10px] font-bold tracking-wider uppercase mt-1 text-[#FAFAF8]/80">
                 DAYS
               </div>
             </div>
 
             {/* HOURS */}
-            <div className="bg-[#0F1115] text-[#FFCC00] p-3 sm:p-4 text-center border-2 border-[#0F1115] shadow-[3px_3px_0px_#FFCC00]">
-              <div className="font-display font-black text-2xl sm:text-4xl tracking-tight">
+            <div className="bg-[#0F1115] text-[#FFCC00] p-2 sm:p-3 text-center border-2 border-[#0F1115] shadow-[2px_2px_0px_#FFCC00]">
+              <div className="font-display font-black text-xl sm:text-3xl tracking-tight">
                 {formatNumber(timeLeft.hours)}
               </div>
-              <div className="font-mono text-[9px] sm:text-[11px] font-bold tracking-wider uppercase mt-1 text-[#FAFAF8]/80">
+              <div className="font-mono text-[8px] sm:text-[10px] font-bold tracking-wider uppercase mt-1 text-[#FAFAF8]/80">
                 HOURS
               </div>
             </div>
 
             {/* MINUTES */}
-            <div className="bg-[#0F1115] text-[#FFCC00] p-3 sm:p-4 text-center border-2 border-[#0F1115] shadow-[3px_3px_0px_#FFCC00]">
-              <div className="font-display font-black text-2xl sm:text-4xl tracking-tight">
+            <div className="bg-[#0F1115] text-[#FFCC00] p-2 sm:p-3 text-center border-2 border-[#0F1115] shadow-[2px_2px_0px_#FFCC00]">
+              <div className="font-display font-black text-xl sm:text-3xl tracking-tight">
                 {formatNumber(timeLeft.minutes)}
               </div>
-              <div className="font-mono text-[9px] sm:text-[11px] font-bold tracking-wider uppercase mt-1 text-[#FAFAF8]/80">
+              <div className="font-mono text-[8px] sm:text-[10px] font-bold tracking-wider uppercase mt-1 text-[#FAFAF8]/80">
                 MINUTES
               </div>
             </div>
 
             {/* SECONDS */}
-            <div className="bg-[#FFCC00] text-[#0F1115] p-3 sm:p-4 text-center border-2 border-[#0F1115] shadow-[3px_3px_0px_#0F1115]">
-              <div className="font-display font-black text-2xl sm:text-4xl tracking-tight animate-pulse">
+            <div className="bg-[#FFCC00] text-[#0F1115] p-2 sm:p-3 text-center border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115]">
+              <div className="font-display font-black text-xl sm:text-3xl tracking-tight animate-pulse">
                 {formatNumber(timeLeft.seconds)}
               </div>
-              <div className="font-mono text-[9px] sm:text-[11px] font-black tracking-wider uppercase mt-1 text-[#0F1115]/90">
+              <div className="font-mono text-[8px] sm:text-[10px] font-black tracking-wider uppercase mt-1 text-[#0F1115]/90">
                 SECONDS
               </div>
             </div>
