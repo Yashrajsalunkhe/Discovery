@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  DownloadIcon, 
-  SearchIcon, 
-  RefreshCwIcon, 
+import {
+  DownloadIcon,
+  SearchIcon,
+  RefreshCwIcon,
   LogOutIcon,
   UsersIcon,
   TrendingUpIcon,
@@ -54,6 +54,14 @@ interface PaginationInfo {
   limit: number;
 }
 
+interface AvailableFilters {
+  availableEvents: string[];
+  availableColleges: string[];
+  availableDepartments: string[];
+  availableYears: string[];
+  availableCities: string[];
+}
+
 interface AdminStats {
   overview: {
     totalRegistrations: number;
@@ -87,16 +95,29 @@ const AdminPanel: React.FC = () => {
     totalCount: 0,
     limit: 50
   });
-  const [availableEvents, setAvailableEvents] = useState<string[]>([]);
+  const [availableFilters, setAvailableFilters] = useState<AvailableFilters>({
+    availableEvents: [],
+    availableColleges: [],
+    availableDepartments: [],
+    availableYears: [],
+    availableCities: [],
+  });
   const [stats, setStats] = useState<AdminStats | null>(null);
-  
+
   // Filters and search
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [eventFilter, setEventFilter] = useState<string>('all');
+  const [collegeFilter, setCollegeFilter] = useState<string>('all');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
+  const [yearFilter, setYearFilter] = useState<string>('all');
+  const [cityFilter, setCityFilter] = useState<string>('all');
+  const [participationFilter, setParticipationFilter] = useState<string>('all');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  
+
   const { toast } = useToast();
 
   // Use environment variable for API base URL — hostname-only check for reliability
@@ -104,17 +125,48 @@ const AdminPanel: React.FC = () => {
     if (import.meta.env.VITE_API_BASE_URL) {
       return import.meta.env.VITE_API_BASE_URL;
     }
-    
+
     // Only use localhost for actual local development
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return 'http://localhost:3000/api';
     }
-    
+
     // Production — use relative path routed to backend by Vercel
     return '/api';
   };
 
   const API_BASE = getApiBaseUrl();
+
+  const appendFilterParams = (params: URLSearchParams) => {
+    const filters = {
+      eventFilter,
+      collegeFilter,
+      departmentFilter,
+      yearFilter,
+      cityFilter,
+      participationFilter,
+      startDate,
+      endDate,
+      search: searchTerm,
+    };
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== 'all') params.append(key, value);
+    });
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setEventFilter('all');
+    setCollegeFilter('all');
+    setDepartmentFilter('all');
+    setYearFilter('all');
+    setCityFilter('all');
+    setParticipationFilter('all');
+    setStartDate('');
+    setEndDate('');
+    setCurrentPage(1);
+  };
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -145,7 +197,7 @@ const AdminPanel: React.FC = () => {
     }
 
     setLoading(true);
-    
+
     try {
       const response = await fetch(`${API_BASE}/admin/login`, {
         method: 'POST',
@@ -155,7 +207,7 @@ const AdminPanel: React.FC = () => {
         body: JSON.stringify({ password }),
         credentials: 'same-origin',
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -179,17 +231,17 @@ const AdminPanel: React.FC = () => {
       }
     } catch (error) {
       let errorMessage = 'Network error';
-      
+
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       if (errorMessage.includes('Failed to fetch')) {
         errorMessage = 'Cannot connect to server. Please check if the backend is running and accessible.';
       } else if (errorMessage.includes('NetworkError')) {
         errorMessage = 'Network connection failed. Please check your internet connection.';
       }
-      
+
       toast({
         title: "Authentication Failed",
         description: errorMessage,
@@ -227,13 +279,7 @@ const AdminPanel: React.FC = () => {
         limit: '50'
       });
 
-      if (eventFilter && eventFilter !== 'all') {
-        params.append('eventFilter', eventFilter);
-      }
-
-      if (searchTerm.trim()) {
-        params.append('search', searchTerm.trim());
-      }
+      appendFilterParams(params);
 
       const url = `${API_BASE}/admin/registrations?${params}`;
 
@@ -254,7 +300,14 @@ const AdminPanel: React.FC = () => {
       if (data.success) {
         setRegistrations(data.data.registrations);
         setPagination(data.data.pagination);
-        setAvailableEvents(data.data.filters.availableEvents);
+        const filters = data.data.filters || {};
+        setAvailableFilters({
+          availableEvents: filters.availableEvents || [],
+          availableColleges: filters.availableColleges || [],
+          availableDepartments: filters.availableDepartments || [],
+          availableYears: filters.availableYears || [],
+          availableCities: filters.availableCities || [],
+        });
       } else {
         toast({
           title: "Error",
@@ -267,11 +320,11 @@ const AdminPanel: React.FC = () => {
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       if (errorMessage.includes('Failed to fetch')) {
         errorMessage = 'Cannot connect to server. Please check your connection.';
       }
-      
+
       toast({
         title: "Error",
         description: `Failed to fetch registrations: ${errorMessage}`,
@@ -288,7 +341,7 @@ const AdminPanel: React.FC = () => {
 
     try {
       const url = `${API_BASE}/admin/stats`;
-      
+
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -300,7 +353,7 @@ const AdminPanel: React.FC = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
 
       if (data.success) {
@@ -318,10 +371,8 @@ const AdminPanel: React.FC = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      
-      if (eventFilter && eventFilter !== 'all') {
-        params.append('eventFilter', eventFilter);
-      }
+
+      appendFilterParams(params);
 
       const url = `${API_BASE}/admin/export?${params}`;
 
@@ -364,7 +415,7 @@ const AdminPanel: React.FC = () => {
     if (isAuthenticated && token) {
       fetchRegistrations();
     }
-  }, [eventFilter, sortBy, sortOrder, currentPage, searchTerm, isAuthenticated, token]);
+  }, [eventFilter, collegeFilter, departmentFilter, yearFilter, cityFilter, participationFilter, startDate, endDate, sortBy, sortOrder, currentPage, searchTerm, isAuthenticated, token]);
 
   // ═══════════════════════════════════════════════════════════
   //  LOGIN SCREEN — Mission-Control Brutalist
@@ -507,35 +558,35 @@ const AdminPanel: React.FC = () => {
 
   const statCards = stats
     ? [
-        {
-          label: 'TOTAL REGISTRATIONS',
-          value: stats.overview.totalRegistrations,
-          sub: 'All participants',
-          icon: <UsersIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
-          accent: '#3D6BFF',
-        },
-        {
-          label: 'SOLO',
-          value: stats.overview.soloRegistrations,
-          sub: 'Individual participants',
-          icon: <TrendingUpIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
-          accent: '#22C55E',
-        },
-        {
-          label: 'TEAMS',
-          value: stats.overview.teamRegistrations,
-          sub: 'Team participants',
-          icon: <UsersIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
-          accent: '#A855F7',
-        },
-        {
-          label: 'REVENUE',
-          value: `₹${stats.overview.totalRevenue.toLocaleString()}`,
-          sub: 'Registration fees',
-          icon: <IndianRupeeIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
-          accent: '#FFCC00',
-        },
-      ]
+      {
+        label: 'TOTAL REGISTRATIONS',
+        value: stats.overview.totalRegistrations,
+        sub: 'All participants',
+        icon: <UsersIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+        accent: '#3D6BFF',
+      },
+      {
+        label: 'SOLO',
+        value: stats.overview.soloRegistrations,
+        sub: 'Individual participants',
+        icon: <TrendingUpIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+        accent: '#22C55E',
+      },
+      {
+        label: 'TEAMS',
+        value: stats.overview.teamRegistrations,
+        sub: 'Team participants',
+        icon: <UsersIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+        accent: '#A855F7',
+      },
+      {
+        label: 'REVENUE',
+        value: `₹${stats.overview.totalRevenue.toLocaleString()}`,
+        sub: 'Registration fees',
+        icon: <IndianRupeeIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+        accent: '#FFCC00',
+      },
+    ]
     : [];
 
   return (
@@ -670,7 +721,7 @@ const AdminPanel: React.FC = () => {
                 </div>
 
                 {/* Event filter */}
-                <Select value={eventFilter} onValueChange={setEventFilter}>
+                <Select value={eventFilter} onValueChange={(value) => { setEventFilter(value); setCurrentPage(1); }}>
                   <SelectTrigger
                     className="w-full sm:w-48 h-[42px] rounded-none text-xs font-bold uppercase tracking-wider"
                     style={{
@@ -684,7 +735,7 @@ const AdminPanel: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Events</SelectItem>
-                    {availableEvents.map((event) => (
+                    {availableFilters.availableEvents.map((event) => (
                       <SelectItem key={event} value={event}>{event}</SelectItem>
                     ))}
                   </SelectContent>
@@ -779,6 +830,73 @@ const AdminPanel: React.FC = () => {
                 </button>
               </div>
             </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <Select value={collegeFilter} onValueChange={(value) => { setCollegeFilter(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="h-[42px] rounded-none text-xs font-bold uppercase tracking-wider" style={{ background: '#FAFAF8', border: '2px solid #0F1115', color: '#0F1115', ...monoFont }}>
+                    <SelectValue placeholder="College" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Colleges</SelectItem>
+                    {availableFilters.availableColleges.map((college) => <SelectItem key={college} value={college}>{college}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+
+                <Select value={departmentFilter} onValueChange={(value) => { setDepartmentFilter(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="h-[42px] rounded-none text-xs font-bold uppercase tracking-wider" style={{ background: '#FAFAF8', border: '2px solid #0F1115', color: '#0F1115', ...monoFont }}>
+                    <SelectValue placeholder="Department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Departments</SelectItem>
+                    {availableFilters.availableDepartments.map((department) => <SelectItem key={department} value={department}>{department}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+
+                <Select value={yearFilter} onValueChange={(value) => { setYearFilter(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="h-[42px] rounded-none text-xs font-bold uppercase tracking-wider" style={{ background: '#FAFAF8', border: '2px solid #0F1115', color: '#0F1115', ...monoFont }}>
+                    <SelectValue placeholder="Study year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Study Years</SelectItem>
+                    {availableFilters.availableYears.map((year) => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+
+                <Select value={cityFilter} onValueChange={(value) => { setCityFilter(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="h-[42px] rounded-none text-xs font-bold uppercase tracking-wider" style={{ background: '#FAFAF8', border: '2px solid #0F1115', color: '#0F1115', ...monoFont }}>
+                    <SelectValue placeholder="City" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Cities</SelectItem>
+                    {availableFilters.availableCities.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+
+                <Select value={participationFilter} onValueChange={(value) => { setParticipationFilter(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="h-[42px] rounded-none text-xs font-bold uppercase tracking-wider" style={{ background: '#FAFAF8', border: '2px solid #0F1115', color: '#0F1115', ...monoFont }}>
+                    <SelectValue placeholder="Participation" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Participation</SelectItem>
+                    <SelectItem value="solo">Solo</SelectItem>
+                    <SelectItem value="team">Team</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <label className="flex items-center gap-2 h-[42px] px-3 text-xs font-bold uppercase tracking-wider" style={{ background: '#FAFAF8', border: '2px solid #0F1115', color: '#5E6672', ...monoFont }}>
+                  <span className="whitespace-nowrap">From</span>
+                  <input type="date" value={startDate} max={endDate || undefined} onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }} className="min-w-0 flex-1 bg-transparent text-[#0F1115] outline-none" />
+                </label>
+
+                <label className="flex items-center gap-2 h-[42px] px-3 text-xs font-bold uppercase tracking-wider" style={{ background: '#FAFAF8', border: '2px solid #0F1115', color: '#5E6672', ...monoFont }}>
+                  <span className="whitespace-nowrap">To</span>
+                  <input type="date" value={endDate} min={startDate || undefined} onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }} className="min-w-0 flex-1 bg-transparent text-[#0F1115] outline-none" />
+                </label>
+
+                <button onClick={clearFilters} className="h-[42px] px-4 text-xs font-bold uppercase tracking-wider" style={{ background: '#F5F4F0', color: '#0F1115', border: '2px solid #0F1115', ...monoFont }}>
+                  Clear Filters
+                </button>
+              </div>
           </div>
 
           {/* ── Registrations Table ── */}

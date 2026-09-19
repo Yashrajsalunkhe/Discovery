@@ -13,6 +13,13 @@ export interface AdminDataRequest extends Request {
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     eventFilter?: string;
+    collegeFilter?: string;
+    departmentFilter?: string;
+    yearFilter?: string;
+    cityFilter?: string;
+    participationFilter?: 'solo' | 'team';
+    startDate?: string;
+    endDate?: string;
     search?: string;
     page?: string;
     limit?: string;
@@ -22,33 +29,96 @@ export interface AdminDataRequest extends Request {
 export interface AdminExportRequest extends Request {
   query: {
     eventFilter?: string;
+    collegeFilter?: string;
+    departmentFilter?: string;
+    yearFilter?: string;
+    cityFilter?: string;
+    participationFilter?: 'solo' | 'team';
     startDate?: string;
     endDate?: string;
+    search?: string;
   };
 }
+
+const addExactFilter = (query: Record<string, any>, field: string, value?: string) => {
+  if (value && value !== 'all') {
+    query[field] = value;
+  }
+};
+
+const buildRegistrationQuery = (filters: {
+  eventFilter?: string;
+  collegeFilter?: string;
+  departmentFilter?: string;
+  yearFilter?: string;
+  cityFilter?: string;
+  participationFilter?: string;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+}) => {
+  const query: Record<string, any> = {};
+
+  addExactFilter(query, 'selectedEvent', filters.eventFilter);
+  addExactFilter(query, 'leaderCollege', filters.collegeFilter);
+  addExactFilter(query, 'leaderDepartment', filters.departmentFilter);
+  addExactFilter(query, 'leaderYear', filters.yearFilter);
+  addExactFilter(query, 'leaderCity', filters.cityFilter);
+  addExactFilter(query, 'participationType', filters.participationFilter);
+
+  if (filters.startDate || filters.endDate) {
+    query.createdAt = {};
+    if (filters.startDate) query.createdAt.$gte = new Date(filters.startDate);
+    if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      endDate.setDate(endDate.getDate() + 1);
+      query.createdAt.$lt = endDate;
+    }
+  }
+
+  if (filters.search?.trim()) {
+    const search = filters.search.trim();
+    const searchConditions: Record<string, any>[] = [
+      { leaderName: { $regex: search, $options: 'i' } },
+      { leaderEmail: { $regex: search, $options: 'i' } },
+      { leaderMobile: { $regex: search, $options: 'i' } },
+      { leaderCollege: { $regex: search, $options: 'i' } },
+      { leaderDepartment: { $regex: search, $options: 'i' } },
+      { leaderCity: { $regex: search, $options: 'i' } },
+      { selectedEvent: { $regex: search, $options: 'i' } }
+    ];
+    const numericSearch = Number(search);
+    if (Number.isInteger(numericSearch) && String(numericSearch) === search) {
+      searchConditions.push({ registrationId: numericSearch });
+    }
+    query.$or = searchConditions;
+  }
+
+  return query;
+};
 
 // Admin authentication middleware
 export const authenticateAdmin = (req: Request, res: Response, next: any) => {
   console.log('Admin authentication middleware called');
   console.log('Request headers:', req.headers);
-  
+
   const authHeader = req.headers.authorization;
   console.log('Auth header:', authHeader);
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     console.log('No valid auth header provided');
     return res.status(401).json({ success: false, error: 'No admin token provided' });
   }
-  
+
   const token = authHeader.substring(7); // Remove 'Bearer ' prefix
   console.log('Token received:', token ? 'Token present' : 'No token');
   console.log('Expected admin password exists:', !!process.env.ADMIN_PASSWORD);
-  
+
   if (token !== process.env.ADMIN_PASSWORD) {
     console.log('Invalid admin credentials');
     return res.status(401).json({ success: false, error: 'Invalid admin credentials' });
   }
-  
+
   console.log('Admin authentication successful');
   next();
 };
@@ -59,23 +129,23 @@ export const adminLogin = async (req: AdminAuthRequest, res: Response) => {
     console.log('Admin login attempt');
     console.log('Request body:', req.body);
     console.log('Environment ADMIN_PASSWORD exists:', !!process.env.ADMIN_PASSWORD);
-    
+
     const { password } = req.body;
-    
+
     if (!password) {
       console.log('No password provided');
       return res.status(400).json({ success: false, error: 'Password is required' });
     }
-    
+
     if (password !== process.env.ADMIN_PASSWORD) {
       console.log('Invalid password provided');
       return res.status(401).json({ success: false, error: 'Invalid admin password' });
     }
-    
+
     console.log('Admin login successful');
     // Return the password as token for simplicity (in production, use JWT)
-    return res.json({ 
-      success: true, 
+    return res.json({
+      success: true,
       message: 'Admin authenticated successfully',
       token: password // Simple token approach
     });
@@ -89,55 +159,63 @@ export const adminLogin = async (req: AdminAuthRequest, res: Response) => {
 export const getAllRegistrations = async (req: AdminDataRequest, res: Response) => {
   try {
     await connectToMongoDB();
-    
+
     const {
       sortBy = 'createdAt',
       sortOrder = 'desc',
       eventFilter,
+      collegeFilter,
+      departmentFilter,
+      yearFilter,
+      cityFilter,
+      participationFilter,
+      startDate,
+      endDate,
       search,
       page = '1',
       limit = '50'
     } = req.query;
-    
-    // Build query
-    let query: any = {};
-    
-    if (eventFilter && eventFilter !== 'all') {
-      query.selectedEvent = eventFilter;
-    }
-    
-    if (search) {
-      query.$or = [
-        { leaderName: { $regex: search, $options: 'i' } },
-        { leaderEmail: { $regex: search, $options: 'i' } },
-        { leaderMobile: { $regex: search, $options: 'i' } },
-        { leaderCollege: { $regex: search, $options: 'i' } },
-        { selectedEvent: { $regex: search, $options: 'i' } }
-      ];
-    }
-    
+
+    const query = buildRegistrationQuery({
+      eventFilter,
+      collegeFilter,
+      departmentFilter,
+      yearFilter,
+      cityFilter,
+      participationFilter,
+      startDate,
+      endDate,
+      search
+    });
+
     // Sorting
     const sortOptions: any = {};
     sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
-    
+
     // Pagination
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
-    
+
     // Get total count for pagination
     const totalCount = await Registration.countDocuments(query);
-    
+
     // Get registrations
     const registrations = await Registration.find(query)
       .sort(sortOptions)
       .skip(skip)
       .limit(limitNum)
       .lean();
-    
+
     // Get unique events for filter dropdown
-    const uniqueEvents = await Registration.distinct('selectedEvent');
-    
+    const [uniqueEvents, uniqueColleges, uniqueDepartments, uniqueYears, uniqueCities] = await Promise.all([
+      Registration.distinct('selectedEvent'),
+      Registration.distinct('leaderCollege'),
+      Registration.distinct('leaderDepartment'),
+      Registration.distinct('leaderYear'),
+      Registration.distinct('leaderCity')
+    ]);
+
     return res.json({
       success: true,
       data: {
@@ -149,7 +227,11 @@ export const getAllRegistrations = async (req: AdminDataRequest, res: Response) 
           limit: limitNum
         },
         filters: {
-          availableEvents: uniqueEvents
+          availableEvents: uniqueEvents,
+          availableColleges: uniqueColleges,
+          availableDepartments: uniqueDepartments,
+          availableYears: uniqueYears,
+          availableCities: uniqueCities
         }
       }
     });
@@ -163,35 +245,40 @@ export const getAllRegistrations = async (req: AdminDataRequest, res: Response) 
 export const exportRegistrationsExcel = async (req: AdminExportRequest, res: Response) => {
   try {
     await connectToMongoDB();
-    
-    const { eventFilter, startDate, endDate } = req.query;
-    
-    // Build query for export
-    let query: any = {};
-    
-    if (eventFilter && eventFilter !== 'all') {
-      query.selectedEvent = eventFilter;
-    }
-    
-    if (startDate || endDate) {
-      query.createdAt = {};
-      if (startDate) {
-        query.createdAt.$gte = new Date(startDate);
-      }
-      if (endDate) {
-        query.createdAt.$lte = new Date(endDate);
-      }
-    }
-    
+
+    const {
+      eventFilter,
+      collegeFilter,
+      departmentFilter,
+      yearFilter,
+      cityFilter,
+      participationFilter,
+      startDate,
+      endDate,
+      search
+    } = req.query;
+
+    const query = buildRegistrationQuery({
+      eventFilter,
+      collegeFilter,
+      departmentFilter,
+      yearFilter,
+      cityFilter,
+      participationFilter,
+      startDate,
+      endDate,
+      search
+    });
+
     // Fetch all matching registrations
     const registrations = await Registration.find(query)
       .sort({ createdAt: -1 })
       .lean();
-    
+
     if (registrations.length === 0) {
       return res.status(404).json({ success: false, error: 'No registrations found for the given criteria' });
     }
-    
+
     // Prepare data for Excel
     const excelData = registrations.map((reg, index) => {
       const baseData: any = {
@@ -213,7 +300,7 @@ export const exportRegistrationsExcel = async (req: AdminExportRequest, res: Res
         'Payment ID': reg.paymentId,
         'Order ID': reg.orderId
       };
-      
+
       // Add team members data if it's a team registration
       if (reg.teamMembers && reg.teamMembers.length > 0) {
         reg.teamMembers.forEach((member, memberIndex) => {
@@ -223,37 +310,37 @@ export const exportRegistrationsExcel = async (req: AdminExportRequest, res: Res
           baseData[`Team Member ${memberIndex + 1} College`] = member.college;
         });
       }
-      
+
       return baseData;
     });
-    
+
     // Create workbook and worksheet
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(excelData);
-    
+
     // Auto-size columns
     const columnWidths = Object.keys(excelData[0] || {}).map(key => ({
       wch: Math.max(key.length, 15)
     }));
     worksheet['!cols'] = columnWidths;
-    
+
     // Add worksheet to workbook
-    const sheetName = eventFilter && eventFilter !== 'all' 
+    const sheetName = eventFilter && eventFilter !== 'all'
       ? `${eventFilter.replace(/[^\w\s]/gi, '')}_Registrations`
       : 'All_Registrations';
-    
+
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    
+
     // Generate Excel file buffer
     const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-    
+
     // Set response headers for file download
     const fileName = `Discovery_ADCET_Registrations_${eventFilter || 'All'}_${new Date().toISOString().split('T')[0]}.xlsx`;
-    
+
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
     res.setHeader('Content-Length', excelBuffer.length);
-    
+
     return res.send(excelBuffer);
   } catch (error) {
     console.error('Export Excel error:', error);
@@ -265,11 +352,11 @@ export const exportRegistrationsExcel = async (req: AdminExportRequest, res: Res
 export const getRegistrationStats = async (req: Request, res: Response) => {
   try {
     await connectToMongoDB();
-    
+
     const totalRegistrations = await Registration.countDocuments();
     const soloRegistrations = await Registration.countDocuments({ participationType: 'solo' });
     const teamRegistrations = await Registration.countDocuments({ participationType: 'team' });
-    
+
     // Get event-wise counts
     const eventStats = await Registration.aggregate([
       {
@@ -283,14 +370,14 @@ export const getRegistrationStats = async (req: Request, res: Response) => {
         $sort: { count: -1 }
       }
     ]);
-    
+
     // Get recent registrations
     const recentRegistrations = await Registration.find()
       .sort({ createdAt: -1 })
       .limit(5)
       .select('leaderName selectedEvent createdAt totalFee')
       .lean();
-    
+
     return res.json({
       success: true,
       data: {
