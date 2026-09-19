@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   DownloadIcon, 
@@ -16,10 +10,14 @@ import {
   TrendingUpIcon,
   IndianRupeeIcon,
   CalendarIcon,
-  EyeIcon
+  EyeIcon,
+  ShieldIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import * as fileSaver from 'file-saver';
+import { Navbar, FooterLanding } from "@/components/landing";
 
 interface TeamMember {
   name: string;
@@ -101,28 +99,22 @@ const AdminPanel: React.FC = () => {
   
   const { toast } = useToast();
 
-  // Use environment variable for API base URL with better fallback logic
+  // Use environment variable for API base URL — hostname-only check for reliability
   const getApiBaseUrl = () => {
-    // First check for explicit environment variable
     if (import.meta.env.VITE_API_BASE_URL) {
       return import.meta.env.VITE_API_BASE_URL;
     }
     
-    // Development mode detection
-    if (import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    // Only use localhost for actual local development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return 'http://localhost:3000/api';
     }
     
-    // Production mode - use relative path which will be routed to backend by Vercel
+    // Production — use relative path routed to backend by Vercel
     return '/api';
   };
 
   const API_BASE = getApiBaseUrl();
-
-  console.log('Environment mode:', import.meta.env.MODE);
-  console.log('Environment dev:', import.meta.env.DEV);
-  console.log('Current hostname:', window.location.hostname);
-  console.log('Using API_BASE:', API_BASE);
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -153,8 +145,6 @@ const AdminPanel: React.FC = () => {
     }
 
     setLoading(true);
-    console.log('Attempting login with API_BASE:', API_BASE);
-    console.log('Full URL:', `${API_BASE}/admin/login`);
     
     try {
       const response = await fetch(`${API_BASE}/admin/login`, {
@@ -163,19 +153,14 @@ const AdminPanel: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ password }),
-        // Add credentials for CORS
         credentials: 'same-origin',
       });
-
-      console.log('Login response status:', response.status);
-      console.log('Login response ok:', response.ok);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Login response data:', data);
 
       if (data.success) {
         setToken(data.token);
@@ -185,10 +170,7 @@ const AdminPanel: React.FC = () => {
           title: "Success",
           description: "Logged in successfully!",
         });
-        console.log('Login successful, fetching data...');
-        // Data will be fetched automatically by useEffect when token is set
       } else {
-        console.error('Login failed:', data.error);
         toast({
           title: "Error",
           description: data.error || "Invalid password",
@@ -196,14 +178,12 @@ const AdminPanel: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Login error:', error);
       let errorMessage = 'Network error';
       
       if (error instanceof Error) {
         errorMessage = error.message;
       }
       
-      // Provide more specific error messages
       if (errorMessage.includes('Failed to fetch')) {
         errorMessage = 'Cannot connect to server. Please check if the backend is running and accessible.';
       } else if (errorMessage.includes('NetworkError')) {
@@ -256,8 +236,6 @@ const AdminPanel: React.FC = () => {
       }
 
       const url = `${API_BASE}/admin/registrations?${params}`;
-      console.log('Fetching registrations from:', url);
-      console.log('Using token:', token ? 'Token present' : 'No token');
 
       const response = await fetch(url, {
         headers: {
@@ -267,23 +245,17 @@ const AdminPanel: React.FC = () => {
         credentials: 'same-origin',
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Response data:', data);
 
       if (data.success) {
         setRegistrations(data.data.registrations);
         setPagination(data.data.pagination);
         setAvailableEvents(data.data.filters.availableEvents);
-        console.log('Successfully loaded:', data.data.registrations.length, 'registrations');
       } else {
-        console.error('API Error:', data.error);
         toast({
           title: "Error",
           description: data.error || "Failed to fetch registrations",
@@ -291,8 +263,6 @@ const AdminPanel: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Fetch error:', error);
-      
       let errorMessage = 'Unknown error';
       if (error instanceof Error) {
         errorMessage = error.message;
@@ -318,7 +288,6 @@ const AdminPanel: React.FC = () => {
 
     try {
       const url = `${API_BASE}/admin/stats`;
-      console.log('Fetching stats from:', url);
       
       const response = await fetch(url, {
         headers: {
@@ -328,25 +297,17 @@ const AdminPanel: React.FC = () => {
         credentials: 'same-origin',
       });
 
-      console.log('Stats response status:', response.status);
-      console.log('Stats response ok:', response.ok);
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log('Stats data:', data);
 
       if (data.success) {
         setStats(data.data);
-        console.log('Successfully loaded stats');
-      } else {
-        console.error('Stats API Error:', data.error);
       }
     } catch (error) {
       console.error('Failed to fetch stats:', error);
-      // Don't show toast error for stats as it's not critical
     }
   };
 
@@ -363,7 +324,6 @@ const AdminPanel: React.FC = () => {
       }
 
       const url = `${API_BASE}/admin/export?${params}`;
-      console.log('Exporting data from:', url);
 
       const response = await fetch(url, {
         headers: {
@@ -389,7 +349,6 @@ const AdminPanel: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Export error:', error);
       toast({
         title: "Error",
         description: "Failed to export data",
@@ -407,184 +366,320 @@ const AdminPanel: React.FC = () => {
     }
   }, [eventFilter, sortBy, sortOrder, currentPage, searchTerm, isAuthenticated, token]);
 
-  // Login form
+  // ═══════════════════════════════════════════════════════════
+  //  LOGIN SCREEN — Mission-Control Brutalist
+  // ═══════════════════════════════════════════════════════════
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Background with theme colors */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-muted/20"></div>
-        
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse delay-500"></div>
-        </div>
+      <div className="min-h-screen flex flex-col" style={{ background: '#FAFAF8' }}>
+        <Navbar />
 
-        <Card className="w-full max-w-md relative z-10 glass-card border-border/50 bg-card/90 backdrop-blur-xl">
-          <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
-              <UsersIcon className="h-8 w-8 text-white" />
-            </div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              Admin Panel
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Enter admin password to access the Discovery ADCET dashboard
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Input
-                type="password"
-                placeholder="Admin Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                className="h-12 bg-background/50 border-border/50 focus:border-primary/50"
-              />
-            </div>
-            <Button 
-              onClick={handleLogin} 
-              className="w-full h-12 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold"
-              disabled={loading}
+        <main className="flex-1 flex items-center justify-center px-4 py-24">
+          <div
+            className="w-full max-w-md"
+            style={{
+              background: '#FFFFFF',
+              border: '2px solid #0F1115',
+              boxShadow: '6px 6px 0px #0F1115',
+            }}
+          >
+            {/* Header band */}
+            <div
+              className="px-6 py-5 flex items-center gap-4"
+              style={{ borderBottom: '2px solid #0F1115' }}
             >
-              {loading ? (
-                <div className="flex items-center space-x-2">
-                  <RefreshCwIcon className="h-4 w-4 animate-spin" />
-                  <span>Authenticating...</span>
-                </div>
-              ) : (
-                'Access Dashboard'
-              )}
-            </Button>
-          </CardContent>
-        </Card>
+              <div
+                className="w-12 h-12 flex items-center justify-center shrink-0"
+                style={{
+                  background: '#FFCC00',
+                  border: '2px solid #0F1115',
+                  boxShadow: '2px 2px 0px #0F1115',
+                }}
+              >
+                <ShieldIcon className="w-6 h-6" style={{ color: '#0F1115' }} />
+              </div>
+              <div>
+                <h1
+                  className="text-xl font-black tracking-tight"
+                  style={{ color: '#0F1115', fontFamily: "var(--f-display, 'Unbounded', sans-serif)" }}
+                >
+                  ADMIN PANEL
+                </h1>
+                <p
+                  className="text-xs font-bold tracking-wider mt-0.5"
+                  style={{ color: '#5E6672', fontFamily: "var(--f-mono, 'IBM Plex Mono', monospace)" }}
+                >
+                  DISCOVERY ADCET • DASHBOARD ACCESS
+                </p>
+              </div>
+            </div>
+
+            {/* Form body */}
+            <div className="px-6 py-8 space-y-6">
+              <div className="space-y-2">
+                <label
+                  className="text-xs font-bold tracking-wider"
+                  style={{ color: '#0F1115', fontFamily: "var(--f-mono, monospace)" }}
+                >
+                  ADMIN PASSWORD
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter password…"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                  className="w-full px-4 py-3 text-sm outline-none placeholder:text-[#97A0AC]"
+                  style={{
+                    background: '#FAFAF8',
+                    border: '2px solid #0F1115',
+                    color: '#0F1115',
+                    fontFamily: "var(--f-mono, monospace)",
+                  }}
+                />
+              </div>
+
+              <button
+                onClick={handleLogin}
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-bold uppercase tracking-wider transition-all"
+                style={{
+                  background: '#FFCC00',
+                  color: '#0F1115',
+                  border: '2px solid #0F1115',
+                  boxShadow: '3px 3px 0px #0F1115',
+                  fontFamily: "var(--f-mono, monospace)",
+                  transform: loading ? 'translate(1px, 1px)' : undefined,
+                  cursor: loading ? 'wait' : 'pointer',
+                }}
+                onMouseDown={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.transform = 'translate(2px, 2px)';
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '1px 1px 0px #0F1115';
+                }}
+                onMouseUp={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.transform = '';
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '3px 3px 0px #0F1115';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.transform = '';
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '3px 3px 0px #0F1115';
+                }}
+              >
+                {loading ? (
+                  <>
+                    <RefreshCwIcon className="h-4 w-4 animate-spin" />
+                    <span>AUTHENTICATING…</span>
+                  </>
+                ) : (
+                  <>
+                    <span>ACCESS DASHBOARD</span>
+                    <span className="text-base font-black">↗</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </main>
+
+        <FooterLanding compact />
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen relative overflow-hidden bg-background">
-      {/* Background with theme colors */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-muted/10"></div>
-        
-        {/* Animated background elements */}
-        <div className="absolute top-10 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-10 right-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
+  // ═══════════════════════════════════════════════════════════
+  //  DASHBOARD — Mission-Control Brutalist
+  // ═══════════════════════════════════════════════════════════
 
-      <div className="max-w-7xl mx-auto space-y-8 p-6 relative z-10">
-        {/* Header */}
-        <Card className="glass-card border-border/30 bg-card/90 backdrop-blur-xl">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
-                  <UsersIcon className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                    Discovery ADCET
-                  </CardTitle>
-                  <CardDescription className="text-muted-foreground text-lg">
-                    Admin Dashboard - Manage registrations and export data
-                  </CardDescription>
-                </div>
+  // Shared brutalist card style
+  const brutCard: React.CSSProperties = {
+    background: '#FFFFFF',
+    border: '2px solid #0F1115',
+    boxShadow: '4px 4px 0px #0F1115',
+  };
+
+  const monoFont: React.CSSProperties = {
+    fontFamily: "var(--f-mono, 'IBM Plex Mono', monospace)",
+  };
+
+  const displayFont: React.CSSProperties = {
+    fontFamily: "var(--f-display, 'Unbounded', sans-serif)",
+  };
+
+  const statCards = stats
+    ? [
+        {
+          label: 'TOTAL REGISTRATIONS',
+          value: stats.overview.totalRegistrations,
+          sub: 'All participants',
+          icon: <UsersIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+          accent: '#3D6BFF',
+        },
+        {
+          label: 'SOLO',
+          value: stats.overview.soloRegistrations,
+          sub: 'Individual participants',
+          icon: <TrendingUpIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+          accent: '#22C55E',
+        },
+        {
+          label: 'TEAMS',
+          value: stats.overview.teamRegistrations,
+          sub: 'Team participants',
+          icon: <UsersIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+          accent: '#A855F7',
+        },
+        {
+          label: 'REVENUE',
+          value: `₹${stats.overview.totalRevenue.toLocaleString()}`,
+          sub: 'Registration fees',
+          icon: <IndianRupeeIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+          accent: '#FFCC00',
+        },
+      ]
+    : [];
+
+  return (
+    <div className="min-h-screen flex flex-col" style={{ background: '#FAFAF8' }}>
+      <Navbar />
+
+      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6">
+        <div className="max-w-[1280px] mx-auto space-y-6">
+
+          {/* ── Header Bar ── */}
+          <div
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-5 py-4"
+            style={brutCard}
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className="w-11 h-11 flex items-center justify-center shrink-0"
+                style={{
+                  background: '#FFCC00',
+                  border: '2px solid #0F1115',
+                  boxShadow: '2px 2px 0px #0F1115',
+                }}
+              >
+                <ShieldIcon className="w-5 h-5" style={{ color: '#0F1115' }} />
+              </div>
+              <div>
+                <h1
+                  className="text-lg sm:text-xl font-black tracking-tight"
+                  style={{ ...displayFont, color: '#0F1115' }}
+                >
+                  DISCOVERY ADCET
+                  <span
+                    className="ml-2 inline-block text-[10px] font-bold px-1.5 py-0.5 align-super"
+                    style={{
+                      background: '#FFCC00',
+                      border: '1px solid #0F1115',
+                      color: '#0F1115',
+                      ...monoFont,
+                    }}
+                  >
+                    ADMIN
+                  </span>
+                </h1>
+                <p className="text-xs font-semibold tracking-wider mt-0.5" style={{ ...monoFont, color: '#5E6672' }}>
+                  MANAGE REGISTRATIONS • EXPORT DATA
+                </p>
               </div>
             </div>
-            <Button 
-              onClick={handleLogout} 
-              variant="outline" 
-              size="lg"
-              className="border-border/50 hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive"
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all"
+              style={{
+                background: '#FAFAF8',
+                color: '#E14B4B',
+                border: '2px solid #0F1115',
+                boxShadow: '2px 2px 0px #0F1115',
+                ...monoFont,
+              }}
+              onMouseDown={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'translate(1px, 1px)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '1px 1px 0px #0F1115';
+              }}
+              onMouseUp={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = '';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '2px 2px 0px #0F1115';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = '';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '2px 2px 0px #0F1115';
+              }}
             >
-              <LogOutIcon className="h-4 w-4 mr-2" />
+              <LogOutIcon className="w-4 h-4" />
               Logout
-            </Button>
-          </CardHeader>
-        </Card>
-
-        {/* Statistics Cards */}
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl hover:bg-card/90 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Total Registrations</p>
-                    <p className="text-3xl font-bold text-foreground">{stats.overview.totalRegistrations}</p>
-                    <p className="text-xs text-muted-foreground">All participants</p>
-                  </div>
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                    <UsersIcon className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl hover:bg-card/90 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Solo Registrations</p>
-                    <p className="text-3xl font-bold text-foreground">{stats.overview.soloRegistrations}</p>
-                    <p className="text-xs text-muted-foreground">Individual participants</p>
-                  </div>
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                    <TrendingUpIcon className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl hover:bg-card/90 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Team Registrations</p>
-                    <p className="text-3xl font-bold text-foreground">{stats.overview.teamRegistrations}</p>
-                    <p className="text-xs text-muted-foreground">Team participants</p>
-                  </div>
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                    <TrendingUpIcon className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl hover:bg-card/90 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                    <p className="text-3xl font-bold text-foreground">₹{stats.overview.totalRevenue.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">Registration fees</p>
-                  </div>
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
-                    <IndianRupeeIcon className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            </button>
           </div>
-        )}
 
-        {/* Controls */}
-        <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl">
-          <CardContent className="p-6">
+          {/* ── Stats Grid ── */}
+          {stats && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {statCards.map((s) => (
+                <div key={s.label} className="flex items-center justify-between px-5 py-5" style={brutCard}>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold tracking-widest" style={{ ...monoFont, color: '#5E6672' }}>
+                      {s.label}
+                    </p>
+                    <p className="text-2xl font-black" style={{ ...displayFont, color: '#0F1115' }}>
+                      {s.value}
+                    </p>
+                    <p className="text-[11px] font-medium" style={{ ...monoFont, color: '#97A0AC' }}>
+                      {s.sub}
+                    </p>
+                  </div>
+                  <div
+                    className="w-12 h-12 flex items-center justify-center shrink-0"
+                    style={{
+                      background: s.accent,
+                      border: '2px solid #0F1115',
+                      boxShadow: '2px 2px 0px #0F1115',
+                    }}
+                  >
+                    {s.icon}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── Controls Bar ── */}
+          <div className="px-5 py-5 space-y-4" style={brutCard}>
             <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-              <div className="flex flex-col sm:flex-row gap-4 flex-1">
-                <div className="relative">
-                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by name, email, mobile, or reg ID..."
-                    className="pl-10 w-full sm:w-80 bg-background/50 border-border/50 focus:border-primary/50"
+              {/* Search + Filters */}
+              <div className="flex flex-col sm:flex-row gap-3 flex-1 w-full">
+                {/* Search */}
+                <div className="relative flex-1 min-w-0 sm:max-w-[340px]">
+                  <SearchIcon
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+                    style={{ color: '#97A0AC' }}
+                  />
+                  <input
+                    placeholder="Search name, email, mobile, ID…"
+                    className="w-full pl-10 pr-4 py-2.5 text-sm outline-none placeholder:text-[#97A0AC]"
+                    style={{
+                      background: '#FAFAF8',
+                      border: '2px solid #0F1115',
+                      color: '#0F1115',
+                      ...monoFont,
+                    }}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
+
+                {/* Event filter */}
                 <Select value={eventFilter} onValueChange={setEventFilter}>
-                  <SelectTrigger className="w-full sm:w-48 bg-background/50 border-border/50">
+                  <SelectTrigger
+                    className="w-full sm:w-48 h-[42px] rounded-none text-xs font-bold uppercase tracking-wider"
+                    style={{
+                      background: '#FAFAF8',
+                      border: '2px solid #0F1115',
+                      color: '#0F1115',
+                      ...monoFont,
+                    }}
+                  >
                     <SelectValue placeholder="Filter by event" />
                   </SelectTrigger>
                   <SelectContent>
@@ -594,12 +689,22 @@ const AdminPanel: React.FC = () => {
                     ))}
                   </SelectContent>
                 </Select>
+
+                {/* Sort */}
                 <Select value={`${sortBy}-${sortOrder}`} onValueChange={(value) => {
                   const [field, order] = value.split('-');
                   setSortBy(field);
                   setSortOrder(order as 'asc' | 'desc');
                 }}>
-                  <SelectTrigger className="w-full sm:w-48 bg-background/50 border-border/50">
+                  <SelectTrigger
+                    className="w-full sm:w-48 h-[42px] rounded-none text-xs font-bold uppercase tracking-wider"
+                    style={{
+                      background: '#FAFAF8',
+                      border: '2px solid #0F1115',
+                      color: '#0F1115',
+                      ...monoFont,
+                    }}
+                  >
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -612,205 +717,305 @@ const AdminPanel: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex gap-3">
-                <Button 
-                  onClick={fetchRegistrations} 
-                  variant="outline" 
-                  size="lg" 
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 shrink-0">
+                <button
+                  onClick={fetchRegistrations}
                   disabled={loading}
-                  className="border-border/50 hover:bg-primary/10 hover:border-primary/50"
+                  className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all"
+                  style={{
+                    background: '#FAFAF8',
+                    color: '#0F1115',
+                    border: '2px solid #0F1115',
+                    boxShadow: '2px 2px 0px #0F1115',
+                    ...monoFont,
+                    opacity: loading ? 0.7 : 1,
+                  }}
+                  onMouseDown={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = 'translate(1px, 1px)';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '1px 1px 0px #0F1115';
+                  }}
+                  onMouseUp={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = '';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '2px 2px 0px #0F1115';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = '';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '2px 2px 0px #0F1115';
+                  }}
                 >
-                  <RefreshCwIcon className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  <RefreshCwIcon className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                   Refresh
-                </Button>
-                <Button 
-                  onClick={handleExport} 
-                  size="lg" 
+                </button>
+
+                <button
+                  onClick={handleExport}
                   disabled={loading}
-                  className="bg-gradient-to-r from-secondary to-accent hover:from-secondary/90 hover:to-accent/90 text-white"
+                  className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all"
+                  style={{
+                    background: '#FFCC00',
+                    color: '#0F1115',
+                    border: '2px solid #0F1115',
+                    boxShadow: '2px 2px 0px #0F1115',
+                    ...monoFont,
+                    opacity: loading ? 0.7 : 1,
+                  }}
+                  onMouseDown={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = 'translate(1px, 1px)';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '1px 1px 0px #0F1115';
+                  }}
+                  onMouseUp={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = '';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '2px 2px 0px #0F1115';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = '';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '2px 2px 0px #0F1115';
+                  }}
                 >
-                  <DownloadIcon className="h-4 w-4 mr-2" />
+                  <DownloadIcon className="w-4 h-4" />
                   Export Excel
-                </Button>
+                </button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Registrations Table */}
-        <Card className="glass-card border-border/30 bg-card/80 backdrop-blur-xl">
-          <CardHeader>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
-                <CalendarIcon className="h-4 w-4 text-white" />
+          {/* ── Registrations Table ── */}
+          <div style={brutCard}>
+            {/* Table header band */}
+            <div
+              className="flex items-center gap-3 px-5 py-4"
+              style={{ borderBottom: '2px solid #0F1115' }}
+            >
+              <div
+                className="w-8 h-8 flex items-center justify-center shrink-0"
+                style={{
+                  background: '#FFCC00',
+                  border: '2px solid #0F1115',
+                  boxShadow: '2px 2px 0px #0F1115',
+                }}
+              >
+                <CalendarIcon className="w-4 h-4" style={{ color: '#0F1115' }} />
               </div>
               <div>
-                <CardTitle className="text-xl font-bold">Registrations ({pagination.totalCount})</CardTitle>
-                <CardDescription>
-                  Showing {registrations.length} of {pagination.totalCount} registrations
-                </CardDescription>
+                <h2 className="text-sm font-black tracking-tight" style={{ ...displayFont, color: '#0F1115' }}>
+                  REGISTRATIONS ({pagination.totalCount})
+                </h2>
+                <p className="text-[11px] font-medium tracking-wider" style={{ ...monoFont, color: '#5E6672' }}>
+                  Showing {registrations.length} of {pagination.totalCount}
+                </p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
+
             {registrations.length === 0 ? (
-              <Alert>
-                <AlertDescription>
-                  No registrations found matching your criteria.
-                </AlertDescription>
-              </Alert>
+              <div
+                className="px-5 py-12 text-center"
+                style={{ ...monoFont, color: '#5E6672' }}
+              >
+                <p className="text-sm font-bold tracking-wider">NO REGISTRATIONS FOUND</p>
+                <p className="text-xs mt-1">Try adjusting your search or filter criteria.</p>
+              </div>
             ) : (
               <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Reg. ID</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Leader Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Mobile</TableHead>
-                      <TableHead>College</TableHead>
-                      <TableHead>Event</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Team Size</TableHead>
-                      <TableHead>Team Details</TableHead>
-                      <TableHead>Fee</TableHead>
-                      <TableHead>Payment ID</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {registrations.map((registration) => (
-                      <TableRow key={registration._id}>
-                        <TableCell className="font-medium text-blue-600">
-                          #{registration.registrationId}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {new Date(registration.createdAt).toLocaleDateString('en-IN')}
-                        </TableCell>
-                        <TableCell>{registration.leaderName}</TableCell>
-                        <TableCell className="text-sm">{registration.leaderEmail}</TableCell>
-                        <TableCell>{registration.leaderMobile}</TableCell>
-                        <TableCell className="text-sm">{registration.leaderCollege}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary" className="text-xs">
-                            {registration.selectedEvent}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={registration.participationType === 'solo' ? 'default' : 'outline'}>
-                            {registration.participationType}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{registration.teamSize}</TableCell>
-                        <TableCell>
-                          {registration.participationType === 'team' && registration.teamMembers.length > 0 ? (
+                <table className="w-full text-left" style={{ ...monoFont, color: '#0F1115' }}>
+                  <thead>
+                    <tr style={{ background: '#0F1115' }}>
+                      {['Reg. ID', 'Date', 'Leader', 'Email', 'Mobile', 'College', 'Event', 'Type', 'Size', 'Team', 'Fee', 'Payment ID'].map(
+                        (h) => (
+                          <th
+                            key={h}
+                            className="px-3 py-3 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap"
+                            style={{ color: '#FFCC00', borderBottom: '2px solid #0F1115' }}
+                          >
+                            {h}
+                          </th>
+                        )
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {registrations.map((reg, idx) => (
+                      <tr
+                        key={reg._id}
+                        style={{
+                          background: idx % 2 === 0 ? '#FFFFFF' : '#F5F4F0',
+                          borderBottom: '1px solid #E5E5E0',
+                        }}
+                      >
+                        <td className="px-3 py-3 text-xs font-bold whitespace-nowrap" style={{ color: '#3D6BFF' }}>
+                          #{reg.registrationId}
+                        </td>
+                        <td className="px-3 py-3 text-xs whitespace-nowrap">
+                          {new Date(reg.createdAt).toLocaleDateString('en-IN')}
+                        </td>
+                        <td className="px-3 py-3 text-xs font-semibold whitespace-nowrap">
+                          {reg.leaderName}
+                        </td>
+                        <td className="px-3 py-3 text-[11px] whitespace-nowrap">{reg.leaderEmail}</td>
+                        <td className="px-3 py-3 text-xs whitespace-nowrap">{reg.leaderMobile}</td>
+                        <td className="px-3 py-3 text-[11px] max-w-[180px] truncate">{reg.leaderCollege}</td>
+                        <td className="px-3 py-3 whitespace-nowrap">
+                          <span
+                            className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                            style={{
+                              background: '#FFCC00',
+                              color: '#0F1115',
+                              border: '1px solid #0F1115',
+                            }}
+                          >
+                            {reg.selectedEvent}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 whitespace-nowrap">
+                          <span
+                            className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                            style={{
+                              background: reg.participationType === 'solo' ? '#0F1115' : '#FAFAF8',
+                              color: reg.participationType === 'solo' ? '#FFCC00' : '#0F1115',
+                              border: '1px solid #0F1115',
+                            }}
+                          >
+                            {reg.participationType}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 text-xs text-center">{reg.teamSize}</td>
+                        <td className="px-3 py-3 whitespace-nowrap">
+                          {reg.participationType === 'team' && reg.teamMembers.length > 0 ? (
                             <Dialog>
                               <DialogTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-8 px-3">
-                                  <EyeIcon className="h-4 w-4 mr-1" />
-                                  View Team
-                                </Button>
+                                <button
+                                  className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-all"
+                                  style={{
+                                    background: '#FAFAF8',
+                                    color: '#0F1115',
+                                    border: '1.5px solid #0F1115',
+                                    boxShadow: '1.5px 1.5px 0px #0F1115',
+                                    ...monoFont,
+                                  }}
+                                >
+                                  <EyeIcon className="w-3 h-3" />
+                                  View
+                                </button>
                               </DialogTrigger>
-                              <DialogContent className="max-w-2xl">
+                              <DialogContent className="max-w-2xl rounded-none" style={{ border: '2px solid #0F1115', background: '#FAFAF8' }}>
                                 <DialogHeader>
-                                  <DialogTitle className="flex items-center gap-2">
-                                    <UsersIcon className="h-5 w-5" />
-                                    Team Members - {registration.leaderName}'s Team
+                                  <DialogTitle className="flex items-center gap-2 text-base font-black" style={{ ...displayFont, color: '#0F1115' }}>
+                                    <UsersIcon className="w-5 h-5" />
+                                    Team — {reg.leaderName}
                                   </DialogTitle>
                                 </DialogHeader>
-                                <div className="space-y-4">
-                                  <div className="bg-muted/50 p-4 rounded-lg">
-                                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Team Leader</h4>
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
-                                      <div>
-                                        <span className="font-medium">Name:</span> {registration.leaderName}
-                                      </div>
-                                      <div>
-                                        <span className="font-medium">Email:</span> {registration.leaderEmail}
-                                      </div>
-                                      <div>
-                                        <span className="font-medium">Mobile:</span> {registration.leaderMobile}
-                                      </div>
-                                      <div>
-                                        <span className="font-medium">College:</span> {registration.leaderCollege}
-                                      </div>
+                                <div className="space-y-4 mt-2">
+                                  {/* Leader */}
+                                  <div className="px-4 py-3" style={{ background: '#FFCC00', border: '2px solid #0F1115' }}>
+                                    <h4 className="text-[10px] font-bold tracking-widest mb-2" style={{ ...monoFont, color: '#0F1115' }}>
+                                      TEAM LEADER
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-3 text-xs" style={{ ...monoFont, color: '#0F1115' }}>
+                                      <div><span className="font-bold">Name:</span> {reg.leaderName}</div>
+                                      <div><span className="font-bold">Email:</span> {reg.leaderEmail}</div>
+                                      <div><span className="font-bold">Mobile:</span> {reg.leaderMobile}</div>
+                                      <div><span className="font-bold">College:</span> {reg.leaderCollege}</div>
                                     </div>
                                   </div>
-                                  {registration.teamMembers.length > 0 && (
+                                  {/* Members */}
+                                  {reg.teamMembers.length > 0 && (
                                     <div>
-                                      <h4 className="font-semibold text-sm text-muted-foreground mb-3">Team Members ({registration.teamMembers.length})</h4>
-                                      <div className="space-y-3">
-                                        {registration.teamMembers.map((member, index) => (
-                                          <div key={index} className="border rounded-lg p-3 bg-card">
-                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                              <div>
-                                                <span className="font-medium">Name:</span> {member.name}
-                                              </div>
-                                              <div>
-                                                <span className="font-medium">Email:</span> {member.email}
-                                              </div>
-                                              <div>
-                                                <span className="font-medium">Mobile:</span> {member.mobile}
-                                              </div>
-                                              <div>
-                                                <span className="font-medium">College:</span> {member.college}
-                                              </div>
+                                      <h4 className="text-[10px] font-bold tracking-widest mb-2" style={{ ...monoFont, color: '#5E6672' }}>
+                                        MEMBERS ({reg.teamMembers.length})
+                                      </h4>
+                                      <div className="space-y-2">
+                                        {reg.teamMembers.map((member, i) => (
+                                          <div
+                                            key={i}
+                                            className="px-4 py-3"
+                                            style={{ background: '#FFFFFF', border: '2px solid #0F1115' }}
+                                          >
+                                            <div className="grid grid-cols-2 gap-3 text-xs" style={{ ...monoFont, color: '#0F1115' }}>
+                                              <div><span className="font-bold">Name:</span> {member.name}</div>
+                                              <div><span className="font-bold">Email:</span> {member.email}</div>
+                                              <div><span className="font-bold">Mobile:</span> {member.mobile}</div>
+                                              <div><span className="font-bold">College:</span> {member.college}</div>
                                             </div>
                                           </div>
                                         ))}
                                       </div>
                                     </div>
                                   )}
-                                  <div className="pt-2 text-xs text-muted-foreground">
-                                    Total Team Size: {registration.teamSize} members
-                                  </div>
+                                  <p className="text-[10px] font-bold tracking-wider" style={{ ...monoFont, color: '#97A0AC' }}>
+                                    TOTAL SIZE: {reg.teamSize} MEMBERS
+                                  </p>
                                 </div>
                               </DialogContent>
                             </Dialog>
                           ) : (
-                            <Badge variant="secondary" className="text-xs">
+                            <span
+                              className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                              style={{ background: '#F5F4F0', color: '#5E6672', border: '1px solid #E5E5E0' }}
+                            >
                               Solo
-                            </Badge>
+                            </span>
                           )}
-                        </TableCell>
-                        <TableCell className="font-medium">₹{registration.totalFee}</TableCell>
-                        <TableCell className="text-xs font-mono">{registration.paymentId}</TableCell>
-                      </TableRow>
+                        </td>
+                        <td className="px-3 py-3 text-xs font-bold whitespace-nowrap">₹{reg.totalFee}</td>
+                        <td className="px-3 py-3 text-[10px] whitespace-nowrap" style={{ color: '#5E6672' }}>
+                          {reg.paymentId}
+                        </td>
+                      </tr>
                     ))}
-                  </TableBody>
-                </Table>
+                  </tbody>
+                </table>
               </div>
             )}
 
             {/* Pagination */}
             {pagination.totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4">
-                <p className="text-sm text-gray-600">
-                  Page {pagination.currentPage} of {pagination.totalPages}
+              <div
+                className="flex items-center justify-between px-5 py-3"
+                style={{ borderTop: '2px solid #0F1115' }}
+              >
+                <p className="text-[11px] font-bold tracking-wider" style={{ ...monoFont, color: '#5E6672' }}>
+                  PAGE {pagination.currentPage} OF {pagination.totalPages}
                 </p>
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
+                  <button
                     disabled={pagination.currentPage <= 1}
                     onClick={() => setCurrentPage(pagination.currentPage - 1)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all disabled:opacity-40"
+                    style={{
+                      background: '#FAFAF8',
+                      color: '#0F1115',
+                      border: '2px solid #0F1115',
+                      boxShadow: '2px 2px 0px #0F1115',
+                      ...monoFont,
+                    }}
                   >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
+                    <ChevronLeftIcon className="w-3 h-3" />
+                    Prev
+                  </button>
+                  <button
                     disabled={pagination.currentPage >= pagination.totalPages}
                     onClick={() => setCurrentPage(pagination.currentPage + 1)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all disabled:opacity-40"
+                    style={{
+                      background: '#FAFAF8',
+                      color: '#0F1115',
+                      border: '2px solid #0F1115',
+                      boxShadow: '2px 2px 0px #0F1115',
+                      ...monoFont,
+                    }}
                   >
                     Next
-                  </Button>
+                    <ChevronRightIcon className="w-3 h-3" />
+                  </button>
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </main>
+
+      <FooterLanding compact />
     </div>
   );
 };
