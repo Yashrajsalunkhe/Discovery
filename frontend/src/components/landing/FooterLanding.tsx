@@ -1,9 +1,52 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 interface FooterLandingProps {
   compact?: boolean;
 }
+
+interface Creator {
+  name: string;
+  href?: string;
+}
+
+const creators: Creator[] = [
+  { name: 'Aditya Padale', href: 'https://www.adityaa.me/' },
+  { name: 'Yashraj Salunkhe', href: 'https://www.yashrajsalunkhe.in/' },
+  { name: 'Kunal Shitole' },
+  { name: 'Chinmay Deshmukh' },
+];
+
+const CreatorHoverLink = ({ creator }: { creator: Creator }) => {
+  const triggerClassName = 'text-[#0F1115] underline decoration-[#FFCC00] decoration-2 underline-offset-2 hover:bg-[#FFCC00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F1115]';
+  const trigger = creator.href ? (
+    <a href={creator.href} target="_blank" rel="noreferrer" className={triggerClassName}>
+      {creator.name}
+    </a>
+  ) : (
+    <span tabIndex={0} role="button" className={triggerClassName}>
+      {creator.name}
+    </span>
+  );
+
+  return (
+    <HoverCard openDelay={100} closeDelay={100}>
+      <HoverCardTrigger asChild>{trigger}</HoverCardTrigger>
+      <HoverCardContent className="w-64 rounded-none border-[3px] border-[#0F1115] bg-[#FFFDF7] p-4 text-[#0F1115] shadow-[5px_5px_0px_#FF6B9D]">
+        <p className="font-display text-sm font-black uppercase">{creator.name}</p>
+        <p className="mt-2 font-body text-xs leading-relaxed text-[#0F1115]/75">
+          Part of the Discovery 2K26 creator team.
+        </p>
+        {creator.href && (
+          <p className="mt-3 border-t-2 border-[#0F1115] pt-2 font-mono text-[10px] font-bold uppercase tracking-wide">
+            View portfolio ↗
+          </p>
+        )}
+      </HoverCardContent>
+    </HoverCard>
+  );
+};
 
 export const FooterLanding: React.FC<FooterLandingProps> = ({ compact = false }) => {
   const navigate = useNavigate();
@@ -98,7 +141,7 @@ export const FooterLanding: React.FC<FooterLandingProps> = ({ compact = false })
                 href="mailto:discovery@adcet.ac.in"
                 className="hover:bg-[#FFCC00] hover:px-1 transition-all inline-block break-all"
               >
-                discovery@adcet.ac.in
+                discovery2k26@adcet.in
               </a>
               <p>ADCET, Ashta, Sangli</p>
               <p>16.95°N · 74.40°E</p>
@@ -108,27 +151,15 @@ export const FooterLanding: React.FC<FooterLandingProps> = ({ compact = false })
         </div>}
 
         {/* Bottom */}
-        <div className={`flex flex-col sm:flex-row justify-between items-center gap-4 font-mono text-xs font-bold ${compact ? 'pb-6' : 'pt-6'}`}>
-          <div className="text-[#0F1115]/70">
+        <div className={`flex flex-col sm:flex-row justify-between items-center gap-4 font-mono text-xs font-bold ${compact ? 'compact-created-by w-full justify-center text-center border-y-2 border-[#0F1115] py-4' : 'pt-6'}`}>
+          <div className={compact ? 'w-full text-center text-[#0F1115] leading-relaxed' : 'text-[#0F1115]/70'}>
             Created by{' '}
-            <a
-              href="https://www.adityaa.me/"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-[#0F1115] hover:underline"
-            >
-              Aditya Padale
-            </a>
-            ,{' '}
-            <a
-              href="https://www.yashrajsalunkhe.in/"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-[#0F1115] hover:underline"
-            >
-              Yashraj Salunkhe
-            </a>
-            , Kunal shitole, Chinmay deshmukh.
+            {creators.map((creator, index) => (
+              <React.Fragment key={creator.name}>
+                <CreatorHoverLink creator={creator} />
+                {index < creators.length - 1 ? ', ' : '.'}
+              </React.Fragment>
+            ))}
           </div>
           {!compact && <div className="flex gap-2 flex-wrap">
             <a href="https://www.instagram.com/adcet_ashta" target="_blank" rel="noreferrer" className="bg-white text-[#0F1115] px-2.5 py-1 border-2 border-[#0F1115] shadow-[2px_2px_0px_#0F1115] hover:bg-[#FFCC00] transition-colors">

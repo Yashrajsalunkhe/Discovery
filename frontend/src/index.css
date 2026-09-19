@@ -718,6 +718,36 @@
   box-shadow: 1px 1px 0 var(--registration-ink);
 }
 
+.registration-page .registration-team-size {
+  min-height: 2.5rem;
+  border: 3px solid var(--registration-ink) !important;
+  background: #fffdf7 !important;
+  color: var(--registration-ink) !important;
+  box-shadow: 3px 3px 0 var(--registration-ink);
+}
+
+.registration-page .registration-team-size:hover:not(:disabled) {
+  background: var(--registration-pink) !important;
+  color: var(--registration-ink) !important;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--registration-ink);
+}
+
+.registration-page .registration-team-size.bg-primary {
+  background: #3d6bff !important;
+  color: #ffffff !important;
+  border-color: var(--registration-ink) !important;
+}
+
+.registration-page .registration-team-size:disabled {
+  opacity: 1 !important;
+  background: #d9d4c8 !important;
+  color: #6b6870 !important;
+  border-color: #77736b !important;
+  box-shadow: 3px 3px 0 #77736b;
+  cursor: not-allowed;
+}
+
 .registration-page .registration-section button,
 .registration-page .registration-callout button {
   border: 3px solid var(--registration-ink);

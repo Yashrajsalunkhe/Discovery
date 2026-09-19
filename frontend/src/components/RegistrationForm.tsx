@@ -1079,6 +1079,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                                   size="sm"
                                   onClick={() => handleTeamSizeChange(size)}
                                   disabled={size > selectedEvent.maxTeamSize || size < Math.max(selectedEvent.minTeamSize || 1, 2)}
+                                  className="registration-team-size"
                                 >
                                   {size} Members
                                 </Button>
