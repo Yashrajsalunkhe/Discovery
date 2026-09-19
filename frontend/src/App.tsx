@@ -7,6 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
+import CheckStatus from "./pages/CheckStatus";
 import DepartmentEventsPage from "./pages/DepartmentEventsPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import QueueMonitoringDashboard from "./components/QueueMonitoringDashboard";
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/event/:eventId" element={<EventDetailPage />} />
           <Route path="/department/:deptId/event/:eventId" element={<EventDetailPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/status" element={<CheckStatus />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/queuedata" element={
             <div className="min-h-screen bg-gray-50 p-4 sm:p-6">

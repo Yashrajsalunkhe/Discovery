@@ -3,7 +3,7 @@ import express from 'express';
 import type { Request } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import { registerUser, connectToMongoDB } from './register.js';
+import { registerUser, connectToMongoDB, Registration } from './register.js';
 import { checkDuplicate } from './search.js';
 import { orderRazorpay } from './utils/razorpay.js';
 import { verifyPayment } from './utils/payment-verification.js';
@@ -141,6 +141,73 @@ app.post('/api/register', registrationRateLimit, deduplicationMiddleware, checkD
 app.post('/api/order', orderRazorpay);
 app.post('/api/payment-verification', verifyPayment);
 app.post('/api/razorpay/webhook', razorpayWebhook);
+
+// Registration Status Lookup (public — no admin auth)
+app.get('/api/registration/status', async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || typeof query !== 'string' || query.trim().length < 3) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a valid search query (minimum 3 characters).',
+      });
+    }
+
+    const searchTerm = query.trim();
+
+    // Build search conditions: registration ID (numeric), email, or mobile
+    const conditions: any[] = [];
+
+    // Check if the query is a numeric registration ID
+    const numericId = parseInt(searchTerm, 10);
+    if (!isNaN(numericId) && String(numericId) === searchTerm) {
+      conditions.push({ registrationId: numericId });
+    }
+
+    // Always try email and mobile matches (case-insensitive)
+    conditions.push({ leaderEmail: { $regex: `^${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } });
+    conditions.push({ leaderMobile: searchTerm });
+
+    const registrations = await Registration.find(
+      { $or: conditions }
+    )
+      .select('registrationId leaderName leaderEmail leaderMobile leaderCollege selectedEvent participationType teamSize teamMembers totalFee createdAt -_id')
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+
+    // Strip sensitive fields from team members (only expose name & college)
+    const sanitized = registrations.map((reg: any) => ({
+      ...reg,
+      teamMembers: (reg.teamMembers || []).map((m: any) => ({
+        name: m.name,
+        college: m.college,
+      })),
+    }));
+
+    if (sanitized.length === 0) {
+      return res.json({
+        success: true,
+        found: false,
+        data: [],
+        message: 'No registrations found matching your query.',
+      });
+    }
+
+    return res.json({
+      success: true,
+      found: true,
+      data: sanitized,
+    });
+  } catch (error) {
+    console.error('Registration status lookup error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to look up registration status. Please try again.',
+    });
+  }
+});
 
 // Admin Routes
 app.post('/api/admin/login', adminLogin);

@@ -95,6 +95,20 @@ export const Navbar: React.FC = () => {
     [location.pathname, navigate, closeMobile]
   );
 
+  const handleCheckStatus = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      closeMobile();
+
+      if (location.pathname !== '/status') {
+        navigate('/status');
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+    [location.pathname, navigate, closeMobile]
+  );
+
   const navLinks = [
     { label: 'Events', hash: 'tracks' },
     { label: 'About', hash: 'briefing' },
@@ -146,8 +160,15 @@ export const Navbar: React.FC = () => {
               ))}
             </div>
 
-            {/* Right Action Button & Mobile Trigger */}
+            {/* Right Action Buttons & Mobile Trigger */}
             <div className="flex items-center gap-3 shrink-0">
+              <a
+                href="/status"
+                onClick={handleCheckStatus}
+                className="hidden md:inline-flex items-center gap-2 font-mono text-xs font-bold uppercase bg-[#FAFAF8] text-[#0F1115] px-4 py-2 border-2 border-[#0F1115] shadow-[2.5px_2.5px_0px_#0F1115] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3.5px_3.5px_0px_#0F1115] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_#0F1115] transition-all"
+              >
+                <span>Status</span>
+              </a>
               <a
                 href="/register"
                 onClick={handleRegister}
@@ -229,6 +250,13 @@ export const Navbar: React.FC = () => {
           >
             <span>Register Now</span>
             <span className="font-black">↗</span>
+          </a>
+          <a
+            href="/status"
+            onClick={handleCheckStatus}
+            className="w-full text-center justify-center font-mono font-bold uppercase text-sm bg-[#FAFAF8] text-[#0F1115] py-3.5 border-2 border-[#0F1115] shadow-[4px_4px_0px_#0F1115] active:translate-x-[1px] active:translate-y-[1px] flex items-center gap-2"
+          >
+            <span>Check Status</span>
           </a>
           <p className="text-center font-mono text-xs text-[#0F1115] font-bold tracking-wider">
             ADCET ASHTA • 10TH OCTOBER 2026
