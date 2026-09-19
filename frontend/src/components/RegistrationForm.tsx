@@ -980,7 +980,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                                 {/* Download button for paper submission doc */}
                                 <div className="whitespace-nowrap">
                                   <a
-                                    href="/docs/Paper_Submission_Discovery2k25.docx"
+                                    href="/docs/Paper_Template.docx"
                                     download
                                     className="inline-flex items-center px-3.5 py-2 border-2 border-amber-500 bg-amber-400 text-slate-950 font-bold rounded-md text-sm hover:bg-amber-500 shadow-sm transition-all"
                                     title="Download paper submission template"

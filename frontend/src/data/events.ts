@@ -77,7 +77,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         ...paperPresentationRules,
         "Submit the abstract, research paper, and presentation to the event coordinator by the announced deadline."
       ],
-      ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+      ruleBookFile: "/docs/Paper_Template.docx",
       coordinators: {
         faculty: {
           name: "Dr. S. Sendhil Kumar",
@@ -195,7 +195,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Renewable Energy Technologies"
     ],
     rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+    ruleBookFile: "/docs/Paper_Template.docx",
     coordinators: {
       faculty: {
         name: "Mr. Ajit R. Mane",
@@ -315,7 +315,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "High Voltage Engineering"
     ],
     rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+    ruleBookFile: "/docs/Paper_Template.docx",
     coordinators: {
       faculty: {
         name: "Mr. Indrajit D. Pharane",
@@ -400,7 +400,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Green Building Technologies"
     ],
     rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+    ruleBookFile: "/docs/Paper_Template.docx",
     coordinators: {
       faculty: {
         name: "Dr. Vidya Abhijeet Lande",
@@ -500,7 +500,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Software Engineering and Agile Methodologies"
     ],
     rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+    ruleBookFile: "/docs/Paper_Template.docx",
     coordinators: {
       faculty: {
         name: "Dr. Anisa B. Shikalgar",
@@ -585,7 +585,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Reinforcement Learning"
     ],
     rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+    ruleBookFile: "/docs/Paper_Template.docx",
     coordinators: {
       faculty: {
         name: "Mrs. Supriya Abhijeet Pati",
@@ -664,7 +664,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Digital Forensics and Incident Response"
     ],
     rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+    ruleBookFile: "/docs/Paper_Template.docx",
     coordinators: {
       faculty: {
           name: "Prof. S. N. Kamble",
@@ -753,7 +753,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Corporate Social Responsibility"
       ],
       rules: paperPresentationRules,
-      ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+      ruleBookFile: "/docs/Paper_Template.docx",
       coordinators: {
           faculty: { name: "Ms. Anuja Ashok Salgar", phone: "7447251200", email: "aas_bba@adcet.in" },
         student: { name: "Sanika Pawar", phone: "7020073670", email: "" }
@@ -866,7 +866,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       image: "/event-images/paper_presentation.png",
       description: "Present an original paper on an emerging technology, application, or computing solution.",
       rules: paperPresentationRules,
-      ruleBookFile: "/docs/Paper_Submission_Discovery2k25.docx",
+      ruleBookFile: "/docs/Paper_Template.docx",
       coordinators: {
         faculty: { name: "Ms. Piusha U. Magdum", phone: "8767258041", email: "pum_bca@adcet.in" },
         student: { name: "Mr. Mateen L. Mulla", phone: "9545289737", email: "" }
