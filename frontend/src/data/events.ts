@@ -685,28 +685,19 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Ideathon.png",
-      description: "Brainstorm and pitch innovative IoT solutions addressing real-world challenges. Develop creative technology concepts, create prototypes, and present your ideas to industry experts in this intensive innovation competition.",
-      themes: [
-        "Technology and innovation solutions",
-        "Sustainability and environmental solutions",
-        "Smart city and IoT applications",
-        "Healthcare technology innovations",
-        "Educational technology solutions"
-      ],
-      teamComposition: [
-        "Teams can have a maximum of 2 members.",
-        "Cross-department and cross-year collaborations are allowed.",
-        "No individual can be a member of more than one team."
-      ],
+      description: "This event will be conducted through individual participation.",
       rules: [
-        "Teams can work on any topic relevant to the event theme (e.g., technology, innovation, sustainability).",
-        "Projects should be original and not previously submitted in other competitions.",
-        "Deadlines for abstract and final submission will be strictly followed."
-      ],
-      submissionGuidelines: [
-        "Initial submission should include a brief (500-word) abstract outlining the idea.",
-        "Final submission must include a presentation, prototype demo (if applicable), and supporting documentation.",
-        "Submission deadline will be announced by the organizers."
+        "Round 1 - MCQ Test: The first round will consist of an MCQ-based test. Participants will have to answer 30 questions within 30 minutes. The test will be conducted on the college-provided PCs and not on personal laptops or devices. Students who achieve the minimum qualifying score will be selected for the second round.",
+        "Round 2 - Code Debugging: In the second round, participants will be given 3 programs along with their specific expected outputs. Participants will have to identify and correct errors in the given code and fill in the required blanks to produce the specified output.",
+        "Round 3 - Software-Based Round: The final round will be conducted using the designated software. Participants will have to complete the given tasks within the specified time. The performance in this round will be considered for the final evaluation.",
+        "The event is open for individual participation. Team participation is not allowed.",
+        "Participants must complete 30 MCQs within 30 minutes in Round 1.",
+        "Only participants who meet the minimum qualifying criteria will proceed to Round 2.",
+        "In Round 2, participants must identify errors, fill in the blanks, and obtain the specified output from the given programs.",
+        "Any form of unfair means, cheating, copying, or use of unauthorized resources will result in immediate disqualification.",
+        "The time limit for each round must be strictly followed. No extra time will be provided unless announced by the organizers.",
+        "Participants must save or submit their answers or output as instructed before the time expires.",
+        "The decision of the event coordinators or judges will be final."
       ],
       coordinators: {
         faculty: { name: "Mrs. Simran Tanvir Chaus", phone: "7840929304", email: "" },
@@ -888,7 +879,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ],
       coordinators: {
         faculty: { name: "Ms. Alisha A. Jamadar", phone: "7558296750", email: "" },
-        student: { name: "Mr. Sudharshan J. Sawant", phone: "7028740881", email: "sudharshansawant6@gmail.com" }
+        student: { name: "Mr. Sudharshan J. Sawant", phone: "7028740881", email: "sawantsudarshan6@gmail.com" }
       }
     }
   ]
