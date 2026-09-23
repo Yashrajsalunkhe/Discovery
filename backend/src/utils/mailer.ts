@@ -1,4 +1,4 @@
-import { Resend } from 'resend';
+import nodemailer, { type Transporter } from 'nodemailer';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,28 +8,72 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-const resendApiKey = process.env.RESEND_API_KEY;
 const emailEnabled = process.env.EMAIL_ENABLED === 'true';
-const senderEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+const smtpPort = Number(process.env.SMTP_PORT || 465);
+const smtpSecure = process.env.SMTP_SECURE !== 'false';
+const smtpUser = process.env.SMTP_USER;
+const smtpPass = process.env.SMTP_PASS;
+const senderEmail = process.env.EMAIL_FROM || smtpUser || '';
 
-console.log('Email config check:', {
-  emailEnabled,
-  resendApiKey: resendApiKey ? 'Set' : 'Missing',
-  senderEmail,
-  nodeEnv: process.env.NODE_ENV
-});
-
-if (emailEnabled && !resendApiKey) {
-  throw new Error('RESEND_API_KEY must be set in environment variables when EMAIL_ENABLED is true');
+// Only log config details in development
+if (process.env.NODE_ENV !== 'production') {
+  console.log('📧 Email config:', {
+    emailEnabled,
+    smtpHost,
+    smtpPort,
+    smtpSecure,
+    smtpUser: smtpUser ? `${smtpUser.substring(0, 3)}***` : 'Missing',
+    smtpPass: smtpPass ? 'Set (hidden)' : 'Missing',
+    senderEmail: senderEmail || 'Not configured',
+  });
 }
 
-let resend: Resend | null = null;
+if (emailEnabled && (!smtpUser || !smtpPass)) {
+  throw new Error(
+    'SMTP_USER and SMTP_PASS must be set when EMAIL_ENABLED is true. ' +
+    'For Gmail, generate an App Password at https://myaccount.google.com/apppasswords'
+  );
+}
 
-if (emailEnabled && resendApiKey) {
-  resend = new Resend(resendApiKey);
-  console.log('✅ Resend email client initialized');
+let transporter: Transporter | null = null;
+
+if (emailEnabled && smtpUser && smtpPass) {
+  transporter = nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpSecure,
+    auth: {
+      user: smtpUser,
+      pass: smtpPass,
+    },
+    // Connection pool for better performance under load
+    pool: true,
+    maxConnections: 3,
+    maxMessages: 100,
+    // TLS options for robustness
+    tls: {
+      rejectUnauthorized: true,
+      minVersion: 'TLSv1.2',
+    },
+    // Timeouts to prevent hanging
+    connectionTimeout: 10000, // 10s
+    greetingTimeout: 10000,
+    socketTimeout: 30000,     // 30s
+  });
+
+  // Verify SMTP connection on startup
+  transporter.verify()
+    .then(() => {
+      console.log('✅ SMTP connection verified — email sending is ready');
+    })
+    .catch((err) => {
+      console.error('❌ SMTP connection verification FAILED:', err.message);
+      console.error('   → Check your SMTP_USER and SMTP_PASS in .env');
+      console.error('   → For Gmail, ensure 2FA is enabled and use an App Password');
+    });
 } else {
-  console.log('Email sending is disabled (EMAIL_ENABLED is not true or RESEND_API_KEY missing)');
+  console.log('ℹ️  Email sending is disabled (EMAIL_ENABLED is not "true" or credentials missing)');
 }
 
 export interface SendMailOptions {
@@ -42,34 +86,25 @@ export interface SendMailOptions {
   headers?: Record<string, string>;
 }
 
-/**
- * Send an email via Resend HTTP API.
- * Works reliably on Vercel serverless (no SMTP connection needed).
- */
 export async function sendMail(options: SendMailOptions): Promise<{ id: string } | null> {
-  if (!emailEnabled || !resend) {
+  if (!emailEnabled || !transporter) {
     console.log('📧 Email disabled, skipping send to:', options.to);
     return null;
   }
 
-  const { data, error } = await resend.emails.send({
+  const result = await transporter.sendMail({
     from: options.from,
-    to: [options.to],
+    to: options.to,
     subject: options.subject,
     html: options.html,
     text: options.text,
-    replyTo: options.replyTo ? [options.replyTo] : undefined,
+    replyTo: options.replyTo,
     headers: options.headers,
   });
 
-  if (error) {
-    console.error('❌ Resend email error:', error);
-    throw new Error(`Resend email failed: ${error.message}`);
-  }
-
-  console.log('✅ Email sent via Resend:', data?.id, 'to:', options.to);
-  return data;
+  console.log('✅ Email sent via SMTP:', result.messageId, 'to:', options.to);
+  return { id: result.messageId };
 }
 
-export { resend, senderEmail };
-export default resend;
+export { transporter, senderEmail };
+export default transporter;
