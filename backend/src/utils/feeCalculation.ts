@@ -2,9 +2,8 @@
  * Backend utility functions for calculating payment amounts including Razorpay gateway charges
  */
 
-// Razorpay fee structure (as of 2024)
-// 2% + GST (18%) = 2.36% total for domestic payments
-const RAZORPAY_FEE_PERCENTAGE = 0.0236; // 2.36%
+// Registration pricing uses a 2.48% processing charge on the base fee.
+const RAZORPAY_FEE_PERCENTAGE = 0.0248; // 2.48%
 
 export interface FeeBreakdown {
   baseFee: number;
@@ -28,8 +27,8 @@ export function calculateTotalWithRazorpayFees(baseFee: number): FeeBreakdown {
     throw new Error('Base fee must be greater than 0');
   }
 
-  // Calculate total amount to charge (reverse calculation)
-  const totalAmount = baseFee / (1 - RAZORPAY_FEE_PERCENTAGE);
+  // Add the processing charge to the base fee.
+  const totalAmount = baseFee * (1 + RAZORPAY_FEE_PERCENTAGE);
   
   // Calculate processing charges
   const processingCharges = totalAmount - baseFee;

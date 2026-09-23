@@ -51,7 +51,7 @@ export const orderRazorpay: RequestHandler = async (req, res, next) => {
             finalAmount = amount;
             // Create breakdown for response
             const amountInRupees = amount / 100;
-            const calculatedBreakdown = calculateTotalWithRazorpayFees(amountInRupees / 1.0236); // Reverse calculate
+            const calculatedBreakdown = calculateTotalWithRazorpayFees(amountInRupees / 1.0248); // Reverse calculate
             feeBreakdown = calculatedBreakdown;
         }
         else {
