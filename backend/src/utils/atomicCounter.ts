@@ -56,13 +56,6 @@ export async function initializeCounterSafely(): Promise<void> {
       return;
     }
 
-    // Check if counter already exists
-    const existingCounter = await Counter.findById('registrationId').maxTimeMS(5000);
-    if (existingCounter) {
-      console.log('Counter already initialized at:', existingCounter.sequence_value);
-      return;
-    }
-
     // Import Registration model to check existing data
     const { Registration } = await import('../register.js');
     
@@ -73,17 +66,24 @@ export async function initializeCounterSafely(): Promise<void> {
       { sort: { registrationId: -1 } }
     );
 
-    // Start counter ABOVE the highest existing ID, with a safe buffer
-    const startValue = highestRegistration ? 
-      Math.max(highestRegistration.registrationId + 100, 1000) : 1000;
+    // Store the last used ID. The next generated ID will be +1, starting at 1001.
+    const startValue = highestRegistration ?
+      Math.max(highestRegistration.registrationId, 1000) : 1000;
 
-    // Initialize counter
-    await Counter.create({
-      _id: 'registrationId',
-      sequence_value: startValue
-    });
+    // Initialize or repair the counter without ever moving it backwards.
+    const counter = await Counter.findOneAndUpdate(
+      { _id: 'registrationId' },
+      { $max: { sequence_value: startValue } },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+        writeConcern: { w: 'majority', j: true },
+        maxTimeMS: 5000
+      }
+    );
 
-    console.log(`✅ Counter safely initialized starting from: ${startValue + 1}`);
+    console.log(`✅ Counter initialized; next registration ID: ${counter.sequence_value + 1}`);
     console.log(`   Highest existing registration ID: ${highestRegistration?.registrationId || 'none'}`);
     
   } catch (error) {
