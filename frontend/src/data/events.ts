@@ -44,6 +44,7 @@ const paperPresentationRules: string[] = [
   "Each team will be allotted 10 minutes for presentation followed by a question-and-answer session.",
   "Participants from different institutions may form a single team, but a participant cannot join more than one team.",
   "The paper must be original, properly referenced, and based on the submitted abstract.",
+  "Connect Your Research with the Relevant Sustainable Development Goals (SDGs).",
   "Participants must report at least 15 minutes before their scheduled presentation. Judges' decisions are final."
 ];
 
