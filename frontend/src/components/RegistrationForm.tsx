@@ -545,6 +545,24 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
         }
       };
 
+      // Dynamically load Razorpay checkout script if not already loaded
+      if (!(window as any).Razorpay) {
+        await new Promise<void>((resolve, reject) => {
+          const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+          if (existingScript) {
+            // Script tag exists but hasn't loaded yet
+            existingScript.addEventListener('load', () => resolve());
+            existingScript.addEventListener('error', () => reject(new Error('Failed to load payment gateway')));
+            return;
+          }
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error('Failed to load payment gateway. Please check your internet connection and try again.'));
+          document.body.appendChild(script);
+        });
+      }
+
       // Create Razorpay instance and open payment modal
       const razorpay = new (window as any).Razorpay(options);
       razorpay.on('payment.failed', (response: any) => {

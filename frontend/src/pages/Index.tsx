@@ -29,8 +29,8 @@ type ViewState =
 const Index = memo(() => {
   const [currentView, setCurrentView] = useState<ViewState>({ type: "home" });
 
-  // Initialize GSAP scroll animations for the landing page
-  useGsapAnimations();
+  // Initialize GSAP scroll animations only when on the landing page home view
+  useGsapAnimations(currentView.type === "home");
 
   const handleBackToHome = useCallback(() => {
     setCurrentView({ type: "home" });
