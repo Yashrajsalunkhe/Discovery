@@ -96,34 +96,62 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "paper-glider",
       name: "Paper Glider",
       department: "Aeronautical Engineering",
-        maxTeamSize: 1,
+      minTeamSize: 1,
+      maxTeamSize: 2,
       entryFee: 100,
       image: "/event-images/Paper_Glider.png",
-      description: "Design and build innovative paper gliders optimized for maximum flight distance and time. Test your aerodynamic knowledge and engineering skills in this exciting hands-on competition where creativity meets physics.",
+        description: "Design, fold, and hand-launch an original paper glider using only the A4 sheet provided at the venue. Compete for flight time, distance, accuracy, and design excellence.",
       specifications: [
-        "Rockets must be constructed exclusively from paper, tape, and adhesive (glue, glue sticks, etc.).",
-        "Prohibited materials include, but are not limited to: cardboard, plastic, metal, wood, foam, or any pre-fabricated components.",
-        "Maximum Length: 30 cm; Maximum Diameter: 5 cm; Maximum Weight: 50 grams.",
-        "The rocket will be weighed by the judges before each launch attempt.",
-        "The rocket must be a single, self-contained unit with no external devices or components for guidance, deployment, or active stabilization."
+          "One A4-size paper sheet will be provided to each participant.",
+          "No extra paper or additional material is allowed.",
+          "The glider must be made completely from the provided paper by folding only."
       ],
       rules: [
-        "The competition is open to all enrolled engineering students.",
-        "Teams must consist of a minimum of two (2) and a maximum of three (3) members.",
-        "Each team may only submit one (1) rocket for the competition.",
-        "All rockets must pass a pre-flight inspection by the judges to verify adherence to all material and specification rules before being cleared for launch."
+          "Each team must consist of exactly two (2) members.",
+          "The glider must be made completely at the event venue.",
+          "Participants may fold, crease, roll, or tear the provided paper only if the organizers permit it.",
+          "No modification or addition of material is allowed after the glider is submitted for inspection.",
+          "The glider must be hand-launched.",
+          "The organizer's or judge's decision will be final and binding."
       ],
       gameplay: [
-        "Each team will be given two (2) official launch attempts. The best score from these two attempts will be used for final ranking.",
-        "The final score will be a combination of flight duration (measured in seconds) and horizontal distance (measured in meters)."
+          "The glider must be launched from the designated launch line.",
+          "Only one person may launch the glider.",
+          "Throwing the glider with excessive force or using a mechanical launching device is not allowed.",
+          "The participant must release the glider by hand.",
+          "The glider must be launched within the given time limit.",
+          "Each participant will get 3 attempts, and the best valid attempt will be considered for the final score."
+        ],
+        scoring: [
+          "For maximum flight time, time is measured from release until the glider first touches the ground.",
+          "For maximum distance, distance is measured from the launch line to the point where the glider first touches the ground.",
+          "For accuracy landing, the closest valid landing to the designated target will be ranked highest.",
+          "Best Glider Design will be judged on creativity and construction.",
+          "Recommended format: 10–15 minutes construction time, 3 flight attempts, and the best attempt counts."
       ],
       safetyRegulations: [
-        "All participants, judges, and spectators must be at a safe distance from the launch pad as designated by event staff.",
-        "All team members within the designated launch area must wear safety goggles, which will be provided.",
-        "Any team or individual found to be engaging in unsafe behavior will be immediately disqualified."
+          "Scissors, blades, cutters, and any sharp tools are strictly prohibited.",
+          "A glider touching a wall, ceiling, person, or other obstruction may be declared invalid by the judges.",
+          "The event coordinators may stop or invalidate a flight if it creates a safety issue."
       ],
       disqualification: [
-        "A team will be disqualified for failure to meet rocket specifications, use of unapproved materials, tampering with the official launch system, or unsportsmanlike conduct."
+          "Using extra paper or any unauthorized material.",
+          "Using scissors, cutters, glue, tape, or any unauthorized tool or material.",
+          "Bringing a pre-made or pre-folded glider.",
+          "Receiving outside assistance during construction.",
+          "Intentionally interfering with another participant's glider.",
+          "Arguing with or disrespecting judges or organizers.",
+          "Violating any competition rule."
+        ],
+        constructionGuidelines: [
+          "No glue, tape, stapler, pins, clips, rubber bands, or any additional material is allowed.",
+          "Participants must make the glider only by folding the provided paper.",
+          "No pre-folded, pre-made, or prepared gliders are permitted."
+        ],
+        generalInstructions: [
+          "Participants must follow the instructions given by the event coordinators.",
+          "Participants are responsible for keeping their work area clean.",
+          "Any rule not specifically mentioned will be decided by the event coordinators based on fairness and safety."
       ],
       coordinators: {
         faculty: {
