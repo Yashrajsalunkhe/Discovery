@@ -1282,6 +1282,15 @@
     justify-content: center;
   }
 
+  .mobile-reference-hero__utility {
+    min-height: 40px;
+    padding: 7px 9px;
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 3px 0 rgba(10, 12, 16, 0.7);
+  }
+
   .mobile-reference-hero__technical-mark {
     position: absolute;
     z-index: 1;
@@ -1412,11 +1421,25 @@
   }
 
   .mobile-reference-hero__details {
+    align-items: center;
     margin-top: 23px;
     color: var(--ink);
     font-size: 0.56rem;
     letter-spacing: 0.08em;
     line-height: 1.4;
+  }
+
+  .mobile-reference-hero__details span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mobile-reference-hero__details svg {
+    width: 13px;
+    height: 13px;
+    flex: 0 0 auto;
+    stroke-width: 1.7;
   }
 
   .mobile-reference-hero__countdown {
@@ -1470,8 +1493,8 @@
     min-height: 34px;
     padding: 8px 10px;
     border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    background: transparent;
+    color: var(--ink);
     box-shadow: 3px 3px 0 var(--orange);
     font-size: 0.55rem;
   }
@@ -1480,8 +1503,8 @@
     min-height: 34px;
     padding: 8px 10px;
     border-color: var(--ink);
-    background: transparent;
-    color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
     box-shadow: 3px 3px 0 var(--orange);
     font-size: 0.55rem;
   }
@@ -1492,21 +1515,66 @@
 
   .mobile-reference-hero__anchor {
     position: relative;
-    height: 100px;
-    margin-top: 28px;
-    overflow: hidden;
+    flex: 0 0 136px;
+    height: 136px;
+    margin-top: 20px;
+    overflow: visible;
+    z-index: 2;
+  }
+
+  .mobile-reference-hero__anchor-axis {
+    position: absolute;
+    background: rgba(10, 12, 16, 0.34);
+  }
+
+  .mobile-reference-hero__anchor-axis--horizontal {
+    top: 57%;
+    left: 18%;
+    width: 64%;
+    height: 1px;
+  }
+
+  .mobile-reference-hero__anchor-axis--vertical {
+    top: 10%;
+    left: 50%;
+    width: 1px;
+    height: 82%;
   }
 
   .mobile-reference-hero__anchor-ring {
     position: absolute;
-    right: 8%;
-    bottom: -45px;
-    width: 150px;
-    height: 150px;
+    left: 50%;
+    bottom: 4px;
+    width: 126px;
+    height: 126px;
     border: 1px solid rgba(255, 204, 0, 0.9);
     border-radius: 50%;
+    transform: translateX(-50%);
     box-shadow: 0 0 0 14px rgba(255, 204, 0, 0.1), 0 0 0 28px rgba(255, 204, 0, 0.06);
     animation: discovery-orbit 7s linear infinite;
+  }
+
+  .mobile-reference-hero__anchor-ring--inner {
+    left: 50%;
+    bottom: 27px;
+    width: 80px;
+    height: 80px;
+    border-color: rgba(255, 204, 0, 0.72);
+    box-shadow: none;
+    transform: translateX(-50%);
+    animation-direction: reverse;
+    animation-duration: 5s;
+  }
+
+  .mobile-reference-hero__anchor-orbit {
+    position: absolute;
+    left: 50%;
+    bottom: 29px;
+    width: 150px;
+    height: 46px;
+    border: 1px solid var(--orange);
+    border-radius: 50%;
+    transform: translateX(-50%) rotate(-24deg);
   }
 
   .mobile-reference-hero__anchor-line {
@@ -1517,17 +1585,60 @@
   }
 
   .mobile-reference-hero__anchor-line--one {
-    width: 115px;
-    right: 9%;
-    bottom: 40px;
+    width: 130px;
+    right: 50%;
+    bottom: 68px;
     transform: rotate(-23deg);
   }
 
   .mobile-reference-hero__anchor-line--two {
-    width: 76px;
-    right: 20%;
-    bottom: 23px;
+    width: 86px;
+    right: 32%;
+    bottom: 47px;
     transform: rotate(19deg);
+  }
+
+  .mobile-reference-hero__anchor-point {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    background: var(--orange);
+  }
+
+  .mobile-reference-hero__anchor-point--one {
+    left: 64%;
+    bottom: 72px;
+  }
+
+  .mobile-reference-hero__anchor-point--two {
+    left: 68%;
+    bottom: 47px;
+  }
+
+  .mobile-reference-hero__anchor-point--three {
+    left: 30%;
+    bottom: 62px;
+  }
+
+  .mobile-reference-hero__anchor-caption {
+    position: absolute;
+    bottom: 20px;
+    color: rgba(10, 12, 16, 0.55);
+    font-size: 0.36rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1.45;
+  }
+
+  .mobile-reference-hero__anchor-caption--left {
+    left: 0;
+  }
+
+  .mobile-reference-hero__anchor-caption--right {
+    right: 0;
+    text-align: right;
   }
 
   .mobile-reference-hero__anchor-label {
@@ -1542,7 +1653,7 @@
 
 @keyframes discovery-orbit {
   to {
-    transform: rotate(360deg);
+    transform: translateX(-50%) rotate(360deg);
   }
 }
 

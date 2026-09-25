@@ -191,7 +191,6 @@ export const HeroLanding: React.FC = () => {
     <section className="mobile-reference-hero md:hidden" id="top-mobile" aria-label="Discovery 2K26 hero">
       <div className="mobile-reference-hero__texture" aria-hidden="true" />
       <div className="mobile-reference-hero__technical-mark mobile-reference-hero__technical-mark--top" aria-hidden="true">17.241° N / 74.412° E</div>
-      <div className="mobile-reference-hero__technical-mark mobile-reference-hero__technical-mark--side" aria-hidden="true">ADCET / 026</div>
       <div className="mobile-reference-hero__content">
         <div className="mobile-reference-hero__eyebrow">
           <span />
@@ -210,8 +209,8 @@ export const HeroLanding: React.FC = () => {
         <div className="mobile-reference-hero__rule" />
 
         <div className="mobile-reference-hero__details">
-          <span>10 OCTOBER 2026</span>
-          <span>ADCET, ASHTA</span>
+          <span><Calendar aria-hidden="true" />10 OCTOBER 2026</span>
+          <span><MapPin aria-hidden="true" />ADCET, ASHTA</span>
         </div>
 
         <div className="mobile-reference-hero__countdown" aria-label="Countdown to Discovery 2K26">
@@ -223,21 +222,29 @@ export const HeroLanding: React.FC = () => {
         </div>
 
         <div className="mobile-reference-hero__actions">
+          <a href="/register" onClick={(e) => { e.preventDefault(); navigate('/register'); }} className="mobile-reference-hero__register">
+            <span>REGISTRATION</span>
+            <span aria-hidden="true">→</span>
+          </a>
           <a href="#tracks" onClick={(e) => { e.preventDefault(); document.getElementById('tracks')?.scrollIntoView({ behavior: 'smooth' }); }} className="mobile-reference-hero__cta">
             <span>EXPLORE EVENTS</span>
             <span aria-hidden="true">→</span>
           </a>
-          <a href="/register" onClick={(e) => { e.preventDefault(); navigate('/register'); }} className="mobile-reference-hero__register">
-            <span>REGISTER NOW</span>
-            <span aria-hidden="true">↗</span>
-          </a>
         </div>
 
         <div className="mobile-reference-hero__anchor" aria-hidden="true">
+          <span className="mobile-reference-hero__anchor-axis mobile-reference-hero__anchor-axis--horizontal" />
+          <span className="mobile-reference-hero__anchor-axis mobile-reference-hero__anchor-axis--vertical" />
           <span className="mobile-reference-hero__anchor-ring" />
+          <span className="mobile-reference-hero__anchor-ring mobile-reference-hero__anchor-ring--inner" />
+          <span className="mobile-reference-hero__anchor-orbit" />
           <span className="mobile-reference-hero__anchor-line mobile-reference-hero__anchor-line--one" />
           <span className="mobile-reference-hero__anchor-line mobile-reference-hero__anchor-line--two" />
-          <span className="mobile-reference-hero__anchor-label">DISCOVER / BUILD / PLAY</span>
+          <span className="mobile-reference-hero__anchor-point mobile-reference-hero__anchor-point--one" />
+          <span className="mobile-reference-hero__anchor-point mobile-reference-hero__anchor-point--two" />
+          <span className="mobile-reference-hero__anchor-point mobile-reference-hero__anchor-point--three" />
+          <span className="mobile-reference-hero__anchor-caption mobile-reference-hero__anchor-caption--left">IDEAS<br />INNOVATION<br />IMPACT</span>
+          <span className="mobile-reference-hero__anchor-caption mobile-reference-hero__anchor-caption--right">BUILD<br />SOLVE<br />CREATE</span>
         </div>
       </div>
     </section>
