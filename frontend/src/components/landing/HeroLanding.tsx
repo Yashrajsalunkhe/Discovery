@@ -45,8 +45,9 @@ export const HeroLanding: React.FC = () => {
   };
 
   return (
+    <>
     <header
-      className="hero-editorial-bg relative min-h-[92vh] lg:min-h-[94vh] pt-[92px] sm:pt-[125px] pb-10 sm:pb-20 flex flex-col items-center justify-center overflow-hidden border-b-2 border-[#0F1115] text-[#0F1115] select-none text-center"
+      className="hero-editorial-bg relative min-h-[92vh] lg:min-h-[94vh] pt-[92px] sm:pt-[125px] pb-10 sm:pb-20 flex flex-col items-center justify-center overflow-hidden border-b-2 border-[#0F1115] text-[#0F1115] select-none text-center hidden md:flex"
       id="top"
     >
       {/* Background Grid & Accents */}
@@ -186,5 +187,60 @@ export const HeroLanding: React.FC = () => {
       </div>
 
     </header>
+
+    <section className="mobile-reference-hero md:hidden" id="top-mobile" aria-label="Discovery 2K26 hero">
+      <div className="mobile-reference-hero__texture" aria-hidden="true" />
+      <div className="mobile-reference-hero__technical-mark mobile-reference-hero__technical-mark--top" aria-hidden="true">17.241° N / 74.412° E</div>
+      <div className="mobile-reference-hero__technical-mark mobile-reference-hero__technical-mark--side" aria-hidden="true">ADCET / 026</div>
+      <div className="mobile-reference-hero__content">
+        <div className="mobile-reference-hero__eyebrow">
+          <span />
+          ADCET PRESENTS
+        </div>
+
+        <h1 className="mobile-reference-hero__title">
+          <span>DISCOVERY</span>
+          <span className="mobile-reference-hero__title-accent">2K26</span>
+        </h1>
+
+        <p className="mobile-reference-hero__subtitle">
+          NATIONAL LEVEL TECHNICAL FEST
+        </p>
+
+        <div className="mobile-reference-hero__rule" />
+
+        <div className="mobile-reference-hero__details">
+          <span>10 OCTOBER 2026</span>
+          <span>ADCET, ASHTA</span>
+        </div>
+
+        <div className="mobile-reference-hero__countdown" aria-label="Countdown to Discovery 2K26">
+          <span className="mobile-reference-hero__countdown-label">EVENT STARTS IN</span>
+          <span><strong>{formatNumber(timeLeft.days)}</strong><small>DAYS</small></span>
+          <span><strong>{formatNumber(timeLeft.hours)}</strong><small>HRS</small></span>
+          <span><strong>{formatNumber(timeLeft.minutes)}</strong><small>MIN</small></span>
+          <span><strong>{formatNumber(timeLeft.seconds)}</strong><small>SEC</small></span>
+        </div>
+
+        <div className="mobile-reference-hero__actions">
+          <a href="#tracks" onClick={(e) => { e.preventDefault(); document.getElementById('tracks')?.scrollIntoView({ behavior: 'smooth' }); }} className="mobile-reference-hero__cta">
+            <span>EXPLORE EVENTS</span>
+            <span aria-hidden="true">→</span>
+          </a>
+          <a href="/register" onClick={(e) => { e.preventDefault(); navigate('/register'); }} className="mobile-reference-hero__register">
+            <span>REGISTER NOW</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+
+        <div className="mobile-reference-hero__anchor" aria-hidden="true">
+          <span className="mobile-reference-hero__anchor-ring" />
+          <span className="mobile-reference-hero__anchor-line mobile-reference-hero__anchor-line--one" />
+          <span className="mobile-reference-hero__anchor-line mobile-reference-hero__anchor-line--two" />
+          <span className="mobile-reference-hero__anchor-label">DISCOVER / BUILD / PLAY</span>
+        </div>
+      </div>
+    </section>
+    </>
   );
 };
