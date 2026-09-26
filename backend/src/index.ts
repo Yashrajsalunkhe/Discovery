@@ -215,6 +215,76 @@ app.get('/api/admin/registrations', authenticateAdmin, getAllRegistrations);
 app.get('/api/admin/export', authenticateAdmin, exportRegistrationsExcel);
 app.get('/api/admin/stats', authenticateAdmin, getRegistrationStats);
 
+// Admin: Resend confirmation emails for existing registrations
+app.post('/api/admin/resend-emails', authenticateAdmin, async (req, res) => {
+  try {
+    const { registrationIds } = req.body as { registrationIds?: number[] };
+
+    if (!registrationIds || !Array.isArray(registrationIds) || registrationIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Provide registrationIds as an array of numbers, e.g. { "registrationIds": [1010, 1011, 1012] }',
+      });
+    }
+
+    await connectToMongoDB();
+    const registrations = await Registration.find({
+      registrationId: { $in: registrationIds },
+    }).lean();
+
+    if (registrations.length === 0) {
+      return res.json({ success: false, error: 'No registrations found for the given IDs.' });
+    }
+
+    const { sendWelcomeEmail } = await import('./utils/mail.js');
+
+    const results: { id: number; email: string; status: string; error?: string }[] = [];
+
+    for (const reg of registrations) {
+      try {
+        await sendWelcomeEmail(
+          reg.leaderEmail,
+          reg.registrationId.toString(),
+          reg.leaderName,
+          reg.leaderYear,
+          reg.leaderMobile,
+          reg.selectedEvent,
+          reg.leaderCollege,
+          {
+            leaderDepartment: reg.leaderDepartment,
+            leaderCity: reg.leaderCity,
+            participationType: reg.participationType,
+            teamSize: reg.teamSize,
+            teamMembers: reg.teamMembers,
+            paymentId: reg.paymentId,
+            orderId: reg.orderId,
+            totalFee: reg.totalFee,
+            paperPresentationDept: reg.paperPresentationDept,
+            createdAt: reg.createdAt,
+          }
+        );
+        results.push({ id: reg.registrationId, email: reg.leaderEmail, status: 'sent' });
+        console.log(`✅ Resent email for #${reg.registrationId} to ${reg.leaderEmail}`);
+      } catch (emailError: any) {
+        results.push({ id: reg.registrationId, email: reg.leaderEmail, status: 'failed', error: emailError.message });
+        console.error(`❌ Resend failed for #${reg.registrationId}:`, emailError.message);
+      }
+    }
+
+    const sent = results.filter(r => r.status === 'sent').length;
+    const failed = results.filter(r => r.status === 'failed').length;
+
+    return res.json({
+      success: true,
+      message: `Resent ${sent}/${registrations.length} emails (${failed} failed)`,
+      results,
+    });
+  } catch (error: any) {
+    console.error('Resend emails error:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Admin Queue Management Routes
 app.get('/api/admin/queue', authenticateAdmin, getQueueDetails);
 app.post('/api/admin/queue/:id/retry', authenticateAdmin, retryQueueItem);
