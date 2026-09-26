@@ -235,19 +235,23 @@ export async function processPaidOrder(
     const saved = await saveRegistrationWithRetry({ ...context, paymentId, orderId, signature: signature || `webhook:${paymentId}` }, 5);
     await Payment.updateOne({ _id: paymentRecord._id }, { $set: { registrationStatus: 'CONFIRMED', registrationId: saved.registrationId } });
     console.log('REGISTRATION_CONFIRMED', { orderId, paymentId, registrationId: saved.registrationId });
-    sendWelcomeEmail(saved.leaderEmail, saved.registrationId.toString(), saved.leaderName, saved.leaderYear, saved.leaderMobile, saved.selectedEvent, saved.leaderCollege, {
-      leaderDepartment: saved.leaderDepartment,
-      leaderCity: saved.leaderCity,
-      participationType: saved.participationType,
-      teamSize: saved.teamSize,
-      teamMembers: saved.teamMembers,
-      paymentId: saved.paymentId,
-      orderId: saved.orderId,
-      totalFee: saved.totalFee,
-      paperPresentationDept: saved.paperPresentationDept,
-      createdAt: saved.createdAt,
-    })
-      .catch(error => console.error('EMAIL_FAILED', { registrationId: saved.registrationId, error }));
+    try {
+      await sendWelcomeEmail(saved.leaderEmail, saved.registrationId.toString(), saved.leaderName, saved.leaderYear, saved.leaderMobile, saved.selectedEvent, saved.leaderCollege, {
+        leaderDepartment: saved.leaderDepartment,
+        leaderCity: saved.leaderCity,
+        participationType: saved.participationType,
+        teamSize: saved.teamSize,
+        teamMembers: saved.teamMembers,
+        paymentId: saved.paymentId,
+        orderId: saved.orderId,
+        totalFee: saved.totalFee,
+        paperPresentationDept: saved.paperPresentationDept,
+        createdAt: saved.createdAt,
+      });
+      console.log('✅ EMAIL_SENT for registration', saved.registrationId);
+    } catch (emailError) {
+      console.error('EMAIL_FAILED', { registrationId: saved.registrationId, error: emailError });
+    }
     return { registrationId: saved.registrationId };
   } catch (error: any) {
     await Payment.updateOne({ _id: paymentRecord._id }, { $set: { status: 'CAPTURED', registrationStatus: 'PENDING', paymentId } });
