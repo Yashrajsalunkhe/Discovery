@@ -231,21 +231,6 @@ export const HeroLanding: React.FC = () => {
             <span aria-hidden="true">→</span>
           </a>
         </div>
-
-        <div className="mobile-reference-hero__anchor" aria-hidden="true">
-          <span className="mobile-reference-hero__anchor-axis mobile-reference-hero__anchor-axis--horizontal" />
-          <span className="mobile-reference-hero__anchor-axis mobile-reference-hero__anchor-axis--vertical" />
-          <span className="mobile-reference-hero__anchor-ring" />
-          <span className="mobile-reference-hero__anchor-ring mobile-reference-hero__anchor-ring--inner" />
-          <span className="mobile-reference-hero__anchor-orbit" />
-          <span className="mobile-reference-hero__anchor-line mobile-reference-hero__anchor-line--one" />
-          <span className="mobile-reference-hero__anchor-line mobile-reference-hero__anchor-line--two" />
-          <span className="mobile-reference-hero__anchor-point mobile-reference-hero__anchor-point--one" />
-          <span className="mobile-reference-hero__anchor-point mobile-reference-hero__anchor-point--two" />
-          <span className="mobile-reference-hero__anchor-point mobile-reference-hero__anchor-point--three" />
-          <span className="mobile-reference-hero__anchor-caption mobile-reference-hero__anchor-caption--left">IDEAS<br />INNOVATION<br />IMPACT</span>
-          <span className="mobile-reference-hero__anchor-caption mobile-reference-hero__anchor-caption--right">BUILD<br />SOLVE<br />CREATE</span>
-        </div>
       </div>
     </section>
     </>
