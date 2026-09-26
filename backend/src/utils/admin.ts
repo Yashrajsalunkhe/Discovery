@@ -18,6 +18,7 @@ export interface AdminDataRequest extends Request {
     yearFilter?: string;
     cityFilter?: string;
     participationFilter?: 'solo' | 'team';
+    paperPresentationDeptFilter?: string;
     startDate?: string;
     endDate?: string;
     search?: string;
@@ -34,6 +35,7 @@ export interface AdminExportRequest extends Request {
     yearFilter?: string;
     cityFilter?: string;
     participationFilter?: 'solo' | 'team';
+    paperPresentationDeptFilter?: string;
     startDate?: string;
     endDate?: string;
     search?: string;
@@ -53,6 +55,7 @@ const buildRegistrationQuery = (filters: {
   yearFilter?: string;
   cityFilter?: string;
   participationFilter?: string;
+  paperPresentationDeptFilter?: string;
   startDate?: string;
   endDate?: string;
   search?: string;
@@ -65,6 +68,7 @@ const buildRegistrationQuery = (filters: {
   addExactFilter(query, 'leaderYear', filters.yearFilter);
   addExactFilter(query, 'leaderCity', filters.cityFilter);
   addExactFilter(query, 'participationType', filters.participationFilter);
+  addExactFilter(query, 'paperPresentationDept', filters.paperPresentationDeptFilter);
 
   if (filters.startDate || filters.endDate) {
     query.createdAt = {};
@@ -169,6 +173,7 @@ export const getAllRegistrations = async (req: AdminDataRequest, res: Response) 
       yearFilter,
       cityFilter,
       participationFilter,
+      paperPresentationDeptFilter,
       startDate,
       endDate,
       search,
@@ -183,6 +188,7 @@ export const getAllRegistrations = async (req: AdminDataRequest, res: Response) 
       yearFilter,
       cityFilter,
       participationFilter,
+      paperPresentationDeptFilter,
       startDate,
       endDate,
       search
@@ -208,12 +214,13 @@ export const getAllRegistrations = async (req: AdminDataRequest, res: Response) 
       .lean();
 
     // Get unique events for filter dropdown
-    const [uniqueEvents, uniqueColleges, uniqueDepartments, uniqueYears, uniqueCities] = await Promise.all([
+    const [uniqueEvents, uniqueColleges, uniqueDepartments, uniqueYears, uniqueCities, uniquePaperDepts] = await Promise.all([
       Registration.distinct('selectedEvent'),
       Registration.distinct('leaderCollege'),
       Registration.distinct('leaderDepartment'),
       Registration.distinct('leaderYear'),
-      Registration.distinct('leaderCity')
+      Registration.distinct('leaderCity'),
+      Registration.distinct('paperPresentationDept', { paperPresentationDept: { $exists: true, $ne: '' } })
     ]);
 
     return res.json({
@@ -231,7 +238,8 @@ export const getAllRegistrations = async (req: AdminDataRequest, res: Response) 
           availableColleges: uniqueColleges,
           availableDepartments: uniqueDepartments,
           availableYears: uniqueYears,
-          availableCities: uniqueCities
+          availableCities: uniqueCities,
+          availablePaperPresentationDepts: uniquePaperDepts
         }
       }
     });
@@ -253,6 +261,7 @@ export const exportRegistrationsExcel = async (req: AdminExportRequest, res: Res
       yearFilter,
       cityFilter,
       participationFilter,
+      paperPresentationDeptFilter,
       startDate,
       endDate,
       search
@@ -265,6 +274,7 @@ export const exportRegistrationsExcel = async (req: AdminExportRequest, res: Res
       yearFilter,
       cityFilter,
       participationFilter,
+      paperPresentationDeptFilter,
       startDate,
       endDate,
       search
@@ -357,6 +367,17 @@ export const getRegistrationStats = async (req: Request, res: Response) => {
     const soloRegistrations = await Registration.countDocuments({ participationType: 'solo' });
     const teamRegistrations = await Registration.countDocuments({ participationType: 'team' });
 
+    // Calculate total students (solo count as 1, team count as teamSize which includes leader + members)
+    const totalStudentsResult = await Registration.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalStudents: { $sum: '$teamSize' }
+        }
+      }
+    ]);
+    const totalStudents = totalStudentsResult[0]?.totalStudents || 0;
+
     // Get event-wise counts
     const eventStats = await Registration.aggregate([
       {
@@ -385,6 +406,7 @@ export const getRegistrationStats = async (req: Request, res: Response) => {
           totalRegistrations,
           soloRegistrations,
           teamRegistrations,
+          totalStudents,
           totalRevenue: await Registration.aggregate([
             { $group: { _id: null, total: { $sum: '$totalFee' } } }
           ]).then(result => result[0]?.total || 0)

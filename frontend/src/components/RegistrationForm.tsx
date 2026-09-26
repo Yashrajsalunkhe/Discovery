@@ -141,7 +141,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
   const filteredEvents = [
     ...allEvents.filter((event) => event.name !== "Paper Presentation"),
     ...(paperPresentationEvent
-      ? [{ ...paperPresentationEvent, id: "paper-presentation", department: "Multiple Departments", minTeamSize: 2, maxTeamSize: 6 }]
+      ? [{ ...paperPresentationEvent, id: "paper-presentation", department: "Multiple Departments", minTeamSize: 2, maxTeamSize: 5 }]
       : []),
   ];
 
