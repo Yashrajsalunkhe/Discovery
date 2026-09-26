@@ -7,6 +7,7 @@ import {
   RefreshCwIcon,
   LogOutIcon,
   UsersIcon,
+  UserCheckIcon,
   TrendingUpIcon,
   IndianRupeeIcon,
   CalendarIcon,
@@ -68,6 +69,7 @@ interface AdminStats {
     totalRegistrations: number;
     soloRegistrations: number;
     teamRegistrations: number;
+    totalStudents: number;
     totalRevenue: number;
   };
   eventStats: Array<{
@@ -576,6 +578,13 @@ const AdminPanel: React.FC = () => {
         accent: '#3D6BFF',
       },
       {
+        label: 'TOTAL STUDENTS',
+        value: stats.overview.totalStudents,
+        sub: 'Including team members',
+        icon: <UserCheckIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+        accent: '#F97316',
+      },
+      {
         label: 'SOLO',
         value: stats.overview.soloRegistrations,
         sub: 'Individual participants',
@@ -676,7 +685,7 @@ const AdminPanel: React.FC = () => {
 
           {/* ── Stats Grid ── */}
           {stats && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {statCards.map((s) => (
                 <div key={s.label} className="flex items-center justify-between px-5 py-5" style={brutCard}>
                   <div className="space-y-1">
@@ -964,8 +973,7 @@ const AdminPanel: React.FC = () => {
                     <tr style={{ background: '#0F1115' }}>
                       {[
                         'Reg. ID', 'Date', 'Leader', 'Email', 'Mobile', 'College', 'Department', 'Year',
-                        'Event',
-                        ...(eventFilter === 'Paper Presentation' ? ['PP Dept'] : []),
+                        'Event', 'PP Dept',
                         'Type', 'Size', 'Team', 'Fee', 'Payment ID'
                       ].map(
                         (h) => (
@@ -1015,20 +1023,18 @@ const AdminPanel: React.FC = () => {
                             {reg.selectedEvent}
                           </span>
                         </td>
-                        {eventFilter === 'Paper Presentation' && (
-                          <td className="px-3 py-3 whitespace-nowrap">
-                            <span
-                              className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                              style={{
-                                background: reg.paperPresentationDept ? '#3D6BFF' : '#F5F4F0',
-                                color: reg.paperPresentationDept ? '#FFFFFF' : '#5E6672',
-                                border: '1px solid #0F1115',
-                              }}
-                            >
-                              {reg.paperPresentationDept || 'N/A'}
-                            </span>
-                          </td>
-                        )}
+                        <td className="px-3 py-3 whitespace-nowrap">
+                          <span
+                            className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                            style={{
+                              background: reg.paperPresentationDept ? '#3D6BFF' : '#F5F4F0',
+                              color: reg.paperPresentationDept ? '#FFFFFF' : '#5E6672',
+                              border: '1px solid #0F1115',
+                            }}
+                          >
+                            {reg.paperPresentationDept || 'N/A'}
+                          </span>
+                        </td>
                         <td className="px-3 py-3 whitespace-nowrap">
                           <span
                             className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
