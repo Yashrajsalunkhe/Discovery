@@ -1379,7 +1379,7 @@
   .mobile-reference-hero__eyebrow {
     margin-top: 26px;
     color: var(--ink);
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     letter-spacing: 0.18em;
   }
 
@@ -1390,20 +1390,27 @@
   .mobile-reference-hero__title {
     margin-top: 15px;
     color: var(--ink);
-    width: 100%;
+    width: fit-content;
+    max-width: 100%;
     font-size: clamp(2.25rem, 12.6vw, 5rem);
-    letter-spacing: -0.14em;
+    letter-spacing: 0.02em;
     line-height: 0.86;
     white-space: nowrap;
+    overflow: visible;
+    padding-right: 0.08em;
   }
 
   .mobile-reference-hero__title > span {
     display: block;
+    width: fit-content;
+    max-width: 100%;
   }
 
   .mobile-reference-hero__title-accent {
+    display: block;
     margin-top: 4px;
     color: var(--orange);
+    letter-spacing: 0.08em;
   }
 
   .mobile-reference-hero__year {
@@ -1424,7 +1431,7 @@
     align-items: center;
     margin-top: 23px;
     color: var(--ink);
-    font-size: 0.56rem;
+    font-size: 0.68rem;
     letter-spacing: 0.08em;
     line-height: 1.4;
   }
@@ -1456,7 +1463,7 @@
 
   .mobile-reference-hero__countdown-label {
     align-self: center;
-    font-size: 0.52rem;
+    font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     line-height: 1.25;
@@ -1473,13 +1480,13 @@
 
   .mobile-reference-hero__countdown strong {
     font-family: var(--f-display);
-    font-size: 0.92rem;
+    font-size: 1.12rem;
     font-weight: 900;
     line-height: 1;
   }
 
   .mobile-reference-hero__countdown small {
-    font-size: 0.42rem;
+    font-size: 0.5rem;
     font-weight: 700;
     letter-spacing: 0.08em;
   }
