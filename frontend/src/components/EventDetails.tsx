@@ -2,14 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  ArrowLeft, 
-  Users, 
-  DollarSign, 
-  Calendar, 
-  Mail, 
-  Phone, 
-  User, 
+import {
+  ArrowLeft,
+  Users,
+  DollarSign,
+  Calendar,
+  Mail,
+  Phone,
+  User,
   GraduationCap,
   BookOpen,
   Target,
@@ -83,14 +83,14 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-4 sm:mb-6 px-1">
             {event.department}
           </p>
-          
+
           {/* Key Info */}
           <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 sm:gap-4 mb-6 sm:mb-8 px-1">
             <Badge variant="secondary" className="flex items-center justify-center gap-2 px-3 py-2 text-sm sm:text-base mx-auto sm:mx-0 w-fit">
               <Users className="h-4 w-4 flex-shrink-0" />
               <span className="text-center">
-                {event.minTeamSize && event.minTeamSize > 1 
-                  ? `${event.minTeamSize}-${event.maxTeamSize} Participants` 
+                {event.minTeamSize && event.minTeamSize > 1
+                  ? `${event.minTeamSize}-${event.maxTeamSize} Participants`
                   : `Max ${event.maxTeamSize} ${event.maxTeamSize === 1 ? 'Participant' : 'Participants'}`
                 }
               </span>
@@ -442,9 +442,9 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                     <p className="text-sm text-muted-foreground px-2">
                       Download the complete paper submission guidelines
                     </p>
-                    <Button 
-                      onClick={handleDownloadRuleBook} 
-                      size="lg" 
+                    <Button
+                      onClick={handleDownloadRuleBook}
+                      size="lg"
                       variant="outline"
                       className="w-full border-primary/30 hover:bg-primary/10 text-primary py-2"
                     >
@@ -549,9 +549,9 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
                   <p className="text-muted-foreground text-sm sm:text-base px-2">
                     Register now to secure your spot in this exciting event!
                   </p>
-                  <Button 
-                    onClick={onRegister} 
-                    size="lg" 
+                  <Button
+                    onClick={onRegister}
+                    size="lg"
                     className="bg-primary hover:bg-primary/90 text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto"
                   >
                     <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />

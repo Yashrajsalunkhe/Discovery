@@ -61,7 +61,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       description: "Present cutting-edge research on advanced aeronautical engineering topics including materials science, structural design, aerodynamics, and UAV technologies. Showcase your academic research and technical expertise to industry professionals.",
       topics: [
         "Advanced Materials and Manufacturing",
-        "High-Temperature Materials and composites", 
+        "High-Temperature Materials and composites",
         "Surface Modification of Materials",
         "Materials for Space Applications",
         "Conventional Aerospace Metals and Materials",
@@ -101,58 +101,58 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 2,
       entryFee: 100,
       image: "/event-images/Paper_Glider.png",
-        description: "Design, fold, and hand-launch an original paper glider using only the A4 sheet provided at the venue. Compete for flight time, distance, accuracy, and design excellence.",
+      description: "Design, fold, and hand-launch an original paper glider using only the A4 sheet provided at the venue. Compete for flight time, distance, accuracy, and design excellence.",
       specifications: [
-          "One A4-size paper sheet will be provided to each participant.",
-          "No extra paper or additional material is allowed.",
-          "The glider must be made completely from the provided paper by folding only."
+        "One A4-size paper sheet will be provided to each participant.",
+        "No extra paper or additional material is allowed.",
+        "The glider must be made completely from the provided paper by folding only."
       ],
       rules: [
-          "Each team must consist of exactly two (2) members.",
-          "The glider must be made completely at the event venue.",
-          "Participants may fold, crease, roll, or tear the provided paper only if the organizers permit it.",
-          "No modification or addition of material is allowed after the glider is submitted for inspection.",
-          "The glider must be hand-launched.",
-          "The organizer's or judge's decision will be final and binding."
+        "Each team must consist of exactly two (2) members.",
+        "The glider must be made completely at the event venue.",
+        "Participants may fold, crease, roll, or tear the provided paper only if the organizers permit it.",
+        "No modification or addition of material is allowed after the glider is submitted for inspection.",
+        "The glider must be hand-launched.",
+        "The organizer's or judge's decision will be final and binding."
       ],
       gameplay: [
-          "The glider must be launched from the designated launch line.",
-          "Only one person may launch the glider.",
-          "Throwing the glider with excessive force or using a mechanical launching device is not allowed.",
-          "The participant must release the glider by hand.",
-          "The glider must be launched within the given time limit.",
-          "Each participant will get 3 attempts, and the best valid attempt will be considered for the final score."
-        ],
-        scoring: [
-          "For maximum flight time, time is measured from release until the glider first touches the ground.",
-          "For maximum distance, distance is measured from the launch line to the point where the glider first touches the ground.",
-          "For accuracy landing, the closest valid landing to the designated target will be ranked highest.",
-          "Best Glider Design will be judged on creativity and construction.",
-          "Recommended format: 10–15 minutes construction time, 3 flight attempts, and the best attempt counts."
+        "The glider must be launched from the designated launch line.",
+        "Only one person may launch the glider.",
+        "Throwing the glider with excessive force or using a mechanical launching device is not allowed.",
+        "The participant must release the glider by hand.",
+        "The glider must be launched within the given time limit.",
+        "Each participant will get 3 attempts, and the best valid attempt will be considered for the final score."
+      ],
+      scoring: [
+        "For maximum flight time, time is measured from release until the glider first touches the ground.",
+        "For maximum distance, distance is measured from the launch line to the point where the glider first touches the ground.",
+        "For accuracy landing, the closest valid landing to the designated target will be ranked highest.",
+        "Best Glider Design will be judged on creativity and construction.",
+        "Recommended format: 10–15 minutes construction time, 3 flight attempts, and the best attempt counts."
       ],
       safetyRegulations: [
-          "Scissors, blades, cutters, and any sharp tools are strictly prohibited.",
-          "A glider touching a wall, ceiling, person, or other obstruction may be declared invalid by the judges.",
-          "The event coordinators may stop or invalidate a flight if it creates a safety issue."
+        "Scissors, blades, cutters, and any sharp tools are strictly prohibited.",
+        "A glider touching a wall, ceiling, person, or other obstruction may be declared invalid by the judges.",
+        "The event coordinators may stop or invalidate a flight if it creates a safety issue."
       ],
       disqualification: [
-          "Using extra paper or any unauthorized material.",
-          "Using scissors, cutters, glue, tape, or any unauthorized tool or material.",
-          "Bringing a pre-made or pre-folded glider.",
-          "Receiving outside assistance during construction.",
-          "Intentionally interfering with another participant's glider.",
-          "Arguing with or disrespecting judges or organizers.",
-          "Violating any competition rule."
-        ],
-        constructionGuidelines: [
-          "No glue, tape, stapler, pins, clips, rubber bands, or any additional material is allowed.",
-          "Participants must make the glider only by folding the provided paper.",
-          "No pre-folded, pre-made, or prepared gliders are permitted."
-        ],
-        generalInstructions: [
-          "Participants must follow the instructions given by the event coordinators.",
-          "Participants are responsible for keeping their work area clean.",
-          "Any rule not specifically mentioned will be decided by the event coordinators based on fairness and safety."
+        "Using extra paper or any unauthorized material.",
+        "Using scissors, cutters, glue, tape, or any unauthorized tool or material.",
+        "Bringing a pre-made or pre-folded glider.",
+        "Receiving outside assistance during construction.",
+        "Intentionally interfering with another participant's glider.",
+        "Arguing with or disrespecting judges or organizers.",
+        "Violating any competition rule."
+      ],
+      constructionGuidelines: [
+        "No glue, tape, stapler, pins, clips, rubber bands, or any additional material is allowed.",
+        "Participants must make the glider only by folding the provided paper.",
+        "No pre-folded, pre-made, or prepared gliders are permitted."
+      ],
+      generalInstructions: [
+        "Participants must follow the instructions given by the event coordinators.",
+        "Participants are responsible for keeping their work area clean.",
+        "Any rule not specifically mentioned will be decided by the event coordinators based on fairness and safety."
       ],
       coordinators: {
         faculty: {
@@ -170,7 +170,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
     {
       id: "rc-simulator",
       name: "RC Simulator",
-      department: "Aeronautical Engineering", 
+      department: "Aeronautical Engineering",
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Water_rocket.png",
@@ -217,28 +217,28 @@ export const eventsByDepartment: Record<string, Event[]> = {
       description: "Present innovative research in mechanical engineering covering automation, automotive innovations, thermal systems, manufacturing processes, and renewable energy technologies. Share groundbreaking ideas and technical solutions.",
       topics: [
         "Advances in Automation and Robotics",
-        "Innovations in Automotive Industries", 
+        "Innovations in Automotive Industries",
         "Thermal Engineering and Energy Systems",
         "Manufacturing and Production Engineering",
         "Materials Science and Engineering",
         "Fluid Mechanics and Heat Transfer",
         "Machine Design and Mechatronics",
         "Renewable Energy Technologies"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Mr. Ajit R. Mane",
-        phone: "9850567931",
-        email: ""
-      },
-      student: {
-        name: "Mr. Shreyash Yadav",
-        phone: "9960308760",
-        email: ""
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
+          name: "Mr. Ajit R. Mane",
+          phone: "9850567931",
+          email: ""
+        },
+        student: {
+          name: "Mr. Shreyash Yadav",
+          phone: "9960308760",
+          email: ""
+        }
       }
-    }
     },
     {
       id: "robo-soccer",
@@ -345,21 +345,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Digital Signal Processing",
         "Control Systems and Automation",
         "High Voltage Engineering"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Mr. Indrajit D. Pharane",
-        phone: "9657240024",
-        email: "idp_ele@adcet.in"
-      },
-      student: {
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
+          name: "Mr. Indrajit D. Pharane",
+          phone: "9657240024",
+          email: "idp_ele@adcet.in"
+        },
+        student: {
           name: "Nilesh Lohar",
           phone: "8329293272",
-        email: ""
+          email: ""
+        }
       }
-    }
     },
     {
       id: "circuit-builder",
@@ -431,21 +431,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Transportation Engineering",
         "Structural Health Monitoring",
         "Green Building Technologies"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Dr. Vidya Abhijeet Lande",
-        phone: "7387102650",
-        email: "vmp_civil@adcet.in"
-      },
-      student: {
-        name: "Mr. Chinmay Jadhav",
-        phone: "9309417271",
-        email: ""
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
+          name: "Dr. Vidya Abhijeet Lande",
+          phone: "7387102650",
+          email: "vmp_civil@adcet.in"
+        },
+        student: {
+          name: "Mr. Chinmay Jadhav",
+          phone: "9309417271",
+          email: ""
+        }
       }
-    }
     },
     {
       id: "akruti",
@@ -532,21 +532,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Internet of Things (IoT)",
         "Mobile Application Development",
         "Software Engineering and Agile Methodologies"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Dr. Anisa B. Shikalgar",
-        phone: "9284068550",
-        email: "abs_cse@adcet.in"
-      },
-      student: {
-        name: "Parth Lande",
-        phone: "9175296745",
-        email: ""
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
+          name: "Dr. Anisa B. Shikalgar",
+          phone: "9284068550",
+          email: "abs_cse@adcet.in"
+        },
+        student: {
+          name: "Parth Lande",
+          phone: "9175296745",
+          email: ""
+        }
       }
-    }
     },
     {
       id: "code-compete",
@@ -618,21 +618,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Edge AI and IoT Integration",
         "Ethical AI and Bias Mitigation",
         "Reinforcement Learning"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Mrs. Supriya Abhijeet Pati",
-        phone: "9096898542",
-        email: "sap_aids@adcet.in"
-      },
-      student: {
-        name: "Rishikesh Dilip Dhapse",
-        phone: "8857869924",
-        email: "rushikeshdhapse81@gmail.com"
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
+          name: "Mrs. Supriya Abhijeet Pati",
+          phone: "9096898542",
+          email: "sap_aids@adcet.in"
+        },
+        student: {
+          name: "Rishikesh Dilip Dhapse",
+          phone: "8857869924",
+          email: "rushikeshdhapse81@gmail.com"
+        }
       }
-    }
     },
     {
       id: "codemania",
@@ -657,13 +657,12 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "prompt-wars",
       name: "Prompt Wars",
       department: "AI & Data Science",
-      minTeamSize: 1,
-      maxTeamSize: 3,
+      maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Coding_Compi.png",
-      description: "A timed generative-AI challenge where teams reveal, refine, and submit prompts for a secret scenario.",
+      description: "A timed generative-AI challenge where participants reveal, refine, and submit prompts for a secret scenario.",
       rules: [
-        "Teams may have 1 to 3 participants.",
+        "Participants compete individually.",
         "Any accessible LLM or image generator may be used unless the organizers specify a unified platform.",
         "Each round lasts 5 to 10 minutes.",
         "Submit the final output with an uncropped full-screen screenshot showing the exact prompt, model output, and timestamp.",
@@ -671,7 +670,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ],
       specifications: [
         "Challenge reveal: the host announces the target scenario or output requirement at the start of each round.",
-        "Execution window: teams draft, test, and iterate on prompts within the allocated time.",
+        "Execution window: participants draft, test, and iterate on prompts within the allocated time.",
         "Final submission: include the output and an uncropped screenshot showing the prompt, model output, and timestamp."
       ],
       coordinators: {
@@ -699,21 +698,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Cybersecurity Threat Detection",
         "Network Security and Firewalls",
         "Digital Forensics and Incident Response"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
           name: "Prof. S. N. Kamble",
-        phone: "9823723719",
-        email: "snk_iot@adcet.in"
-      },
-      student: {
-        name: "Mr. Anoj Pawar",
-        phone: "8446384538",
-        email: "pawaranoj038@gmail.com"
+          phone: "9823723719",
+          email: "snk_iot@adcet.in"
+        },
+        student: {
+          name: "Mr. Anoj Pawar",
+          phone: "8446384538",
+          email: "pawaranoj038@gmail.com"
+        }
       }
-    }
     },
     {
       id: "catch-the-flag",
@@ -784,7 +783,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       rules: paperPresentationRules,
       ruleBookFile: "/docs/Paper_Template.docx",
       coordinators: {
-          faculty: { name: "Ms. Anuja Ashok Salgar", phone: "7447251200", email: "aas_bba@adcet.in" },
+        faculty: { name: "Ms. Anuja Ashok Salgar", phone: "7447251200", email: "aas_bba@adcet.in" },
         student: { name: "Sanika Pawar", phone: "7020073670", email: "" }
       }
     },
