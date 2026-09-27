@@ -21,6 +21,7 @@ export interface Event {
   themes?: string[];
   submissionGuidelines?: string[];
   ruleBookFile?: string; // Path to downloadable rule book file
+  whatsappGroupLink?: string; // WhatsApp group invite link
   coordinators?: {
     faculty?: {
       name: string;
@@ -80,6 +81,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Submit the abstract, research paper, and presentation to the event coordinator by the announced deadline."
       ],
       ruleBookFile: "/docs/Paper_Template.docx",
+      whatsappGroupLink: "https://chat.whatsapp.com/EAXqI5aqwty73f40C3saRo",
       coordinators: {
         faculty: {
           name: "Dr. S. Sendhil Kumar",
@@ -154,6 +156,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Participants are responsible for keeping their work area clean.",
         "Any rule not specifically mentioned will be decided by the event coordinators based on fairness and safety."
       ],
+      whatsappGroupLink: "https://chat.whatsapp.com/JGJehAk9VskJ4R9y7UJ8FR",
       coordinators: {
         faculty: {
           name: "Dr. T. Anand",
@@ -191,6 +194,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "In case of a tie, the coordinator will conduct a tie-breaker flight with conditions and tasks decided by the coordinator.",
         "FLY SMART - CONTROL THE AIRCRAFT - LAND WITH PRECISION."
       ],
+      whatsappGroupLink: "https://chat.whatsapp.com/IvK6tEwHukb9HMcNouaqVa",
       coordinators: {
         faculty: {
           name: "Mr. Mohammed Hashim Y.",
@@ -227,6 +231,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       ],
       rules: paperPresentationRules,
       ruleBookFile: "/docs/Paper_Template.docx",
+      whatsappGroupLink: "https://chat.whatsapp.com/BMSXrvvKLAm09Vi8RFRe3X?s=sw&p=i&mlu=4&ilr=4",
       coordinators: {
         faculty: {
           name: "Mr. Ajit R. Mane",
@@ -277,6 +282,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "During the game if any of the team members touch the bot without the approval of the organizer then the bot has to start from the previous checkpoint.",
         "During the game bot has to cover all checkpoints and Finally reach the final endpoint then only the race Will be completed."
       ],
+      whatsappGroupLink: "https://chat.whatsapp.com/Gc1VAtLLcgo9xdViWh6t4s",
       coordinators: {
         faculty: {
           name: "Mr. Pritam V. Mali",
@@ -297,8 +303,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Cad_Conquer.png",
-      description: "Showcase your 3D modeling and CAD design skills in this intensive individual competition. Create complex mechanical components and assemblies using industry-standard software like SolidWorks or CATIA under time pressure."
-      ,
+      description: "Showcase your 3D modeling and CAD design skills in this intensive individual competition. Create complex mechanical components and assemblies using industry-standard software like SolidWorks or CATIA under time pressure.",
       rules: [
         "Individual participation is allowed and If the entry is more than 45 candidates, pre-qualifier round will be conducted.",
         "Participant should make the models in Solid works /CATIA.",
@@ -312,6 +317,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Final output has to be in PDF file format, and it should be submitted to the Event Management team.",
         "Entry Fee: Rs. 100/-"
       ],
+      whatsappGroupLink: "https://chat.whatsapp.com/CnHYVYSBVtL99RLAY8qmu2",
       coordinators: {
         faculty: {
           name: "Mr. Ganesh N. Rakate",
@@ -924,10 +930,47 @@ export const eventsByDepartment: Record<string, Event[]> = {
   ]
 };
 
+const whatsappGroupLinks: Record<string, string> = {
+  "rc-simulator": "https://chat.whatsapp.com/IvK6tEwHukb9HMcNouaqVa",
+  "functional-food": "https://chat.whatsapp.com/JYALcHpljCJ4Xl70jllLtJ",
+  "catch-the-flag": "https://chat.whatsapp.com/GPNQsL6wrC266M0lxv6wWB",
+  "tech-treasure-hunt": "https://chat.whatsapp.com/KGTLVkRDiXSCZ4XtBG1rKY",
+  akruti: "https://chat.whatsapp.com/GmJBeJehdmZ36PZhlHlI5l?s=sw&p=i&mlu=4&ilr=4",
+  "mech-paper": "https://chat.whatsapp.com/BMSXrvvKLAm09Vi8RFRe3X?s=sw&p=i&mlu=4&ilr=4",
+  "aids-paper": "https://chat.whatsapp.com/CQg8eIAtKln2JFHgfXYXJr",
+  "aero-paper": "https://chat.whatsapp.com/EAXqI5aqwty73f40C3saRo",
+  setu: "https://chat.whatsapp.com/IS2eeZAP2hC0Qkzmev1J3M",
+  "paper-glider": "https://chat.whatsapp.com/JGJehAk9VskJ4R9y7UJ8FR",
+  "cad-master": "https://chat.whatsapp.com/CnHYVYSBVtL99RLAY8qmu2",
+  troubleshooting: "https://chat.whatsapp.com/JtiltjLOjfrAoD6346RRDl",
+  "circuit-builder": "https://chat.whatsapp.com/IK5jdUslIUn0TrEcKcH0PS",
+  "cse-paper": "https://chat.whatsapp.com/Bj2Rru0eAEx58ExI67yMsC?s=cl&p=a&mlu=4&ilr=4",
+  "code-compete": "https://chat.whatsapp.com/EuvFNQZsYqeGfcS08rF1ww?s=sh&p=a&mlu=4&ilr=4",
+  "b-plan": "https://chat.whatsapp.com/L7mu4urDe7j5goEgwuZlIK",
+  "new-product-development": "https://chat.whatsapp.com/J1oYSFfMviA9WuI3b9osf4?mode=gi_t",
+  "civil-paper": "https://chat.whatsapp.com/BAyF7BdLYXaLE7KcWd7hGh",
+  bgmi: "https://chat.whatsapp.com/DdfePy6hLsoHgaIEwyBPUd",
+  "iot-paper": "https://chat.whatsapp.com/K6QAzUts32OFwswLgNJTeG",
+  "prompt-wars": "https://chat.whatsapp.com/IYwIocttxeH5QTUyl6962W",
+  "bca-paper": "https://chat.whatsapp.com/E5C6r1cTqvEEPU6rMbbztL",
+  codemania: "https://chat.whatsapp.com/EvESL3ztfcZGholOFBks7t?mode=gi_t",
+  "innovatex-robotics-ai": "https://chat.whatsapp.com/BBjFrCRNWKG9m8l0JOVjae",
+  "ad-mad": "https://chat.whatsapp.com/Ee9W6GuGd1v5mDu7PqXvX0?s=sh&p=a&mlu=4&ilr=4",
+  "bba-paper": "https://chat.whatsapp.com/LHwTQ7aGdIV6L1Q4iygsRA",
+  "robo-soccer": "https://chat.whatsapp.com/Gc1VAtLLcgo9xdViWh6t4s",
+  "elec-paper": "https://chat.whatsapp.com/JYcX3pUcIzIBWXKP3Bpdsp?mode=gi_t"
+};
+
 export const getAllEvents = (): Event[] => {
-  return Object.values(eventsByDepartment).flat();
+  return Object.values(eventsByDepartment).flat().map((event) => ({
+    ...event,
+    whatsappGroupLink: whatsappGroupLinks[event.id] || event.whatsappGroupLink
+  }));
 };
 
 export const getEventsByDepartment = (departmentId: string): Event[] => {
-  return eventsByDepartment[departmentId] || [];
+  return (eventsByDepartment[departmentId] || []).map((event) => ({
+    ...event,
+    whatsappGroupLink: whatsappGroupLinks[event.id] || event.whatsappGroupLink
+  }));
 };

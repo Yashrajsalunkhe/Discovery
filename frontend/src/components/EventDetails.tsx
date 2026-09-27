@@ -15,7 +15,8 @@ import {
   Target,
   CheckCircle,
   UserPlus,
-  Download
+  Download,
+  MessageCircle
 } from "lucide-react";
 import { Event } from "@/data/events";
 import { downloadRuleBook } from "@/utils/downloadUtils";
@@ -57,6 +58,22 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
             Back to Events
           </Button>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            {event.whatsappGroupLink && (
+              <Button
+                asChild
+                className="bg-[#25D366] hover:bg-[#1fb956] text-white font-bold border-2 border-[#128C7E] shadow-sm flex items-center justify-center w-full sm:w-auto px-4 py-2"
+              >
+                <a
+                  href={event.whatsappGroupLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Join the WhatsApp group for ${event.name}`}
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Join WhatsApp Group
+                </a>
+              </Button>
+            )}
             {event.name === "Paper Presentation" && event.ruleBookFile && (
               <Button
                 onClick={handleDownloadRuleBook}
