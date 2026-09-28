@@ -647,12 +647,11 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Coding_Compi.png",
-      description: "A three-round coding challenge that tests programming fundamentals and problem-solving under time pressure.",
-      rules: [
-        "The contest has three rounds, with two problems in each round.",
-        "Each round lasts 30 minutes.",
-        "Participants compete individually.",
-        "Any plagiarism results in immediate disqualification."
+      description: "CodeMania is a three-round coding event that tests programming knowledge, teamwork, strategy and debugging skill. Participants are filtered at each stage — starting with an individual MCQ test (Code Quest), progressing to a team-based clue hunt (Code Treasure Hunt), and culminating in an individual auction-and-debug finale (Code Auction & Debug). Think. Solve. Conquer.",
+      specifications: [
+        "Round 1 – Code Quest: Individual MCQ test (30 min, 30 questions). Topics include programming fundamentals, data structures, algorithms, output prediction, logic & aptitude, basic DBMS/OS/networking, and tech general knowledge. Languages: C, C++, Java, Python.",
+        "Round 2 – Code Treasure Hunt: Team-based clue hunt (60 min, 5–6 checkpoints). Qualified participants are randomly divided into teams of 3–4. Clues involve output prediction, cipher/pattern decoding, algorithm problems, and completing missing code.",
+        "Round 3 – Code Auction & Debug: Individual auction + debugging finale (~70 min). Participants bid for buggy code lots using 1000 virtual CodeCoins, then debug the won lots against test cases."
       ],
       coordinators: {
         faculty: { name: "Mrs. Smita Pavan Nalavade", phone: "7498695865", email: "sdp_aids@adcet.in" },
@@ -666,18 +665,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Coding_Compi.png",
-      description: "A timed generative-AI challenge where participants reveal, refine, and submit prompts for a secret scenario.",
+      description: "PROMPT WARS - Battle of the Minds is a three-round timed Generative AI challenge designed to test participants' prompt engineering, creativity, problem-solving, and AI-assisted development skills. Participants progress from basic image generation to scenario-based prompting and finally to building a functional digital product using prompts.",
       rules: [
         "Participants compete individually.",
-        "Any accessible LLM or image generator may be used unless the organizers specify a unified platform.",
-        "Each round lasts 5 to 10 minutes.",
-        "Submit the final output with an uncropped full-screen screenshot showing the exact prompt, model output, and timestamp.",
-        "Re-uploads are locked after submission."
+        "Only AI tools permitted or announced by the organizers may be used.",
+        "All prompts, outputs, screenshots, prototypes, and demonstrations must be submitted through the official submission method.",
+        "Participants must complete and submit their work within the time allotted for each round.",
+        "Round 1 requires a mobile screenshot showing the exact prompt and generated image.",
+        "Round 2 requires submission of the final prompt and generated output.",
+        "Round 3 requires a functional prototype with the required features and a demonstration when requested by the judges.",
+        "Judges' decisions regarding the final product and demonstration are final."
       ],
       specifications: [
-        "Challenge reveal: the host announces the target scenario or output requirement at the start of each round.",
-        "Execution window: participants draft, test, and iterate on prompts within the allocated time.",
-        "Final submission: include the output and an uncropped screenshot showing the prompt, model output, and timestamp."
+        "Round 1 - Prompt to Picture: Classroom, Easy, 10 minutes. Create an image from an organizer-provided topic and submit a screenshot showing the prompt and output.",
+        "Round 2 - Scenario Sprint: Computer Lab, Intermediate, 10 minutes. Convert a randomly assigned approximately 15-word scenario into an effective prompt and generate a relevant output.",
+        "Round 3 - Prompt to Product: Computer Lab, Advanced / Final Round, 20-30 minutes. Build and refine a functional website, landing page, dashboard, portfolio, booking interface, event website, or other assigned digital product using AI-assisted development."
       ],
       coordinators: {
         faculty: { name: "Prof. Prajakta S. Dabade", phone: "8262975756", email: "psd_aids@adcet.in" },
