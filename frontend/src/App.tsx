@@ -42,7 +42,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <Analytics />
+      <Analytics mode="production" />
       <SpeedInsights />
       <BrowserRouter
         future={{
