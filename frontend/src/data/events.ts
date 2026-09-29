@@ -303,12 +303,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Cad_Conquer.png",
-<<<<<<< HEAD
-      description: "Showcase your 3D modeling and CAD design skills in this intensive individual competition. Create complex mechanical components and assemblies using industry-standard software like CATIA under time pressure."
-      ,
-=======
       description: "Showcase your 3D modeling and CAD design skills in this intensive individual competition. Create complex mechanical components and assemblies using industry-standard software like CATIA under time pressure.",
->>>>>>> c5de2c033ada46a1436a60844021de5388cb3718
       rules: [
         "Individual participation is allowed and If the entry is more than 45 candidates, pre-qualifier round will be conducted.",
         "Participant should make the models in CATIA.",
