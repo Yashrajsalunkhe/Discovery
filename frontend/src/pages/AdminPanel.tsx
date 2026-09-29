@@ -7,6 +7,7 @@ import {
   RefreshCwIcon,
   LogOutIcon,
   UsersIcon,
+  UserCheckIcon,
   TrendingUpIcon,
   IndianRupeeIcon,
   CalendarIcon,
@@ -60,6 +61,7 @@ interface AvailableFilters {
   availableDepartments: string[];
   availableYears: string[];
   availableCities: string[];
+  availablePaperPresentationDepts: string[];
 }
 
 interface AdminStats {
@@ -67,6 +69,7 @@ interface AdminStats {
     totalRegistrations: number;
     soloRegistrations: number;
     teamRegistrations: number;
+    totalStudents: number;
     totalRevenue: number;
   };
   eventStats: Array<{
@@ -101,6 +104,7 @@ const AdminPanel: React.FC = () => {
     availableDepartments: [],
     availableYears: [],
     availableCities: [],
+    availablePaperPresentationDepts: [],
   });
   const [stats, setStats] = useState<AdminStats | null>(null);
 
@@ -112,6 +116,7 @@ const AdminPanel: React.FC = () => {
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [cityFilter, setCityFilter] = useState<string>('all');
   const [participationFilter, setParticipationFilter] = useState<string>('all');
+  const [paperPresentationDeptFilter, setPaperPresentationDeptFilter] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('createdAt');
@@ -138,7 +143,7 @@ const AdminPanel: React.FC = () => {
   const API_BASE = getApiBaseUrl();
 
   const appendFilterParams = (params: URLSearchParams) => {
-    const filters = {
+    const filters: Record<string, string> = {
       eventFilter,
       collegeFilter,
       departmentFilter,
@@ -149,6 +154,11 @@ const AdminPanel: React.FC = () => {
       endDate,
       search: searchTerm,
     };
+
+    // Only send paperPresentationDeptFilter when Paper Presentation event is selected
+    if (eventFilter === 'Paper Presentation') {
+      filters.paperPresentationDeptFilter = paperPresentationDeptFilter;
+    }
 
     Object.entries(filters).forEach(([key, value]) => {
       if (value && value !== 'all') params.append(key, value);
@@ -163,6 +173,7 @@ const AdminPanel: React.FC = () => {
     setYearFilter('all');
     setCityFilter('all');
     setParticipationFilter('all');
+    setPaperPresentationDeptFilter('all');
     setStartDate('');
     setEndDate('');
     setCurrentPage(1);
@@ -307,6 +318,7 @@ const AdminPanel: React.FC = () => {
           availableDepartments: filters.availableDepartments || [],
           availableYears: filters.availableYears || [],
           availableCities: filters.availableCities || [],
+          availablePaperPresentationDepts: filters.availablePaperPresentationDepts || [],
         });
       } else {
         toast({
@@ -415,7 +427,7 @@ const AdminPanel: React.FC = () => {
     if (isAuthenticated && token) {
       fetchRegistrations();
     }
-  }, [eventFilter, collegeFilter, departmentFilter, yearFilter, cityFilter, participationFilter, startDate, endDate, sortBy, sortOrder, currentPage, searchTerm, isAuthenticated, token]);
+  }, [eventFilter, collegeFilter, departmentFilter, yearFilter, cityFilter, participationFilter, paperPresentationDeptFilter, startDate, endDate, sortBy, sortOrder, currentPage, searchTerm, isAuthenticated, token]);
 
   // ═══════════════════════════════════════════════════════════
   //  LOGIN SCREEN — Mission-Control Brutalist
@@ -566,6 +578,13 @@ const AdminPanel: React.FC = () => {
         accent: '#3D6BFF',
       },
       {
+        label: 'TOTAL STUDENTS',
+        value: stats.overview.totalStudents,
+        sub: 'Including team members',
+        icon: <UserCheckIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+        accent: '#F97316',
+      },
+      {
         label: 'SOLO',
         value: stats.overview.soloRegistrations,
         sub: 'Individual participants',
@@ -666,7 +685,7 @@ const AdminPanel: React.FC = () => {
 
           {/* ── Stats Grid ── */}
           {stats && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {statCards.map((s) => (
                 <div key={s.label} className="flex items-center justify-between px-5 py-5" style={brutCard}>
                   <div className="space-y-1">
@@ -852,6 +871,19 @@ const AdminPanel: React.FC = () => {
                   </SelectContent>
                 </Select>
 
+                {/* Paper Presentation Department filter — only visible when PP event is selected */}
+                {eventFilter === 'Paper Presentation' && (
+                  <Select value={paperPresentationDeptFilter} onValueChange={(value) => { setPaperPresentationDeptFilter(value); setCurrentPage(1); }}>
+                    <SelectTrigger className="h-[42px] rounded-none text-xs font-bold uppercase tracking-wider" style={{ background: '#3D6BFF', border: '2px solid #0F1115', color: '#FFFFFF', ...monoFont }}>
+                      <SelectValue placeholder="PP Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All PP Departments</SelectItem>
+                      {availableFilters.availablePaperPresentationDepts.map((dept) => <SelectItem key={dept} value={dept}>{dept}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+
                 <Select value={yearFilter} onValueChange={(value) => { setYearFilter(value); setCurrentPage(1); }}>
                   <SelectTrigger className="h-[42px] rounded-none text-xs font-bold uppercase tracking-wider" style={{ background: '#FAFAF8', border: '2px solid #0F1115', color: '#0F1115', ...monoFont }}>
                     <SelectValue placeholder="Study year" />
@@ -939,7 +971,11 @@ const AdminPanel: React.FC = () => {
                 <table className="w-full text-left" style={{ ...monoFont, color: '#0F1115' }}>
                   <thead>
                     <tr style={{ background: '#0F1115' }}>
-                      {['Reg. ID', 'Date', 'Leader', 'Email', 'Mobile', 'College', 'Event', 'Type', 'Size', 'Team', 'Fee', 'Payment ID'].map(
+                      {[
+                        'Reg. ID', 'Date', 'Leader', 'Email', 'Mobile', 'College', 'Department', 'Year',
+                        'Event', 'PP Dept',
+                        'Type', 'Size', 'Team', 'Fee', 'Payment ID'
+                      ].map(
                         (h) => (
                           <th
                             key={h}
@@ -973,6 +1009,8 @@ const AdminPanel: React.FC = () => {
                         <td className="px-3 py-3 text-[11px] whitespace-nowrap">{reg.leaderEmail}</td>
                         <td className="px-3 py-3 text-xs whitespace-nowrap">{reg.leaderMobile}</td>
                         <td className="px-3 py-3 text-[11px] max-w-[180px] truncate">{reg.leaderCollege}</td>
+                        <td className="px-3 py-3 text-[11px] whitespace-nowrap">{reg.leaderDepartment}</td>
+                        <td className="px-3 py-3 text-[11px] whitespace-nowrap">{reg.leaderYear}</td>
                         <td className="px-3 py-3 whitespace-nowrap">
                           <span
                             className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
@@ -983,6 +1021,18 @@ const AdminPanel: React.FC = () => {
                             }}
                           >
                             {reg.selectedEvent}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 whitespace-nowrap">
+                          <span
+                            className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                            style={{
+                              background: reg.paperPresentationDept ? '#3D6BFF' : '#F5F4F0',
+                              color: reg.paperPresentationDept ? '#FFFFFF' : '#5E6672',
+                              border: '1px solid #0F1115',
+                            }}
+                          >
+                            {reg.paperPresentationDept || 'N/A'}
                           </span>
                         </td>
                         <td className="px-3 py-3 whitespace-nowrap">
@@ -1034,6 +1084,11 @@ const AdminPanel: React.FC = () => {
                                       <div><span className="font-bold">Email:</span> {reg.leaderEmail}</div>
                                       <div><span className="font-bold">Mobile:</span> {reg.leaderMobile}</div>
                                       <div><span className="font-bold">College:</span> {reg.leaderCollege}</div>
+                                      <div><span className="font-bold">Department:</span> {reg.leaderDepartment}</div>
+                                      <div><span className="font-bold">Year:</span> {reg.leaderYear}</div>
+                                      {reg.paperPresentationDept && (
+                                        <div className="col-span-2"><span className="font-bold">PP Department:</span> {reg.paperPresentationDept}</div>
+                                      )}
                                     </div>
                                   </div>
                                   {/* Members */}
@@ -1051,7 +1106,6 @@ const AdminPanel: React.FC = () => {
                                           >
                                             <div className="grid grid-cols-2 gap-3 text-xs" style={{ ...monoFont, color: '#0F1115' }}>
                                               <div><span className="font-bold">Name:</span> {member.name}</div>
-                                              <div><span className="font-bold">Email:</span> {member.email}</div>
                                               <div><span className="font-bold">Mobile:</span> {member.mobile}</div>
                                               <div><span className="font-bold">College:</span> {member.college}</div>
                                             </div>

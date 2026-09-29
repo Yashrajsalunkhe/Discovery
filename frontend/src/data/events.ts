@@ -21,6 +21,7 @@ export interface Event {
   themes?: string[];
   submissionGuidelines?: string[];
   ruleBookFile?: string; // Path to downloadable rule book file
+  whatsappGroupLink?: string; // WhatsApp group invite link
   coordinators?: {
     faculty?: {
       name: string;
@@ -54,13 +55,14 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "aero-paper",
       name: "Paper Presentation",
       department: "Aeronautical Engineering",
-        maxTeamSize: 5,
+      minTeamSize: 2,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present cutting-edge research on advanced aeronautical engineering topics including materials science, structural design, aerodynamics, and UAV technologies. Showcase your academic research and technical expertise to industry professionals.",
       topics: [
         "Advanced Materials and Manufacturing",
-        "High-Temperature Materials and composites", 
+        "High-Temperature Materials and composites",
         "Surface Modification of Materials",
         "Materials for Space Applications",
         "Conventional Aerospace Metals and Materials",
@@ -79,6 +81,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Submit the abstract, research paper, and presentation to the event coordinator by the announced deadline."
       ],
       ruleBookFile: "/docs/Paper_Template.docx",
+      whatsappGroupLink: "https://chat.whatsapp.com/EAXqI5aqwty73f40C3saRo",
       coordinators: {
         faculty: {
           name: "Dr. S. Sendhil Kumar",
@@ -100,59 +103,60 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 2,
       entryFee: 100,
       image: "/event-images/Paper_Glider.png",
-        description: "Design, fold, and hand-launch an original paper glider using only the A4 sheet provided at the venue. Compete for flight time, distance, accuracy, and design excellence.",
+      description: "Design, fold, and hand-launch an original paper glider using only the A4 sheet provided at the venue. Compete for flight time, distance, accuracy, and design excellence.",
       specifications: [
-          "One A4-size paper sheet will be provided to each participant.",
-          "No extra paper or additional material is allowed.",
-          "The glider must be made completely from the provided paper by folding only."
+        "One A4-size paper sheet will be provided to each participant.",
+        "No extra paper or additional material is allowed.",
+        "The glider must be made completely from the provided paper by folding only."
       ],
       rules: [
-          "Each team must consist of exactly two (2) members.",
-          "The glider must be made completely at the event venue.",
-          "Participants may fold, crease, roll, or tear the provided paper only if the organizers permit it.",
-          "No modification or addition of material is allowed after the glider is submitted for inspection.",
-          "The glider must be hand-launched.",
-          "The organizer's or judge's decision will be final and binding."
+        "Each team must consist of exactly two (2) members.",
+        "The glider must be made completely at the event venue.",
+        "Participants may fold, crease, roll, or tear the provided paper only if the organizers permit it.",
+        "No modification or addition of material is allowed after the glider is submitted for inspection.",
+        "The glider must be hand-launched.",
+        "The organizer's or judge's decision will be final and binding."
       ],
       gameplay: [
-          "The glider must be launched from the designated launch line.",
-          "Only one person may launch the glider.",
-          "Throwing the glider with excessive force or using a mechanical launching device is not allowed.",
-          "The participant must release the glider by hand.",
-          "The glider must be launched within the given time limit.",
-          "Each participant will get 3 attempts, and the best valid attempt will be considered for the final score."
-        ],
-        scoring: [
-          "For maximum flight time, time is measured from release until the glider first touches the ground.",
-          "For maximum distance, distance is measured from the launch line to the point where the glider first touches the ground.",
-          "For accuracy landing, the closest valid landing to the designated target will be ranked highest.",
-          "Best Glider Design will be judged on creativity and construction.",
-          "Recommended format: 10–15 minutes construction time, 3 flight attempts, and the best attempt counts."
+        "The glider must be launched from the designated launch line.",
+        "Only one person may launch the glider.",
+        "Throwing the glider with excessive force or using a mechanical launching device is not allowed.",
+        "The participant must release the glider by hand.",
+        "The glider must be launched within the given time limit.",
+        "Each participant will get 3 attempts, and the best valid attempt will be considered for the final score."
+      ],
+      scoring: [
+        "For maximum flight time, time is measured from release until the glider first touches the ground.",
+        "For maximum distance, distance is measured from the launch line to the point where the glider first touches the ground.",
+        "For accuracy landing, the closest valid landing to the designated target will be ranked highest.",
+        "Best Glider Design will be judged on creativity and construction.",
+        "Recommended format: 10–15 minutes construction time, 3 flight attempts, and the best attempt counts."
       ],
       safetyRegulations: [
-          "Scissors, blades, cutters, and any sharp tools are strictly prohibited.",
-          "A glider touching a wall, ceiling, person, or other obstruction may be declared invalid by the judges.",
-          "The event coordinators may stop or invalidate a flight if it creates a safety issue."
+        "Scissors, blades, cutters, and any sharp tools are strictly prohibited.",
+        "A glider touching a wall, ceiling, person, or other obstruction may be declared invalid by the judges.",
+        "The event coordinators may stop or invalidate a flight if it creates a safety issue."
       ],
       disqualification: [
-          "Using extra paper or any unauthorized material.",
-          "Using scissors, cutters, glue, tape, or any unauthorized tool or material.",
-          "Bringing a pre-made or pre-folded glider.",
-          "Receiving outside assistance during construction.",
-          "Intentionally interfering with another participant's glider.",
-          "Arguing with or disrespecting judges or organizers.",
-          "Violating any competition rule."
-        ],
-        constructionGuidelines: [
-          "No glue, tape, stapler, pins, clips, rubber bands, or any additional material is allowed.",
-          "Participants must make the glider only by folding the provided paper.",
-          "No pre-folded, pre-made, or prepared gliders are permitted."
-        ],
-        generalInstructions: [
-          "Participants must follow the instructions given by the event coordinators.",
-          "Participants are responsible for keeping their work area clean.",
-          "Any rule not specifically mentioned will be decided by the event coordinators based on fairness and safety."
+        "Using extra paper or any unauthorized material.",
+        "Using scissors, cutters, glue, tape, or any unauthorized tool or material.",
+        "Bringing a pre-made or pre-folded glider.",
+        "Receiving outside assistance during construction.",
+        "Intentionally interfering with another participant's glider.",
+        "Arguing with or disrespecting judges or organizers.",
+        "Violating any competition rule."
       ],
+      constructionGuidelines: [
+        "No glue, tape, stapler, pins, clips, rubber bands, or any additional material is allowed.",
+        "Participants must make the glider only by folding the provided paper.",
+        "No pre-folded, pre-made, or prepared gliders are permitted."
+      ],
+      generalInstructions: [
+        "Participants must follow the instructions given by the event coordinators.",
+        "Participants are responsible for keeping their work area clean.",
+        "Any rule not specifically mentioned will be decided by the event coordinators based on fairness and safety."
+      ],
+      whatsappGroupLink: "https://chat.whatsapp.com/JGJehAk9VskJ4R9y7UJ8FR",
       coordinators: {
         faculty: {
           name: "Dr. T. Anand",
@@ -168,8 +172,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
     },
     {
       id: "rc-simulator",
-      name: "Flight Simulator",
-      department: "Aeronautical Engineering", 
+      name: "RC Simulator",
+      department: "Aeronautical Engineering",
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Water_rocket.png",
@@ -190,6 +194,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "In case of a tie, the coordinator will conduct a tie-breaker flight with conditions and tasks decided by the coordinator.",
         "FLY SMART - CONTROL THE AIRCRAFT - LAND WITH PRECISION."
       ],
+      whatsappGroupLink: "https://chat.whatsapp.com/IvK6tEwHukb9HMcNouaqVa",
       coordinators: {
         faculty: {
           name: "Mr. Mohammed Hashim Y.",
@@ -209,34 +214,36 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "mech-paper",
       name: "Paper Presentation",
       department: "Mechanical Engineering",
+      minTeamSize: 2,
       maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present innovative research in mechanical engineering covering automation, automotive innovations, thermal systems, manufacturing processes, and renewable energy technologies. Share groundbreaking ideas and technical solutions.",
       topics: [
         "Advances in Automation and Robotics",
-        "Innovations in Automotive Industries", 
+        "Innovations in Automotive Industries",
         "Thermal Engineering and Energy Systems",
         "Manufacturing and Production Engineering",
         "Materials Science and Engineering",
         "Fluid Mechanics and Heat Transfer",
         "Machine Design and Mechatronics",
         "Renewable Energy Technologies"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Mr. Ajit R. Mane",
-        phone: "9850567931",
-        email: ""
-      },
-      student: {
-        name: "Mr. Shreyash Yadav",
-        phone: "9960308760",
-        email: ""
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      whatsappGroupLink: "https://chat.whatsapp.com/BMSXrvvKLAm09Vi8RFRe3X?s=sw&p=i&mlu=4&ilr=4",
+      coordinators: {
+        faculty: {
+          name: "Mr. Ajit R. Mane",
+          phone: "9850567931",
+          email: ""
+        },
+        student: {
+          name: "Mr. Shreyash Yadav",
+          phone: "9960308760",
+          email: ""
+        }
       }
-    }
     },
     {
       id: "robo-soccer",
@@ -275,6 +282,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "During the game if any of the team members touch the bot without the approval of the organizer then the bot has to start from the previous checkpoint.",
         "During the game bot has to cover all checkpoints and Finally reach the final endpoint then only the race Will be completed."
       ],
+      whatsappGroupLink: "https://chat.whatsapp.com/Gc1VAtLLcgo9xdViWh6t4s",
       coordinators: {
         faculty: {
           name: "Mr. Pritam V. Mali",
@@ -295,8 +303,12 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Cad_Conquer.png",
+<<<<<<< HEAD
       description: "Showcase your 3D modeling and CAD design skills in this intensive individual competition. Create complex mechanical components and assemblies using industry-standard software like CATIA under time pressure."
       ,
+=======
+      description: "Showcase your 3D modeling and CAD design skills in this intensive individual competition. Create complex mechanical components and assemblies using industry-standard software like SolidWorks or CATIA under time pressure.",
+>>>>>>> c5de2c033ada46a1436a60844021de5388cb3718
       rules: [
         "Individual participation is allowed and If the entry is more than 45 candidates, pre-qualifier round will be conducted.",
         "Participant should make the models in CATIA.",
@@ -310,6 +322,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Final output has to be in PDF file format, and it should be submitted to the Event Management team.",
         "Entry Fee: Rs. 100/-"
       ],
+      whatsappGroupLink: "https://chat.whatsapp.com/CnHYVYSBVtL99RLAY8qmu2",
       coordinators: {
         faculty: {
           name: "Mr. Ganesh N. Rakate",
@@ -329,6 +342,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "elec-paper",
       name: "Paper Presentation",
       department: "Electrical Engineering",
+      minTeamSize: 2,
       maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
@@ -342,21 +356,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Digital Signal Processing",
         "Control Systems and Automation",
         "High Voltage Engineering"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Mr. Indrajit D. Pharane",
-        phone: "9657240024",
-        email: "idp_ele@adcet.in"
-      },
-      student: {
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
+          name: "Mr. Indrajit D. Pharane",
+          phone: "9657240024",
+          email: "idp_ele@adcet.in"
+        },
+        student: {
           name: "Nilesh Lohar",
           phone: "8329293272",
-        email: ""
+          email: ""
+        }
       }
-    }
     },
     {
       id: "circuit-builder",
@@ -414,6 +428,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "civil-paper",
       name: "Paper Presentation",
       department: "Civil Engineering",
+      minTeamSize: 2,
       maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
@@ -427,21 +442,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Transportation Engineering",
         "Structural Health Monitoring",
         "Green Building Technologies"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Dr. Vidya Abhijeet Lande",
-        phone: "7387102650",
-        email: "vmp_civil@adcet.in"
-      },
-      student: {
-        name: "Mr. Chinmay Jadhav",
-        phone: "9309417271",
-        email: ""
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
+          name: "Dr. Vidya Abhijeet Lande",
+          phone: "7387102650",
+          email: "vmp_civil@adcet.in"
+        },
+        student: {
+          name: "Mr. Chinmay Jadhav",
+          phone: "9309417271",
+          email: ""
+        }
       }
-    }
     },
     {
       id: "akruti",
@@ -514,6 +529,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "cse-paper",
       name: "Paper Presentation",
       department: "Computer Science Engineering",
+      minTeamSize: 2,
       maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
@@ -527,21 +543,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Internet of Things (IoT)",
         "Mobile Application Development",
         "Software Engineering and Agile Methodologies"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Dr. Anisa B. Shikalgar",
-        phone: "9284068550",
-        email: "abs_cse@adcet.in"
-      },
-      student: {
-        name: "Parth Lande",
-        phone: "9175296745",
-        email: ""
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
+          name: "Dr. Anisa B. Shikalgar",
+          phone: "9284068550",
+          email: "abs_cse@adcet.in"
+        },
+        student: {
+          name: "Parth Lande",
+          phone: "9175296745",
+          email: ""
+        }
       }
-    }
     },
     {
       id: "code-compete",
@@ -599,6 +615,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "aids-paper",
       name: "Paper Presentation",
       department: "AI & Data Science",
+      minTeamSize: 2,
       maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
@@ -612,21 +629,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Edge AI and IoT Integration",
         "Ethical AI and Bias Mitigation",
         "Reinforcement Learning"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
-        name: "Mrs. Supriya Abhijeet Pati",
-        phone: "9096898542",
-        email: "sap_aids@adcet.in"
-      },
-      student: {
-        name: "Rishikesh Dilip Dhapse",
-        phone: "8857869924",
-        email: "rushikeshdhapse81@gmail.com"
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
+          name: "Mrs. Supriya Abhijeet Pati",
+          phone: "9096898542",
+          email: "sap_aids@adcet.in"
+        },
+        student: {
+          name: "Rishikesh Dilip Dhapse",
+          phone: "8857869924",
+          email: "rushikeshdhapse81@gmail.com"
+        }
       }
-    }
     },
     {
       id: "codemania",
@@ -635,12 +652,11 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Coding_Compi.png",
-      description: "A three-round coding challenge that tests programming fundamentals and problem-solving under time pressure.",
-      rules: [
-        "The contest has three rounds, with two problems in each round.",
-        "Each round lasts 30 minutes.",
-        "Participants compete individually.",
-        "Any plagiarism results in immediate disqualification."
+      description: "CodeMania is a three-round coding event that tests programming knowledge, teamwork, strategy and debugging skill. Participants are filtered at each stage — starting with an individual MCQ test (Code Quest), progressing to a team-based clue hunt (Code Treasure Hunt), and culminating in an individual auction-and-debug finale (Code Auction & Debug). Think. Solve. Conquer.",
+      specifications: [
+        "Round 1 – Code Quest: Individual MCQ test (30 min, 30 questions). Topics include programming fundamentals, data structures, algorithms, output prediction, logic & aptitude, basic DBMS/OS/networking, and tech general knowledge. Languages: C, C++, Java, Python.",
+        "Round 2 – Code Treasure Hunt: Team-based clue hunt (60 min, 5–6 checkpoints). Qualified participants are randomly divided into teams of 3–4. Clues involve output prediction, cipher/pattern decoding, algorithm problems, and completing missing code.",
+        "Round 3 – Code Auction & Debug: Individual auction + debugging finale (~70 min). Participants bid for buggy code lots using 1000 virtual CodeCoins, then debug the won lots against test cases."
       ],
       coordinators: {
         faculty: { name: "Mrs. Smita Pavan Nalavade", phone: "7498695865", email: "sdp_aids@adcet.in" },
@@ -649,23 +665,26 @@ export const eventsByDepartment: Record<string, Event[]> = {
     },
     {
       id: "prompt-wars",
-      name: "PROMPT WARS - Battle of the Minds",
+      name: "Prompt Wars",
       department: "AI & Data Science",
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Coding_Compi.png",
-      description: "A timed generative-AI challenge where teams reveal, refine, and submit prompts for a secret scenario.",
+      description: "PROMPT WARS - Battle of the Minds is a three-round timed Generative AI challenge designed to test participants' prompt engineering, creativity, problem-solving, and AI-assisted development skills. Participants progress from basic image generation to scenario-based prompting and finally to building a functional digital product using prompts.",
       rules: [
-        "Teams may have 1 to 3 participants.",
-        "Any accessible LLM or image generator may be used unless the organizers specify a unified platform.",
-        "Each round lasts 5 to 10 minutes.",
-        "Submit the final output with an uncropped full-screen screenshot showing the exact prompt, model output, and timestamp.",
-        "Re-uploads are locked after submission."
+        "Participants compete individually.",
+        "Only AI tools permitted or announced by the organizers may be used.",
+        "All prompts, outputs, screenshots, prototypes, and demonstrations must be submitted through the official submission method.",
+        "Participants must complete and submit their work within the time allotted for each round.",
+        "Round 1 requires a mobile screenshot showing the exact prompt and generated image.",
+        "Round 2 requires submission of the final prompt and generated output.",
+        "Round 3 requires a functional prototype with the required features and a demonstration when requested by the judges.",
+        "Judges' decisions regarding the final product and demonstration are final."
       ],
       specifications: [
-        "Challenge reveal: the host announces the target scenario or output requirement at the start of each round.",
-        "Execution window: teams draft, test, and iterate on prompts within the allocated time.",
-        "Final submission: include the output and an uncropped screenshot showing the prompt, model output, and timestamp."
+        "Round 1 - Prompt to Picture: Classroom, Easy, 10 minutes. Create an image from an organizer-provided topic and submit a screenshot showing the prompt and output.",
+        "Round 2 - Scenario Sprint: Computer Lab, Intermediate, 10 minutes. Convert a randomly assigned approximately 15-word scenario into an effective prompt and generate a relevant output.",
+        "Round 3 - Prompt to Product: Computer Lab, Advanced / Final Round, 20-30 minutes. Build and refine a functional website, landing page, dashboard, portfolio, booking interface, event website, or other assigned digital product using AI-assisted development."
       ],
       coordinators: {
         faculty: { name: "Prof. Prajakta S. Dabade", phone: "8262975756", email: "psd_aids@adcet.in" },
@@ -678,6 +697,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "iot-paper",
       name: "Paper Presentation",
       department: "IoT & Cyber Security",
+      minTeamSize: 2,
       maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
@@ -691,21 +711,21 @@ export const eventsByDepartment: Record<string, Event[]> = {
         "Cybersecurity Threat Detection",
         "Network Security and Firewalls",
         "Digital Forensics and Incident Response"
-    ],
-    rules: paperPresentationRules,
-    ruleBookFile: "/docs/Paper_Template.docx",
-    coordinators: {
-      faculty: {
+      ],
+      rules: paperPresentationRules,
+      ruleBookFile: "/docs/Paper_Template.docx",
+      coordinators: {
+        faculty: {
           name: "Prof. S. N. Kamble",
-        phone: "9823723719",
-        email: "snk_iot@adcet.in"
-      },
-      student: {
-        name: "Mr. Anoj Pawar",
-        phone: "8446384538",
-        email: "pawaranoj038@gmail.com"
+          phone: "9823723719",
+          email: "snk_iot@adcet.in"
+        },
+        student: {
+          name: "Mr. Anoj Pawar",
+          phone: "8446384538",
+          email: "pawaranoj038@gmail.com"
+        }
       }
-    }
     },
     {
       id: "catch-the-flag",
@@ -758,7 +778,8 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "bba-paper",
       name: "Paper Presentation",
       department: "Business Administration",
-        maxTeamSize: 2,
+      minTeamSize: 2,
+      maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
       description: "Present innovative business strategies and management concepts covering digital marketing, sustainable practices, entrepreneurship, financial management, HR strategies, and corporate social responsibility. Explore modern business solutions.",
@@ -775,7 +796,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       rules: paperPresentationRules,
       ruleBookFile: "/docs/Paper_Template.docx",
       coordinators: {
-          faculty: { name: "Ms. Anuja Ashok Salgar", phone: "7447251200", email: "aas_bba@adcet.in" },
+        faculty: { name: "Ms. Anuja Ashok Salgar", phone: "7447251200", email: "aas_bba@adcet.in" },
         student: { name: "Sanika Pawar", phone: "7020073670", email: "" }
       }
     },
@@ -803,6 +824,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "functional-food",
       name: "Paper Presentation",
       department: "Food Technology",
+      minTeamSize: 2,
       maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
@@ -881,6 +903,7 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "bca-paper",
       name: "Paper Presentation",
       department: "BCA",
+      minTeamSize: 2,
       maxTeamSize: 5,
       entryFee: 100,
       image: "/event-images/paper_presentation.png",
@@ -914,10 +937,47 @@ export const eventsByDepartment: Record<string, Event[]> = {
   ]
 };
 
+const whatsappGroupLinks: Record<string, string> = {
+  "rc-simulator": "https://chat.whatsapp.com/IvK6tEwHukb9HMcNouaqVa",
+  "functional-food": "https://chat.whatsapp.com/JYALcHpljCJ4Xl70jllLtJ",
+  "catch-the-flag": "https://chat.whatsapp.com/GPNQsL6wrC266M0lxv6wWB",
+  "tech-treasure-hunt": "https://chat.whatsapp.com/KGTLVkRDiXSCZ4XtBG1rKY",
+  akruti: "https://chat.whatsapp.com/GmJBeJehdmZ36PZhlHlI5l?s=sw&p=i&mlu=4&ilr=4",
+  "mech-paper": "https://chat.whatsapp.com/BMSXrvvKLAm09Vi8RFRe3X?s=sw&p=i&mlu=4&ilr=4",
+  "aids-paper": "https://chat.whatsapp.com/CQg8eIAtKln2JFHgfXYXJr",
+  "aero-paper": "https://chat.whatsapp.com/EAXqI5aqwty73f40C3saRo",
+  setu: "https://chat.whatsapp.com/IS2eeZAP2hC0Qkzmev1J3M",
+  "paper-glider": "https://chat.whatsapp.com/JGJehAk9VskJ4R9y7UJ8FR",
+  "cad-master": "https://chat.whatsapp.com/CnHYVYSBVtL99RLAY8qmu2",
+  troubleshooting: "https://chat.whatsapp.com/JtiltjLOjfrAoD6346RRDl",
+  "circuit-builder": "https://chat.whatsapp.com/IK5jdUslIUn0TrEcKcH0PS",
+  "cse-paper": "https://chat.whatsapp.com/Bj2Rru0eAEx58ExI67yMsC?s=cl&p=a&mlu=4&ilr=4",
+  "code-compete": "https://chat.whatsapp.com/EuvFNQZsYqeGfcS08rF1ww?s=sh&p=a&mlu=4&ilr=4",
+  "b-plan": "https://chat.whatsapp.com/L7mu4urDe7j5goEgwuZlIK",
+  "new-product-development": "https://chat.whatsapp.com/J1oYSFfMviA9WuI3b9osf4?mode=gi_t",
+  "civil-paper": "https://chat.whatsapp.com/BAyF7BdLYXaLE7KcWd7hGh",
+  bgmi: "https://chat.whatsapp.com/DdfePy6hLsoHgaIEwyBPUd",
+  "iot-paper": "https://chat.whatsapp.com/K6QAzUts32OFwswLgNJTeG",
+  "prompt-wars": "https://chat.whatsapp.com/IYwIocttxeH5QTUyl6962W",
+  "bca-paper": "https://chat.whatsapp.com/E5C6r1cTqvEEPU6rMbbztL",
+  codemania: "https://chat.whatsapp.com/EvESL3ztfcZGholOFBks7t?mode=gi_t",
+  "innovatex-robotics-ai": "https://chat.whatsapp.com/BBjFrCRNWKG9m8l0JOVjae",
+  "ad-mad": "https://chat.whatsapp.com/Ee9W6GuGd1v5mDu7PqXvX0?s=sh&p=a&mlu=4&ilr=4",
+  "bba-paper": "https://chat.whatsapp.com/LHwTQ7aGdIV6L1Q4iygsRA",
+  "robo-soccer": "https://chat.whatsapp.com/Gc1VAtLLcgo9xdViWh6t4s",
+  "elec-paper": "https://chat.whatsapp.com/JYcX3pUcIzIBWXKP3Bpdsp?mode=gi_t"
+};
+
 export const getAllEvents = (): Event[] => {
-  return Object.values(eventsByDepartment).flat();
+  return Object.values(eventsByDepartment).flat().map((event) => ({
+    ...event,
+    whatsappGroupLink: whatsappGroupLinks[event.id] || event.whatsappGroupLink
+  }));
 };
 
 export const getEventsByDepartment = (departmentId: string): Event[] => {
-  return eventsByDepartment[departmentId] || [];
+  return (eventsByDepartment[departmentId] || []).map((event) => ({
+    ...event,
+    whatsappGroupLink: whatsappGroupLinks[event.id] || event.whatsappGroupLink
+  }));
 };

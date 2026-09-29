@@ -559,28 +559,14 @@ export async function sendRegistrationEmail(
     text: plainText,
   };
 
-  const maxRetries = 3;
-  let attempt = 0;
-
-  while (attempt < maxRetries) {
-    try {
-      console.log(`📧 Email send attempt ${attempt + 1} for ${to}`);
-      const result = await sendMail(mailOptions);
-      console.log('✅ Email sent successfully:', result?.id, 'to:', to);
-      return;
-    } catch (error) {
-      attempt++;
-      console.error(`❌ Email send attempt ${attempt} failed for ${to}:`, error);
-
-      if (attempt >= maxRetries) {
-        console.error(`🔴 FINAL FAILURE: Failed to send email to ${to} after ${maxRetries} attempts`);
-        throw new Error(`Failed to send email after ${maxRetries} attempts: ${error}`);
-      }
-
-      // Short backoff
-      const delay = 1000 * attempt;
-      console.log(`⏳ Retrying in ${delay}ms...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
+  try {
+    console.log(`📧 Sending email to ${to}...`);
+    const result = await sendMail(mailOptions);
+    console.log('✅ Email sent successfully:', result?.id, 'to:', to);
+  } catch (error) {
+    console.error(`❌ Email send failed for ${to}:`, error);
+    // Don't throw — let the caller decide how to handle it.
+    // In serverless, retries just eat into the function timeout.
+    throw new Error(`Failed to send email to ${to}: ${error}`);
   }
 }

@@ -1,4 +1,4 @@
-import nodemailer, { type Transporter } from 'nodemailer';
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
+// Read config from env (evaluated at module load — fine for serverless)
 const emailEnabled = process.env.EMAIL_ENABLED === 'true';
 const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
 const smtpPort = Number(process.env.SMTP_PORT || 465);
@@ -16,7 +17,7 @@ const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASS;
 const senderEmail = process.env.EMAIL_FROM || smtpUser || '';
 
-// Only log config details in development
+// Log config on cold start (non-production only)
 if (process.env.NODE_ENV !== 'production') {
   console.log('📧 Email config:', {
     emailEnabled,
@@ -30,50 +31,10 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 if (emailEnabled && (!smtpUser || !smtpPass)) {
-  throw new Error(
-    'SMTP_USER and SMTP_PASS must be set when EMAIL_ENABLED is true. ' +
+  console.error(
+    '⚠️ SMTP_USER and SMTP_PASS must be set when EMAIL_ENABLED is true. ' +
     'For Gmail, generate an App Password at https://myaccount.google.com/apppasswords'
   );
-}
-
-let transporter: Transporter | null = null;
-
-if (emailEnabled && smtpUser && smtpPass) {
-  transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpSecure,
-    auth: {
-      user: smtpUser,
-      pass: smtpPass,
-    },
-    // Connection pool for better performance under load
-    pool: true,
-    maxConnections: 3,
-    maxMessages: 100,
-    // TLS options for robustness
-    tls: {
-      rejectUnauthorized: true,
-      minVersion: 'TLSv1.2',
-    },
-    // Timeouts to prevent hanging
-    connectionTimeout: 10000, // 10s
-    greetingTimeout: 10000,
-    socketTimeout: 30000,     // 30s
-  });
-
-  // Verify SMTP connection on startup
-  transporter.verify()
-    .then(() => {
-      console.log('✅ SMTP connection verified — email sending is ready');
-    })
-    .catch((err) => {
-      console.error('❌ SMTP connection verification FAILED:', err.message);
-      console.error('   → Check your SMTP_USER and SMTP_PASS in .env');
-      console.error('   → For Gmail, ensure 2FA is enabled and use an App Password');
-    });
-} else {
-  console.log('ℹ️  Email sending is disabled (EMAIL_ENABLED is not "true" or credentials missing)');
 }
 
 export interface SendMailOptions {
@@ -86,25 +47,74 @@ export interface SendMailOptions {
   headers?: Record<string, string>;
 }
 
+/**
+ * Create a fresh SMTP transporter for each send.
+ * In serverless (Vercel), module-level transporters go stale when the
+ * function instance is frozen/thawed between invocations.
+ */
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpSecure,
+    auth: {
+      user: smtpUser,
+      pass: smtpPass,
+    },
+    tls: {
+      rejectUnauthorized: true,
+      minVersion: 'TLSv1.2',
+    },
+    // Aggressive timeouts for serverless — fail fast, don't hang
+    connectionTimeout: 5000,  // 5s to connect
+    greetingTimeout: 5000,    // 5s for SMTP greeting
+    socketTimeout: 10000,     // 10s for the actual send
+  } as nodemailer.TransportOptions);
+}
+
+/**
+ * Send an email with a hard timeout to prevent Vercel function timeouts.
+ * Creates a fresh SMTP connection each time (serverless-safe).
+ */
 export async function sendMail(options: SendMailOptions): Promise<{ id: string } | null> {
-  if (!emailEnabled || !transporter) {
-    console.log('📧 Email disabled, skipping send to:', options.to);
+  if (!emailEnabled) {
+    console.log('📧 Email disabled (EMAIL_ENABLED !== "true"), skipping send to:', options.to);
     return null;
   }
 
-  const result = await transporter.sendMail({
-    from: options.from,
-    to: options.to,
-    subject: options.subject,
-    html: options.html,
-    text: options.text,
-    replyTo: options.replyTo,
-    headers: options.headers,
-  });
+  if (!smtpUser || !smtpPass) {
+    console.log('📧 SMTP credentials missing, skipping send to:', options.to);
+    return null;
+  }
 
-  console.log('✅ Email sent via SMTP:', result.messageId, 'to:', options.to);
-  return { id: result.messageId };
+  // Hard timeout: 8 seconds max per email send (Vercel hobby = 10s, pro = 60s)
+  const EMAIL_SEND_TIMEOUT = 8000;
+
+  const sendPromise = (async () => {
+    const transporter = createTransporter();
+    try {
+      const result = await transporter.sendMail({
+        from: options.from,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+        replyTo: options.replyTo,
+        headers: options.headers,
+      });
+      console.log('✅ Email sent via SMTP:', result.messageId, 'to:', options.to);
+      return { id: result.messageId };
+    } finally {
+      // Always close the connection — don't leave it dangling
+      transporter.close();
+    }
+  })();
+
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error(`Email send timed out after ${EMAIL_SEND_TIMEOUT}ms`)), EMAIL_SEND_TIMEOUT)
+  );
+
+  return Promise.race([sendPromise, timeoutPromise]);
 }
 
-export { transporter, senderEmail };
-export default transporter;
+export { senderEmail };

@@ -209,10 +209,10 @@ const processIndividualRegistration = async (
 
     console.log(`✅ Payment ${item.paymentId} successfully processed as registration ${savedRegistration.registrationId}`);
 
-    // Send welcome email (non-blocking)
+    // Send welcome email (await to ensure it completes in serverless)
     try {
       const { sendWelcomeEmail } = await import('./mail.js');
-      sendWelcomeEmail(
+      await sendWelcomeEmail(
         savedRegistration.leaderEmail,
         savedRegistration.registrationId.toString(),
         savedRegistration.leaderName,
@@ -232,11 +232,10 @@ const processIndividualRegistration = async (
           paperPresentationDept: savedRegistration.paperPresentationDept,
           createdAt: savedRegistration.createdAt,
         }
-      ).catch(emailError => {
-        console.error(`Email failed for registration ${savedRegistration.registrationId}:`, emailError);
-      });
-    } catch (emailImportError) {
-      console.error('Could not import email function:', emailImportError);
+      );
+      console.log(`✅ EMAIL_SENT for queued registration ${savedRegistration.registrationId}`);
+    } catch (emailError) {
+      console.error(`Email failed for registration ${savedRegistration.registrationId}:`, emailError);
     }
 
   } catch (error: any) {
