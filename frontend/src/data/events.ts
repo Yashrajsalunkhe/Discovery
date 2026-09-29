@@ -295,11 +295,11 @@ export const eventsByDepartment: Record<string, Event[]> = {
       maxTeamSize: 1,
       entryFee: 100,
       image: "/event-images/Cad_Conquer.png",
-      description: "Showcase your 3D modeling and CAD design skills in this intensive individual competition. Create complex mechanical components and assemblies using industry-standard software like SolidWorks or CATIA under time pressure."
+      description: "Showcase your 3D modeling and CAD design skills in this intensive individual competition. Create complex mechanical components and assemblies using industry-standard software like CATIA under time pressure."
       ,
       rules: [
         "Individual participation is allowed and If the entry is more than 45 candidates, pre-qualifier round will be conducted.",
-        "Participant should make the models in Solid works /CATIA.",
+        "Participant should make the models in CATIA.",
         "Computer and software facility will be provided in the event venue.",
         "Participant are not allowed to take digital gadgets and storage devices inside the event hall.",
         "Evaluation will be conducted by the Event management team with pre-defined rubrics.",
