@@ -175,7 +175,7 @@ export const sampleTeams: Team[] = [
       registrationId: "REG_001"
     } as TeamLeader,
     members: [sampleTeamMembers[1]],
-    event: "coding-competition",
+    event: "codemania",
     registrationDate: new Date("2024-10-01"),
     maxSize: 4,
     currentSize: 2,

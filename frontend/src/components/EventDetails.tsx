@@ -22,6 +22,7 @@ import { Event } from "@/data/events";
 import { downloadRuleBook } from "@/utils/downloadUtils";
 import { useToast } from "@/hooks/use-toast";
 import { CodingCompetitionRounds } from "./CodingCompetitionRounds";
+import { PromptWarsRounds } from "./PromptWarsRounds";
 
 interface EventDetailsProps {
   event: Event;
@@ -183,8 +184,10 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
 
           {/* Bot/Rocket Specifications */}
           {event.specifications && event.specifications.length > 0 && (
-            event.id === "coding-competition" ? (
+            event.id === "codemania" ? (
               <CodingCompetitionRounds specifications={event.specifications} />
+            ) : event.id === "prompt-wars" ? (
+              <PromptWarsRounds specifications={event.specifications} />
             ) : (
               <Card className="festival-card mx-0 sm:mx-0">
                 <CardHeader className="pb-4">

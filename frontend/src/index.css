@@ -935,6 +935,685 @@
 }
 
 /* ============================================================
+   CODEMANIA — Competition Rounds Styling
+   ============================================================ */
+
+/* Tagline Banner */
+.codemania-tagline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: var(--event-ink);
+  border: 3px solid var(--event-ink);
+  box-shadow: 6px 6px 0 var(--event-pink);
+}
+
+.codemania-tagline-text {
+  font-size: 1.3rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--event-yellow);
+}
+
+.codemania-tagline-dot {
+  font-size: 1.5rem;
+  color: var(--event-pink);
+  animation: codemania-pulse 2s ease-in-out infinite;
+}
+
+/* Progression Flow */
+.codemania-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1rem;
+  background: #fffdf7;
+  border: 3px solid var(--event-ink);
+  box-shadow: 6px 6px 0 var(--event-yellow);
+  flex-wrap: wrap;
+}
+
+.codemania-flow-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--event-ink);
+  background: #f0ebdf;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.codemania-flow-step:hover {
+  background: var(--event-yellow);
+  transform: translate(-1px, -1px);
+}
+
+.codemania-flow-icon {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--event-yellow);
+  border: 2px solid var(--event-ink);
+  color: var(--event-ink);
+}
+
+.codemania-flow-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.codemania-flow-title {
+  font-weight: 800;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--event-ink);
+}
+
+.codemania-flow-badge {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.6rem !important;
+  font-weight: 700 !important;
+  padding: 0 4px !important;
+  background: var(--event-ink) !important;
+  color: var(--event-yellow) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  width: fit-content;
+}
+
+.codemania-flow-arrow {
+  color: var(--event-ink);
+  opacity: 0.4;
+}
+
+/* ─── Round Card Layout (Timeline) ─── */
+.codemania-round {
+  position: relative;
+  display: flex;
+  gap: 1rem;
+  padding-left: 2.5rem;
+}
+
+.codemania-timeline-connector {
+  position: absolute;
+  left: 1.1rem;
+  top: 2.5rem;
+  width: 3px;
+  bottom: -1.25rem;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--event-ink) 0,
+    var(--event-ink) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+
+.codemania-timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 0.85rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--event-yellow);
+  border: 3px solid var(--event-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.75rem;
+  color: var(--event-ink);
+  z-index: 2;
+  box-shadow: 3px 3px 0 var(--event-pink);
+}
+
+/* ─── Round Card ─── */
+.codemania-round-card {
+  flex: 1;
+  border: 3px solid var(--event-ink);
+  background: #fffdf7;
+  box-shadow: 6px 6px 0 var(--event-pink);
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.codemania-round-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 8px 8px 0 var(--event-pink);
+}
+
+/* Header */
+.codemania-round-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid var(--event-ink);
+  text-align: left;
+  color: var(--event-ink);
+  gap: 0.75rem;
+}
+
+.codemania-round-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.codemania-round-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--event-ink);
+  flex-shrink: 0;
+}
+
+.codemania-round-title {
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--event-ink) !important;
+  line-height: 1.2;
+}
+
+.codemania-round-subtitle {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--event-ink);
+  opacity: 0.5;
+  margin-top: 2px;
+}
+
+.codemania-round-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.codemania-meta-badge {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  padding: 3px 6px !important;
+  background: #f0ebdf !important;
+  color: var(--event-ink) !important;
+  border: 2px solid var(--event-ink) !important;
+  border-radius: 0 !important;
+}
+
+/* ─── Round Body (always visible) ─── */
+
+.codemania-round-body-inner {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Description */
+.codemania-description {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--event-ink);
+  opacity: 0.8;
+}
+
+/* Language Tags */
+.codemania-lang-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.codemania-lang-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--event-ink);
+}
+
+.codemania-lang-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  background: var(--event-yellow);
+  border: 2px solid var(--event-ink);
+  color: var(--event-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Format Pills */
+.codemania-format-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .codemania-format-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.codemania-format-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--event-ink);
+  background: #f0ebdf;
+  border: 2px solid var(--event-ink);
+}
+
+.codemania-format-pill svg {
+  flex-shrink: 0;
+  color: var(--event-ink);
+  opacity: 0.5;
+}
+
+/* ─── Section Blocks ─── */
+.codemania-section {
+  border-top: 2px dashed var(--event-ink);
+  padding-top: 0.75rem;
+}
+
+.codemania-section:first-of-type {
+  border-top: 2px solid var(--event-ink);
+}
+
+.codemania-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--event-ink) !important;
+  margin-bottom: 0.6rem;
+}
+
+.codemania-section-title svg {
+  color: var(--event-ink);
+}
+
+/* Scoring Grid */
+.codemania-score-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.codemania-score-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.65rem;
+  background: #f0ebdf;
+  border: 2px solid var(--event-ink);
+  gap: 0.75rem;
+}
+
+.codemania-score-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--event-ink);
+}
+
+.codemania-score-value {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  background: white;
+  border: 2px solid var(--event-ink);
+  white-space: nowrap;
+}
+
+.codemania-positive {
+  color: #059669 !important;
+  border-color: #059669 !important;
+}
+
+.codemania-negative {
+  color: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+.codemania-neutral {
+  color: var(--event-ink) !important;
+}
+
+/* Auction Table */
+.codemania-auction-table {
+  border: 2px solid var(--event-ink);
+  overflow: hidden;
+}
+
+.codemania-auction-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 0.5rem 0.65rem;
+  background: var(--event-ink);
+  color: var(--event-yellow);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.codemania-auction-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 0.6rem 0.65rem;
+  background: #fffdf7;
+  border-top: 2px solid var(--event-ink);
+  align-items: center;
+  transition: background 0.15s;
+}
+
+.codemania-auction-row:hover {
+  background: var(--event-yellow);
+}
+
+.codemania-auction-diff {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--event-ink);
+}
+
+.codemania-diff-dot {
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--event-ink);
+  flex-shrink: 0;
+}
+
+.codemania-auction-price {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--event-ink);
+}
+
+.codemania-auction-points {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #059669;
+}
+
+/* Rule Lists */
+.codemania-rule-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.codemania-rule-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--event-ink);
+  padding: 0.35rem 0;
+}
+
+.codemania-rule-list li::before {
+  content: "→";
+  font-weight: 900;
+  color: var(--event-ink);
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+/* Selection Area */
+.codemania-selection-area {
+  border-top: 3px solid var(--event-ink);
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.codemania-selection-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--event-yellow);
+  border: 2px solid var(--event-ink);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--event-ink);
+  box-shadow: 3px 3px 0 var(--event-ink);
+}
+
+.codemania-tiebreaker {
+  font-size: 0.75rem;
+  color: var(--event-ink);
+  opacity: 0.6;
+  padding-left: 0.25rem;
+}
+
+.codemania-tiebreaker strong {
+  font-weight: 800;
+  opacity: 1;
+}
+
+/* Formula Box */
+.codemania-formula {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: var(--event-ink);
+  border: 3px solid var(--event-ink);
+  box-shadow: 4px 4px 0 var(--event-yellow);
+}
+
+.codemania-formula-label {
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--event-pink);
+}
+
+.codemania-formula-code {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--event-yellow);
+}
+
+/* ─── Prizes Section ─── */
+.codemania-prizes {
+  border: 3px solid var(--event-ink);
+  background: #fffdf7;
+  box-shadow: 6px 6px 0 var(--event-yellow);
+  overflow: hidden;
+}
+
+.codemania-prizes-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  background: var(--event-ink);
+  color: var(--event-yellow) !important;
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.codemania-prizes-title svg {
+  color: var(--event-yellow);
+}
+
+.codemania-prizes-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.codemania-prize-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 2px solid var(--event-ink);
+  transition: background 0.15s;
+}
+
+.codemania-prize-item:hover {
+  background: var(--event-yellow);
+}
+
+.codemania-prize-item:first-child {
+  border-top: none;
+}
+
+.codemania-prize-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.codemania-prize-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.codemania-prize-position {
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: var(--event-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.codemania-prize-reward {
+  font-size: 0.75rem;
+  color: var(--event-ink);
+  opacity: 0.6;
+}
+
+/* ─── Mobile Responsive ─── */
+@media (max-width: 640px) {
+  .codemania-round {
+    padding-left: 0;
+  }
+
+  .codemania-timeline-connector,
+  .codemania-timeline-dot {
+    display: none;
+  }
+
+  .codemania-round-card {
+    box-shadow: 4px 4px 0 var(--event-pink);
+  }
+
+  .codemania-round-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .codemania-round-header-right {
+    flex-wrap: wrap;
+  }
+
+  .codemania-round-title {
+    font-size: 0.85rem;
+  }
+
+  .codemania-tagline {
+    box-shadow: 4px 4px 0 var(--event-pink);
+  }
+
+  .codemania-tagline-text {
+    font-size: 1rem;
+  }
+
+  .codemania-flow {
+    box-shadow: 4px 4px 0 var(--event-yellow);
+    gap: 0.4rem;
+    padding: 0.85rem;
+  }
+
+  .codemania-flow-step {
+    padding: 0.4rem 0.5rem;
+    width: 100%;
+  }
+
+  .codemania-flow-arrow {
+    transform: rotate(90deg);
+  }
+
+  .codemania-round-body-inner {
+    padding: 1rem;
+  }
+
+  .codemania-prizes {
+    box-shadow: 4px 4px 0 var(--event-yellow);
+  }
+
+  .codemania-selection-box {
+    box-shadow: 2px 2px 0 var(--event-ink);
+  }
+
+  .codemania-formula {
+    box-shadow: 3px 3px 0 var(--event-yellow);
+  }
+
+  .codemania-formula-code {
+    font-size: 0.75rem;
+  }
+}
+
+/* ─── Animations ─── */
+@keyframes codemania-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* ============================================================
    KEYFRAMES
    ============================================================ */
 @keyframes sweep {
