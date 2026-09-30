@@ -894,16 +894,20 @@ export const eventsByDepartment: Record<string, Event[]> = {
       id: "innovatex-robotics-ai",
       name: "InnovateX - Robotics & AI",
       department: "Robotics & AI",
-      maxTeamSize: 2,
+      minTeamSize: 2,
+      maxTeamSize: 4,
       entryFee: 100,
       image: "/event-images/placeholder.svg",
       description: "Build and present an innovative robotics or artificial intelligence solution for a real-world problem.",
       rules: [
-        "Teams may include up to two participants.",
+        "Each team must have a minimum of 2 and a maximum of 4 members.",
         "The project must be original and presented by the registered team.",
-        "Teams must bring their prototype, presentation, and supporting documentation.",
-        "Judges' decisions will be final."
+        "Teams must bring a live working prototype of their project and a PPT containing a minimum of 3 slides.",
+        "Project Guidelines: Hardware-based projects are compulsory. Hardware + Software projects are welcome, but software-only projects are not accepted.",
+        "Judges' decisions will be final.",
+        "Only registered participants are allowed to join the official WhatsApp group. The group link and further instructions are provided below."
       ],
+      whatsappGroupLink: "https://chat.whatsapp.com/BBjFrCRNWKG9m8l0JOVjae",
       coordinators: {
         faculty: { name: "Mrs. Rutuja S. Pawar", phone: "9765317323", email: "" },
         student: { name: "Mr. Shivaji shivaji Patil", phone: "8767493503", email: "shivajipatil9868@gmail.com" }
