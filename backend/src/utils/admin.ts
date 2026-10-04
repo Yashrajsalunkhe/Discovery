@@ -378,6 +378,23 @@ export const getRegistrationStats = async (req: Request, res: Response) => {
     ]);
     const totalStudents = totalStudentsResult[0]?.totalStudents || 0;
 
+    const studentsFromOtherCollegesResult = await Registration.aggregate([
+      {
+        $project: {
+          participants: {
+            $concatArrays: [
+              [{ college: '$leaderCollege' }],
+              { $ifNull: ['$teamMembers', []] }
+            ]
+          }
+        }
+      },
+      { $unwind: '$participants' },
+      { $match: { 'participants.college': { $not: /adcet/i } } },
+      { $count: 'students' }
+    ]);
+    const studentsFromOtherColleges = studentsFromOtherCollegesResult[0]?.students || 0;
+
     // Get event-wise counts
     const eventStats = await Registration.aggregate([
       {
@@ -407,6 +424,7 @@ export const getRegistrationStats = async (req: Request, res: Response) => {
           soloRegistrations,
           teamRegistrations,
           totalStudents,
+          studentsFromOtherColleges,
           totalRevenue: await Registration.aggregate([
             { $group: { _id: null, total: { $sum: '$totalFee' } } }
           ]).then(result => result[0]?.total || 0)

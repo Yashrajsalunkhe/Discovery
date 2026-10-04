@@ -70,6 +70,7 @@ interface AdminStats {
     soloRegistrations: number;
     teamRegistrations: number;
     totalStudents: number;
+    studentsFromOtherColleges: number;
     totalRevenue: number;
   };
   eventStats: Array<{
@@ -583,6 +584,13 @@ const AdminPanel: React.FC = () => {
         sub: 'Including team members',
         icon: <UserCheckIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
         accent: '#F97316',
+      },
+      {
+        label: 'OTHER COLLEGES',
+        value: stats.overview.studentsFromOtherColleges,
+        sub: 'Excluding ADCET students',
+        icon: <UserCheckIcon className="w-6 h-6" style={{ color: '#0F1115' }} />,
+        accent: '#10B981',
       },
       {
         label: 'SOLO',
