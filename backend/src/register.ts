@@ -124,6 +124,22 @@ registrationSchema.index({ orderId: 1 }, { unique: true });
 
 export const Registration = mongoose.model<RegistrationDoc>('Registration', registrationSchema, 'registrations');
 
+export const BGMI_MAX_REGISTRATIONS = 36;
+
+export const getBgmiCapacity = async () => {
+  const result = await Registration.aggregate([
+    { $match: { selectedEvent: { $regex: /^BGMI$/i } } },
+    { $count: 'registeredRegistrations' }
+  ]);
+
+  const registeredRegistrations = result[0]?.registeredRegistrations || 0;
+  return {
+    registeredRegistrations,
+    remainingRegistrations: Math.max(BGMI_MAX_REGISTRATIONS - registeredRegistrations, 0),
+    isClosed: registeredRegistrations >= BGMI_MAX_REGISTRATIONS
+  };
+};
+
 // Enhanced registration function with atomic operations, transactions, and retry logic
 export const saveRegistrationWithRetry = async (registrationData: any, maxRetries = 5): Promise<RegistrationDoc> => {
   let lastError: Error;
@@ -135,6 +151,13 @@ export const saveRegistrationWithRetry = async (registrationData: any, maxRetrie
       let saved: RegistrationDoc;
       
       await session.withTransaction(async () => {
+        if (registrationData.selectedEvent?.trim().toLowerCase() === 'bgmi') {
+          const capacity = await getBgmiCapacity();
+          if (capacity.registeredRegistrations + 1 > BGMI_MAX_REGISTRATIONS) {
+            throw new Error('BGMI_REGISTRATION_CLOSED');
+          }
+        }
+
         // Get atomic registration ID
         const registrationId = await getNextRegistrationId();
         
@@ -269,6 +292,16 @@ export const registerUser = async (req: Request, res: Response) => {
       leaderYear, leaderCity, selectedEvent, paperPresentationDept, 
       participationType, teamSize, teamMembers, paymentId, orderId, signature, totalFee
     } = req.body;
+
+    if (selectedEvent?.trim().toLowerCase() === 'bgmi') {
+      const capacity = await getBgmiCapacity();
+      if (capacity.registeredRegistrations + 1 > BGMI_MAX_REGISTRATIONS) {
+        return res.status(409).json({
+          success: false,
+          error: 'BGMI registration is closed because the 36-registration limit has been reached.'
+        });
+      }
+    }
     
     // Mandatory payment validation
     if (!paymentId || !orderId || !signature) {

@@ -124,6 +124,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
   const [teamSize, setTeamSize] = useState<number>(1);
   const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown | null>(null);
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
+  const [bgmiRegistrationClosed, setBgmiRegistrationClosed] = useState(false);
 
   // Registration closure state
   const [registrationsClosed] = useState(false); // Set to true to close registrations
@@ -137,9 +138,16 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
 
   const allEvents = getAllEvents();
 
+  useEffect(() => {
+    fetch('/api/event-status/BGMI')
+      .then((response) => response.json())
+      .then((result) => setBgmiRegistrationClosed(result.success && result.data?.isClosed))
+      .catch(() => setBgmiRegistrationClosed(false));
+  }, []);
+
   const paperPresentationEvent = allEvents.find((event) => event.name === "Paper Presentation");
   const filteredEvents = [
-    ...allEvents.filter((event) => event.name !== "Paper Presentation"),
+    ...allEvents.filter((event) => event.name !== "Paper Presentation" && !(event.name === "BGMI" && bgmiRegistrationClosed)),
     ...(paperPresentationEvent
       ? [{ ...paperPresentationEvent, id: "paper-presentation", department: "Multiple Departments", minTeamSize: 2, maxTeamSize: 5 }]
       : []),
