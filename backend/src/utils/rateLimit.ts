@@ -63,5 +63,7 @@ export const createRateLimiter = (windowMs: number, maxRequests: number) => {
   };
 };
 
-// Rate limiter for registration endpoint: 3 requests per minute per IP
-export const registrationRateLimit = createRateLimiter(60 * 1000, 3);
+// Rate limiter for registration endpoint: 15 requests per minute per IP
+// Keep generous — payment verification + signature checks already prevent abuse.
+// A tight limit risks blocking legitimate retries after successful payment.
+export const registrationRateLimit = createRateLimiter(60 * 1000, 15);

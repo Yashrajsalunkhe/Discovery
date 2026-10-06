@@ -192,7 +192,14 @@ const processIndividualRegistration = async (
     const { saveRegistrationWithRetry } = await import('../register.js');
     
     // Process the registration with maximum retry attempts
-    const savedRegistration = await saveRegistrationWithRetry(item.registrationData, 10);
+    // Merge payment fields into registrationData — they are stored separately in the queue
+    const fullRegistrationData = {
+      ...item.registrationData,
+      paymentId: item.paymentId,
+      orderId: item.orderId,
+      signature: item.signature
+    };
+    const savedRegistration = await saveRegistrationWithRetry(fullRegistrationData, 10);
     
     // Mark as completed
     await PendingRegistration.updateOne(

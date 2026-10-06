@@ -20,9 +20,9 @@ export const checkDuplicate = async (req: Request, res: Response, next: NextFunc
   
   try {
     const existing = await Registration.findOne({
-      selectedEvent: eventLower,
+      selectedEvent: { $regex: `^${eventLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
       $or: [
-        { leaderEmail: emailLower },
+        { leaderEmail: { $regex: `^${emailLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } },
         { leaderMobile: phoneLower }
       ]
     });

@@ -134,6 +134,13 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [eventSelectOpen, setEventSelectOpen] = useState(false);
   const teamMembersRef = useRef<HTMLDivElement>(null);
+  // Store last payment details for retry without re-charging
+  const [lastPaymentDetails, setLastPaymentDetails] = useState<{
+    paymentId: string;
+    orderId: string;
+    signature: string;
+    registrationData: any;
+  } | null>(null);
   const { toast } = useToast();
 
   const allEvents = getAllEvents();
@@ -490,6 +497,15 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
           contact: registrationData.leaderMobile,
         },
         handler: async (razorpayResponse: any) => {
+          // Save payment details for retry without re-charging
+          const paymentDetails = {
+            paymentId: razorpayResponse.razorpay_payment_id,
+            orderId: razorpayResponse.razorpay_order_id,
+            signature: razorpayResponse.razorpay_signature,
+            registrationData
+          };
+          setLastPaymentDetails(paymentDetails);
+
           try {
             setPaymentStatus('confirming-registration');
             toast({
@@ -497,27 +513,51 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
               description: "Confirming your registration... Please wait.",
             });
 
-            // Submit registration after successful payment
-            const registerRes = await fetch("/api/register", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ...registrationData,
-                paymentId: razorpayResponse.razorpay_payment_id,
-                orderId: razorpayResponse.razorpay_order_id,
-                signature: razorpayResponse.razorpay_signature
-              })
-            });
+            // Retry registration up to 3 times with exponential backoff
+            let lastResult: any = null;
+            let lastError: any = null;
+            for (let attempt = 1; attempt <= 3; attempt++) {
+              try {
+                const registerRes = await fetch("/api/register", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    ...registrationData,
+                    paymentId: razorpayResponse.razorpay_payment_id,
+                    orderId: razorpayResponse.razorpay_order_id,
+                    signature: razorpayResponse.razorpay_signature
+                  })
+                });
 
-            const result = await registerRes.json();
-            if (result.success && result.registrationId) {
+                lastResult = await registerRes.json();
+
+                // If successful or a definitive error (not rate-limited/server error), stop retrying
+                if (lastResult.success || (registerRes.status !== 429 && registerRes.status < 500)) {
+                  break;
+                }
+
+                console.warn(`Registration attempt ${attempt} failed (HTTP ${registerRes.status}), retrying...`);
+              } catch (fetchErr) {
+                lastError = fetchErr;
+                console.warn(`Registration attempt ${attempt} network error:`, fetchErr);
+              }
+
+              // Wait before retrying: 2s, 4s
+              if (attempt < 3) {
+                await new Promise(r => setTimeout(r, 2000 * attempt));
+              }
+            }
+
+            if (lastResult?.success && lastResult.registrationId) {
+              setLastPaymentDetails(null); // Clear — no longer needed
               setPaymentStatus('success');
               setIsSubmitted(true);
               toast({
                 title: "Registration Successful!",
                 description: "Your registration has been confirmed. You will receive a confirmation email shortly.",
               });
-            } else if (result.success) {
+            } else if (lastResult?.success) {
+              setLastPaymentDetails(null);
               setPaymentStatus('pending');
               setIsSubmitted(true);
               toast({
@@ -526,20 +566,20 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
               });
             } else {
               setPaymentStatus('failed');
-              setPaymentError(result.error || "Registration failed after successful payment. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id);
+              setPaymentError(lastResult?.error || lastError?.message || "Registration failed after successful payment. Click 'Retry Registration' to try again without being charged. Payment ID: " + razorpayResponse.razorpay_payment_id);
               toast({
                 title: "Registration Failed",
-                description: "Payment was successful but registration failed. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id,
+                description: "Payment was successful but registration failed. You can retry without being charged again.",
                 variant: "destructive",
               });
             }
           } catch (err) {
             console.error('Registration error:', err);
             setPaymentStatus('failed');
-            setPaymentError("Registration failed after successful payment. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id);
+            setPaymentError("Registration failed after successful payment. Click 'Retry Registration' to try again without being charged. Payment ID: " + razorpayResponse.razorpay_payment_id);
             toast({
               title: "Registration Failed",
-              description: "Payment was successful but registration failed. Please contact support with your payment ID: " + razorpayResponse.razorpay_payment_id,
+              description: "Payment was successful but registration failed. You can retry without being charged again.",
               variant: "destructive",
             });
           } finally {
@@ -1244,18 +1284,74 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                         <div className="flex-1">
                           <h3 className="font-semibold text-destructive mb-1">Payment Issue</h3>
                           <p className="text-sm text-destructive/80 mb-3">{paymentError}</p>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setPaymentError(null);
-                              setPaymentStatus('idle');
-                            }}
-                            className="border-destructive/30 text-destructive hover:bg-destructive/10"
-                          >
-                            Try Again
-                          </Button>
+                          <div className="flex gap-2 flex-wrap">
+                            {/* Retry registration with saved payment — no new charge */}
+                            {lastPaymentDetails && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                disabled={isSubmitting}
+                                onClick={async () => {
+                                  setIsSubmitting(true);
+                                  setPaymentStatus('confirming-registration');
+                                  setPaymentError(null);
+                                  try {
+                                    const registerRes = await fetch("/api/register", {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({
+                                        ...lastPaymentDetails.registrationData,
+                                        paymentId: lastPaymentDetails.paymentId,
+                                        orderId: lastPaymentDetails.orderId,
+                                        signature: lastPaymentDetails.signature
+                                      })
+                                    });
+                                    const result = await registerRes.json();
+                                    if (result.success && result.registrationId) {
+                                      setLastPaymentDetails(null);
+                                      setPaymentStatus('success');
+                                      setIsSubmitted(true);
+                                      toast({ title: "Registration Successful!", description: "Your registration has been confirmed." });
+                                    } else if (result.success) {
+                                      setLastPaymentDetails(null);
+                                      setPaymentStatus('pending');
+                                      setIsSubmitted(true);
+                                      toast({ title: "Payment Received", description: "Your registration is being confirmed. Do not make another payment." });
+                                    } else {
+                                      setPaymentStatus('failed');
+                                      setPaymentError(result.error || "Retry failed. Please contact support with Payment ID: " + lastPaymentDetails.paymentId);
+                                    }
+                                  } catch (err) {
+                                    setPaymentStatus('failed');
+                                    setPaymentError("Retry failed. Please contact support with Payment ID: " + lastPaymentDetails.paymentId);
+                                  } finally {
+                                    setIsSubmitting(false);
+                                  }
+                                }}
+                                className="border-brass/50 text-brass hover:bg-brass/10"
+                              >
+                                {isSubmitting ? (
+                                  <><Loader2 className="mr-2 h-3 w-3 animate-spin" />Retrying...</>
+                                ) : (
+                                  'Retry Registration (No Extra Charge)'
+                                )}
+                              </Button>
+                            )}
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setPaymentError(null);
+                                setPaymentStatus('idle');
+                                setLastPaymentDetails(null);
+                              }}
+                              className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                            >
+                              Start Over
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
