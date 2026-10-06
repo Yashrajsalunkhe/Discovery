@@ -124,6 +124,8 @@ registrationSchema.index({ orderId: 1 }, { unique: true });
 
 export const Registration = mongoose.model<RegistrationDoc>('Registration', registrationSchema, 'registrations');
 
+const configuredBgmiLimit = Number.parseInt(process.env.BGMI_REGISTRATION_LIMIT ?? '', 10);
+
 const EVENT_REGISTRATION_LIMITS: Record<string, number> = {
   'paper presentation:aeronautical engineering': 25,
   'paper presentation:mechanical engineering': 35,
@@ -148,7 +150,9 @@ const EVENT_REGISTRATION_LIMITS: Record<string, number> = {
   codemania: 200,
   'prompt wars': 100,
   'catch the flag': 100,
-  bgmi: 36,
+  ...(Number.isFinite(configuredBgmiLimit) && configuredBgmiLimit > 0
+    ? { bgmi: configuredBgmiLimit }
+    : {}),
   'ad-mad': 20,
   'new food product development': 30,
   'innovatex - robotics & ai': 50,
