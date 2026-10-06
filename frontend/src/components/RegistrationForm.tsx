@@ -124,7 +124,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
   const [teamSize, setTeamSize] = useState<number>(1);
   const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown | null>(null);
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
-  const [bgmiRegistrationClosed, setBgmiRegistrationClosed] = useState(false);
+  const [closedEvents, setClosedEvents] = useState<Set<string>>(new Set());
 
   // Registration closure state
   const [registrationsClosed] = useState(false); // Set to true to close registrations
@@ -139,15 +139,25 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
   const allEvents = getAllEvents();
 
   useEffect(() => {
-    fetch('/api/event-status/BGMI')
-      .then((response) => response.json())
-      .then((result) => setBgmiRegistrationClosed(result.success && result.data?.isClosed))
-      .catch(() => setBgmiRegistrationClosed(false));
+    const eventNames = [...new Set(allEvents.map((event) => event.name))]
+      .filter((name) => name !== "Paper Presentation");
+
+    Promise.all(eventNames.map(async (eventName) => {
+      try {
+        const response = await fetch(`/api/event-status/${encodeURIComponent(eventName)}`);
+        const result = await response.json();
+        return result.success && result.data?.isClosed ? eventName : null;
+      } catch {
+        return null;
+      }
+    })).then((results) => {
+      setClosedEvents(new Set(results.filter((eventName): eventName is string => Boolean(eventName))));
+    });
   }, []);
 
   const paperPresentationEvent = allEvents.find((event) => event.name === "Paper Presentation");
   const filteredEvents = [
-    ...allEvents.filter((event) => event.name !== "Paper Presentation" && !(event.name === "BGMI" && bgmiRegistrationClosed)),
+    ...allEvents.filter((event) => event.name !== "Paper Presentation" && !closedEvents.has(event.name)),
     ...(paperPresentationEvent
       ? [{ ...paperPresentationEvent, id: "paper-presentation", department: "Multiple Departments", minTeamSize: 2, maxTeamSize: 5 }]
       : []),

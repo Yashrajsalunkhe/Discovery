@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import Razorpay from 'razorpay';
 import { calculateTotalWithRazorpayFees, calculateTeamFee } from './feeCalculation.js';
 import { Payment } from './payment.js';
-import { BGMI_MAX_REGISTRATIONS, getBgmiCapacity } from '../register.js';
+import { getEventCapacity, getEventRegistrationLimit } from '../register.js';
 
 export const orderRazorpay: RequestHandler = async (req, res, next) => {
     // Validate Razorpay credentials
@@ -22,12 +22,18 @@ export const orderRazorpay: RequestHandler = async (req, res, next) => {
     try {
         const { amount, currency, receipt, baseFee, participationType, teamSize, baseFeePerMember, registrationData } = req.body;
 
-        if (registrationData?.selectedEvent?.trim().toLowerCase() === 'bgmi') {
-            const capacity = await getBgmiCapacity();
-            if (capacity.registeredRegistrations + 1 > BGMI_MAX_REGISTRATIONS) {
+        const eventLimit = registrationData?.selectedEvent
+            ? getEventRegistrationLimit(registrationData.selectedEvent, registrationData.paperPresentationDept)
+            : undefined;
+        if (eventLimit && registrationData?.selectedEvent) {
+            const capacity = await getEventCapacity(
+                registrationData.selectedEvent,
+                registrationData.paperPresentationDept
+            );
+            if (capacity.registeredRegistrations + 1 > eventLimit) {
                 return res.status(409).json({
                     success: false,
-                    error: 'BGMI registration is closed because the 36-registration limit has been reached.'
+                    error: `${registrationData.selectedEvent} registration is closed because the limit has been reached.`
                 });
             }
         }

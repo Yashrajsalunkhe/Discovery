@@ -124,21 +124,76 @@ registrationSchema.index({ orderId: 1 }, { unique: true });
 
 export const Registration = mongoose.model<RegistrationDoc>('Registration', registrationSchema, 'registrations');
 
-export const BGMI_MAX_REGISTRATIONS = 36;
+const EVENT_REGISTRATION_LIMITS: Record<string, number> = {
+  'paper presentation:aeronautical engineering': 25,
+  'paper presentation:mechanical engineering': 35,
+  'paper presentation:electrical engineering': 40,
+  'paper presentation:civil engineering': 28,
+  'paper presentation:computer science engineering': 50,
+  'paper presentation:ai & data science': 30,
+  'paper presentation:iot & cyber security': 36,
+  'paper presentation:food technology': 15,
+  'paper presentation:business administration': 10,
+  'paper presentation:bca': 25,
+  'robo soccer': 80,
+  'cad master': 80,
+  'paper glider': 80,
+  'rc simulator': 40,
+  troubleshooting: 100,
+  'circuit builder': 75,
+  akruti: 100,
+  setu: 50,
+  'code 2 compete': 100,
+  'b-plan': 100,
+  codemania: 200,
+  'prompt wars': 100,
+  'catch the flag': 100,
+  bgmi: 36,
+  'ad-mad': 20,
+  'new food product development': 30,
+  'innovatex - robotics & ai': 50,
+  'tech treasure hunt': 25,
+};
 
-export const getBgmiCapacity = async () => {
+const getEventLimitKey = (eventName: string, paperPresentationDept?: string) => {
+  const normalizedEvent = eventName.trim().toLowerCase();
+  return normalizedEvent === 'paper presentation' && paperPresentationDept
+    ? `${normalizedEvent}:${paperPresentationDept.trim().toLowerCase()}`
+    : normalizedEvent;
+};
+
+export const getEventRegistrationLimit = (eventName: string, paperPresentationDept?: string) =>
+  EVENT_REGISTRATION_LIMITS[getEventLimitKey(eventName, paperPresentationDept)];
+
+export const getEventCapacity = async (eventName: string, paperPresentationDept?: string) => {
+  const limit = getEventRegistrationLimit(eventName, paperPresentationDept);
+  if (!limit) {
+    return { registeredRegistrations: 0, remainingRegistrations: 0, isClosed: false };
+  }
+
+  const match: Record<string, unknown> = {
+    selectedEvent: { $regex: `^${eventName.trim()}$`, $options: 'i' }
+  };
+  if (paperPresentationDept) {
+    match.paperPresentationDept = { $regex: `^${paperPresentationDept.trim()}$`, $options: 'i' };
+  }
+
   const result = await Registration.aggregate([
-    { $match: { selectedEvent: { $regex: /^BGMI$/i } } },
+    { $match: match },
     { $count: 'registeredRegistrations' }
   ]);
-
   const registeredRegistrations = result[0]?.registeredRegistrations || 0;
+
   return {
     registeredRegistrations,
-    remainingRegistrations: Math.max(BGMI_MAX_REGISTRATIONS - registeredRegistrations, 0),
-    isClosed: registeredRegistrations >= BGMI_MAX_REGISTRATIONS
+    remainingRegistrations: Math.max(limit - registeredRegistrations, 0),
+    isClosed: registeredRegistrations >= limit,
   };
 };
+
+export const BGMI_MAX_REGISTRATIONS = EVENT_REGISTRATION_LIMITS.bgmi;
+
+export const getBgmiCapacity = () => getEventCapacity('BGMI');
 
 // Enhanced registration function with atomic operations, transactions, and retry logic
 export const saveRegistrationWithRetry = async (registrationData: any, maxRetries = 5): Promise<RegistrationDoc> => {
@@ -151,10 +206,17 @@ export const saveRegistrationWithRetry = async (registrationData: any, maxRetrie
       let saved: RegistrationDoc;
       
       await session.withTransaction(async () => {
-        if (registrationData.selectedEvent?.trim().toLowerCase() === 'bgmi') {
-          const capacity = await getBgmiCapacity();
-          if (capacity.registeredRegistrations + 1 > BGMI_MAX_REGISTRATIONS) {
-            throw new Error('BGMI_REGISTRATION_CLOSED');
+        const eventLimit = getEventRegistrationLimit(
+          registrationData.selectedEvent,
+          registrationData.paperPresentationDept
+        );
+        if (eventLimit) {
+          const capacity = await getEventCapacity(
+            registrationData.selectedEvent,
+            registrationData.paperPresentationDept
+          );
+          if (capacity.registeredRegistrations + 1 > eventLimit) {
+            throw new Error('EVENT_REGISTRATION_CLOSED');
           }
         }
 
@@ -206,7 +268,7 @@ export async function processPaidOrder(
   paymentId: string,
   signature: string,
   registrationData?: PaymentRegistrationContext
-): Promise<{ registrationId?: number; pending?: boolean }> {
+): Promise<{ registrationId?: number; pending?: boolean; failed?: boolean; error?: string }> {
   await connectToMongoDB();
   const paymentRecord = await Payment.findOne({ orderId });
   if (!paymentRecord) throw new Error('PAYMENT_RECORD_NOT_FOUND');
@@ -277,6 +339,15 @@ export async function processPaidOrder(
     }
     return { registrationId: saved.registrationId };
   } catch (error: any) {
+    if (error.message === 'EVENT_REGISTRATION_CLOSED') {
+      await Payment.updateOne(
+        { _id: paymentRecord._id },
+        { $set: { status: 'CAPTURED', registrationStatus: 'FAILED', paymentId } }
+      );
+      console.error('REGISTRATION_CLOSED_AFTER_PAYMENT', { orderId, paymentId });
+      return { failed: true, error: 'EVENT_REGISTRATION_CLOSED' };
+    }
+
     await Payment.updateOne({ _id: paymentRecord._id }, { $set: { status: 'CAPTURED', registrationStatus: 'PENDING', paymentId } });
     await guaranteedQueueWrite(paymentId, orderId, signature || `webhook:${paymentId}`, context);
     console.error('REGISTRATION_PROCESSING_FAILED', { orderId, paymentId, error: error.message });
@@ -293,12 +364,15 @@ export const registerUser = async (req: Request, res: Response) => {
       participationType, teamSize, teamMembers, paymentId, orderId, signature, totalFee
     } = req.body;
 
-    if (selectedEvent?.trim().toLowerCase() === 'bgmi') {
-      const capacity = await getBgmiCapacity();
-      if (capacity.registeredRegistrations + 1 > BGMI_MAX_REGISTRATIONS) {
+    const eventLimit = selectedEvent
+      ? getEventRegistrationLimit(selectedEvent, paperPresentationDept)
+      : undefined;
+    if (eventLimit && selectedEvent) {
+      const capacity = await getEventCapacity(selectedEvent, paperPresentationDept);
+      if (capacity.registeredRegistrations + 1 > eventLimit) {
         return res.status(409).json({
           success: false,
-          error: 'BGMI registration is closed because the 36-registration limit has been reached.'
+          error: `${selectedEvent} registration is closed because the limit has been reached.`
         });
       }
     }
@@ -352,6 +426,13 @@ export const registerUser = async (req: Request, res: Response) => {
     };
 
     const processed = await processPaidOrder(orderId, paymentId, signature, normalizedData);
+    if (processed.failed) {
+      return res.status(409).json({
+        success: false,
+        error: 'Registration could not be completed because this event reached its registration limit.'
+      });
+    }
+
     if (processed.registrationId) {
       return res.status(201).json({
         success: true,

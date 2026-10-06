@@ -125,7 +125,15 @@ export const razorpayWebhook: RequestHandler = async (req, res) => {
 
     const result = await processPaidOrder(orderId, paymentId, `webhook:${eventId}`);
     await PaymentWebhookEvent.create({ eventId, event: req.body?.event || 'unknown', orderId, paymentId });
-    return res.status(200).json({ success: true, status: result.registrationId ? 'REGISTRATION_CONFIRMED' : 'REGISTRATION_PENDING', registrationId: result.registrationId });
+    return res.status(200).json({
+      success: true,
+      status: result.failed
+        ? 'REGISTRATION_FAILED'
+        : result.registrationId
+          ? 'REGISTRATION_CONFIRMED'
+          : 'REGISTRATION_PENDING',
+      registrationId: result.registrationId,
+    });
   } catch (error: any) {
     console.error('WEBHOOK_PROCESSING_FAILED', { eventId, error: error.message, stack: error.stack });
 

@@ -3,7 +3,7 @@ import express from 'express';
 import type { Request } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import { registerUser, connectToMongoDB, Registration, getBgmiCapacity } from './register.js';
+import { registerUser, connectToMongoDB, Registration, getEventCapacity } from './register.js';
 import { checkDuplicate } from './search.js';
 import { orderRazorpay } from './utils/razorpay.js';
 import { verifyPayment } from './utils/payment-verification.js';
@@ -143,11 +143,10 @@ app.post('/api/payment-verification', verifyPayment);
 app.post('/api/razorpay/webhook', razorpayWebhook);
 app.get('/api/event-status/:eventName', async (req, res) => {
   try {
-    if (req.params.eventName.toLowerCase() !== 'bgmi') {
-      return res.json({ success: true, data: { isClosed: false } });
-    }
-
-    return res.json({ success: true, data: await getBgmiCapacity() });
+    return res.json({
+      success: true,
+      data: await getEventCapacity(req.params.eventName, req.query.department as string | undefined),
+    });
   } catch (error) {
     console.error('Event status error:', error);
     return res.status(500).json({ success: false, error: 'Failed to fetch event status' });
