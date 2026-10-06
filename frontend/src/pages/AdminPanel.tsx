@@ -405,7 +405,10 @@ const AdminPanel: React.FC = () => {
           description: "File downloaded successfully!",
         });
       } else {
-        const errorData = await response.json();
+        const contentType = response.headers.get('content-type') || '';
+        const errorData = contentType.includes('application/json')
+          ? await response.json()
+          : { error: `Export failed with status ${response.status}` };
         toast({
           title: "Error",
           description: errorData.error || "Failed to export data",

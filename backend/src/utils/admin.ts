@@ -294,30 +294,30 @@ export const exportRegistrationsExcel = async (req: AdminExportRequest, res: Res
       const baseData: any = {
         'Sr. No.': index + 1,
         'Registration ID': reg.registrationId || 'N/A',
-        'Registration Date': new Date(reg.createdAt).toLocaleDateString('en-IN'),
-        'Leader Name': reg.leaderName,
-        'Leader Email': reg.leaderEmail,
-        'Leader Mobile': reg.leaderMobile,
-        'Leader College': reg.leaderCollege,
-        'Leader Department': reg.leaderDepartment,
-        'Leader Year': reg.leaderYear,
-        'Leader City': reg.leaderCity,
-        'Event': reg.selectedEvent,
+        'Registration Date': reg.createdAt ? new Date(reg.createdAt).toLocaleDateString('en-IN') : 'N/A',
+        'Leader Name': reg.leaderName || 'N/A',
+        'Leader Email': reg.leaderEmail || 'N/A',
+        'Leader Mobile': reg.leaderMobile || 'N/A',
+        'Leader College': reg.leaderCollege || 'N/A',
+        'Leader Department': reg.leaderDepartment || 'N/A',
+        'Leader Year': reg.leaderYear || 'N/A',
+        'Leader City': reg.leaderCity || 'N/A',
+        'Event': reg.selectedEvent || 'N/A',
         'Paper Presentation Dept': reg.paperPresentationDept || 'N/A',
-        'Participation Type': reg.participationType,
-        'Team Size': reg.teamSize,
-        'Total Fee': `₹${reg.totalFee}`,
-        'Payment ID': reg.paymentId,
-        'Order ID': reg.orderId
+        'Participation Type': reg.participationType || 'N/A',
+        'Team Size': reg.teamSize || 0,
+        'Total Fee': reg.totalFee ?? 0,
+        'Payment ID': reg.paymentId || 'N/A',
+        'Order ID': reg.orderId || 'N/A'
       };
 
       // Add team members data if it's a team registration
       if (reg.teamMembers && reg.teamMembers.length > 0) {
         reg.teamMembers.forEach((member, memberIndex) => {
-          baseData[`Team Member ${memberIndex + 1} Name`] = member.name;
-          baseData[`Team Member ${memberIndex + 1} Email`] = member.email;
-          baseData[`Team Member ${memberIndex + 1} Mobile`] = member.mobile;
-          baseData[`Team Member ${memberIndex + 1} College`] = member.college;
+          baseData[`Team Member ${memberIndex + 1} Name`] = member.name || 'N/A';
+          baseData[`Team Member ${memberIndex + 1} Email`] = member.email || 'N/A';
+          baseData[`Team Member ${memberIndex + 1} Mobile`] = member.mobile || 'N/A';
+          baseData[`Team Member ${memberIndex + 1} College`] = member.college || 'N/A';
         });
       }
 
@@ -335,9 +335,9 @@ export const exportRegistrationsExcel = async (req: AdminExportRequest, res: Res
     worksheet['!cols'] = columnWidths;
 
     // Add worksheet to workbook
-    const sheetName = eventFilter && eventFilter !== 'all'
-      ? `${eventFilter.replace(/[^\w\s]/gi, '')}_Registrations`
-      : 'All_Registrations';
+    const sheetName = (eventFilter && eventFilter !== 'all'
+      ? `${eventFilter.replace(/[\\/*?:\[\]]/g, '').trim()}_Registrations`
+      : 'All_Registrations').slice(0, 31) || 'Registrations';
 
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
 
@@ -345,7 +345,25 @@ export const exportRegistrationsExcel = async (req: AdminExportRequest, res: Res
     const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
     // Set response headers for file download
-    const fileName = `Discovery_ADCET_Registrations_${eventFilter || 'All'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const appliedFilters = [
+      eventFilter,
+      collegeFilter,
+      departmentFilter,
+      yearFilter,
+      cityFilter,
+      participationFilter,
+      paperPresentationDeptFilter,
+      startDate && `from-${startDate}`,
+      endDate && `to-${endDate}`,
+      search && `search-${search}`
+    ].filter((filter): filter is string => Boolean(filter && filter !== 'all'));
+    const filterLabel = appliedFilters.length > 0 ? appliedFilters.join('_') : 'All';
+    const safeFileLabel = filterLabel
+      .replace(/[\\/:*?"<>|]+/g, '-')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .slice(0, 150);
+    const fileName = `Discovery_ADCET_Registrations_${safeFileLabel}_${new Date().toISOString().split('T')[0]}.xlsx`;
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
