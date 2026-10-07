@@ -138,7 +138,7 @@ const EVENT_REGISTRATION_LIMITS: Record<string, number> = {
   'robo soccer': 80,
   'cad master': 80,
   'paper glider': 80,
-  'rc simulator': 40,
+  'rc simulator': 60,
   troubleshooting: 100,
   'circuit builder': 75,
   akruti: 100,
