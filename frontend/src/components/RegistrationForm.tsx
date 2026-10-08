@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft, Check, ChevronsUpDown, Search } from "lucide-react";
+import { Loader2, CheckCircle, UserPlus, Award, IndianRupee, Users, User, Trash2, ArrowLeft, Check, ChevronsUpDown, Search, Rocket, Radio, Sparkles, Zap } from "lucide-react";
 import { getAllEvents, type Event } from "@/data/events";
 import { Footer } from "@/components/Footer";
 import { calculateTeamFee, formatCurrency, type FeeBreakdown } from "@/utils/feeCalculation";
@@ -127,7 +127,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
   const [closedEvents, setClosedEvents] = useState<Set<string>>(new Set());
 
   // Registration closure state
-  const [registrationsClosed] = useState(false); // Set to true to close registrations
+  const [registrationsClosed] = useState(true);
 
   // Enhanced payment states
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating-order' | 'payment-processing' | 'confirming-registration' | 'success' | 'pending' | 'failed'>('idle');
@@ -716,6 +716,59 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
           </div>
         )}
 
+        {registrationsClosed ? (
+          <div className="registration-closed-panel relative isolate overflow-hidden border-2 border-brass/50 bg-panel px-6 py-12 text-center shadow-[8px_8px_0_rgba(232,185,35,0.18)] animate-fade-in sm:px-12 sm:py-16">
+            <div className="pointer-events-none absolute -right-8 -top-8 text-brass/10">
+              <Rocket className="h-40 w-40 -rotate-12 animate-float" />
+            </div>
+            <div className="pointer-events-none absolute -bottom-8 -left-8 text-crimson/10">
+              <Radio className="h-36 w-36 rotate-12" />
+            </div>
+            <div className="relative mx-auto max-w-2xl">
+              <div className="mb-6 flex items-center justify-center gap-3 font-mono text-xs tracking-[.2em] text-brass">
+                <span className="h-px w-10 bg-brass/50" />
+                <span className="animate-pulse">TRANSMISSION RECEIVED</span>
+                <span className="h-px w-10 bg-brass/50" />
+              </div>
+              <div className="mx-auto mb-7 flex h-24 w-24 rotate-3 animate-scale-in items-center justify-center border-2 border-crimson bg-crimson/10 text-crimson shadow-[6px_6px_0_rgba(225,75,75,0.25)]">
+                <Rocket className="h-12 w-12 -rotate-45" />
+              </div>
+              <p className="mb-3 font-mono text-sm font-bold tracking-[.18em] text-crimson">REGISTRATION STATUS: CLOSED</p>
+              <h2 className="mb-5 text-3xl font-black uppercase leading-tight text-paper sm:text-5xl">
+                Registration Window Closed
+              </h2>
+              <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-paper-dim sm:text-lg">
+                Online registrations for Discovery 2K26 have now ended. The form has signed off for the day and will not accept even the most convincing late-entry excuse.
+              </p>
+              <div className="mb-8 grid gap-3 text-left sm:grid-cols-3">
+                <div className="animate-fade-in border border-line bg-ink-soft p-4 [animation-delay:150ms] [animation-fill-mode:both]">
+                  <Zap className="mb-3 h-5 w-5 text-brass" />
+                  <p className="font-mono text-[10px] tracking-widest text-paper-mute">PORTAL STATUS</p>
+                  <p className="mt-1 font-bold text-paper">CLOSED</p>
+                </div>
+                <div className="animate-fade-in border border-line bg-ink-soft p-4 [animation-delay:300ms] [animation-fill-mode:both]">
+                  <Sparkles className="mb-3 h-5 w-5 text-brass" />
+                  <p className="font-mono text-[10px] tracking-widest text-paper-mute">EVENT</p>
+                  <p className="mt-1 font-bold text-paper">DISCOVERY 2K26</p>
+                </div>
+                <div className="animate-fade-in border border-line bg-ink-soft p-4 [animation-delay:450ms] [animation-fill-mode:both]">
+                  <Radio className="mb-3 h-5 w-5 text-brass" />
+                  <p className="font-mono text-[10px] tracking-widest text-paper-mute">NEXT STEP</p>
+                  <p className="mt-1 font-bold text-paper">FOLLOW UPDATES</p>
+                </div>
+              </div>
+              <p className="mb-7 font-mono text-xs uppercase tracking-wider text-paper-mute">
+                Thank you for your interest in Discovery 2K26.
+              </p>
+              {onBack && (
+                <Button onClick={onBack} className="bg-brass px-6 font-mono text-xs tracking-widest text-ink hover:bg-brass/90">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  BACK TO MISSION CONTROL
+                </Button>
+              )}
+            </div>
+          </div>
+        ) : (
         <Card className="registration-card relative border-line bg-panel">
           <CardHeader className="registration-header text-center border-b border-line">
             <div className="file-tab mx-auto mb-4">REGISTRATION</div>
@@ -732,21 +785,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
               Fill out the registration form step by step to complete your registration.
             </CardDescription>
           </CardHeader>
-
-          {/* Registration Closed Message */}
-          {registrationsClosed && (
-            <div className="mx-6 mt-6 mb-4">
-              <div className="bg-crimson/10 border-2 border-crimson/30 rounded-lg p-6 text-center">
-                <div className="text-6xl mb-4">🚫</div>
-                <h3 className="text-2xl font-bold text-crimson mb-3">
-                  Registrations Are Now Closed
-                </h3>
-                <p className="text-crimson/80 text-lg">
-                  Thank you for your interest in Discovery 2K26. Online registrations have ended.
-                </p>
-              </div>
-            </div>
-          )}
 
           <CardContent className="registration-content">
             {/* Loading Overlay for Payment Processing */}
@@ -1457,6 +1495,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
             </Form>
           </CardContent>
         </Card>
+        )}
       </div>
       {showFooter && <Footer />}
     </div>
