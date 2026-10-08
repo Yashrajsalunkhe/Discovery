@@ -717,47 +717,53 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
         )}
 
         {registrationsClosed ? (
-          <div className="registration-closed-panel relative isolate overflow-hidden border-2 border-brass/50 bg-panel px-6 py-12 text-center shadow-[8px_8px_0_rgba(232,185,35,0.18)] animate-fade-in sm:px-12 sm:py-16">
-            <div className="pointer-events-none absolute -right-8 -top-8 text-brass/10">
+          <div className="registration-closed-panel relative isolate overflow-hidden border-4 border-[#111318] bg-[#f4f0e6] px-6 py-12 text-center text-[#111318] shadow-[10px_10px_0_#111318] animate-fade-in sm:px-12 sm:py-16">
+            <div className="pointer-events-none absolute -right-8 -top-8 text-[#111318]/10">
               <Rocket className="h-40 w-40 -rotate-12 animate-float" />
             </div>
-            <div className="pointer-events-none absolute -bottom-8 -left-8 text-crimson/10">
+            <div className="pointer-events-none absolute -bottom-8 -left-8 text-[#ff6b9d]/20">
               <Radio className="h-36 w-36 rotate-12" />
             </div>
             <div className="relative mx-auto max-w-2xl">
-              <div className="mb-6 flex items-center justify-center gap-3 font-mono text-xs tracking-[.2em] text-brass">
-                <span className="h-px w-10 bg-brass/50" />
-                <span className="animate-pulse">TRANSMISSION RECEIVED</span>
-                <span className="h-px w-10 bg-brass/50" />
+              <div className="mb-6 flex items-center justify-center gap-3 font-mono text-xs tracking-[.2em] text-[#111318]">
+                <span className="h-px w-10 bg-[#111318]/50" />
+                <span className="animate-pulse">REGISTRATION DESK UPDATE</span>
+                <span className="h-px w-10 bg-[#111318]/50" />
               </div>
-              <div className="mx-auto mb-7 flex h-24 w-24 rotate-3 animate-scale-in items-center justify-center border-2 border-crimson bg-crimson/10 text-crimson shadow-[6px_6px_0_rgba(225,75,75,0.25)]">
+              <div className="mx-auto mb-7 flex h-24 w-24 rotate-3 animate-scale-in items-center justify-center border-2 border-[#111318] bg-[#ff6b9d] text-[#111318] shadow-[6px_6px_0_#111318]">
                 <Rocket className="h-12 w-12 -rotate-45" />
               </div>
-              <p className="mb-3 font-mono text-sm font-bold tracking-[.18em] text-crimson">REGISTRATION STATUS: CLOSED</p>
-              <h2 className="mb-5 text-3xl font-black uppercase leading-tight text-paper sm:text-5xl">
+              <p className="mb-3 font-mono text-sm font-bold tracking-[.18em] text-[#e14b4b]">REGISTRATION STATUS: CLOSED</p>
+              <h2 className="mb-5 text-3xl font-black uppercase leading-tight text-[#111318] sm:text-5xl">
                 Registration Window Closed
               </h2>
-              <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-paper-dim sm:text-lg">
+              <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-[#6b6870] sm:text-lg">
                 Online registrations for Discovery 2K26 have now ended. The form has signed off for the day and will not accept even the most convincing late-entry excuse.
               </p>
+              <div className="mb-6 border-[3px] border-[#111318] bg-[#ffd21f] p-5 text-left shadow-[5px_5px_0_#111318]">
+                <p className="mb-2 font-mono text-xs font-bold tracking-[.16em] text-[#111318]">SPOT ENTRY ELIGIBILITY</p>
+                <p className="text-sm font-semibold leading-relaxed text-[#111318] sm:text-base">
+                  Spot entries are accepted only from students visiting from outside colleges. In-house students are not eligible for spot entry.
+                </p>
+              </div>
               <div className="mb-8 grid gap-3 text-left sm:grid-cols-3">
-                <div className="animate-fade-in border border-line bg-ink-soft p-4 [animation-delay:150ms] [animation-fill-mode:both]">
-                  <Zap className="mb-3 h-5 w-5 text-brass" />
-                  <p className="font-mono text-[10px] tracking-widest text-paper-mute">PORTAL STATUS</p>
-                  <p className="mt-1 font-bold text-paper">CLOSED</p>
+                <div className="animate-fade-in border-2 border-[#111318] bg-[#fffdf7] p-4 [animation-delay:150ms] [animation-fill-mode:both]">
+                  <Zap className="mb-3 h-5 w-5 text-[#111318]" />
+                  <p className="font-mono text-[10px] tracking-widest text-[#6b6870]">PORTAL STATUS</p>
+                  <p className="mt-1 font-bold text-[#111318]">CLOSED</p>
                 </div>
-                <div className="animate-fade-in border border-line bg-ink-soft p-4 [animation-delay:300ms] [animation-fill-mode:both]">
-                  <Sparkles className="mb-3 h-5 w-5 text-brass" />
-                  <p className="font-mono text-[10px] tracking-widest text-paper-mute">EVENT</p>
-                  <p className="mt-1 font-bold text-paper">DISCOVERY 2K26</p>
+                <div className="animate-fade-in border-2 border-[#111318] bg-[#fffdf7] p-4 [animation-delay:300ms] [animation-fill-mode:both]">
+                  <Sparkles className="mb-3 h-5 w-5 text-[#111318]" />
+                  <p className="font-mono text-[10px] tracking-widest text-[#6b6870]">EVENT</p>
+                  <p className="mt-1 font-bold text-[#111318]">DISCOVERY 2K26</p>
                 </div>
-                <div className="animate-fade-in border border-line bg-ink-soft p-4 [animation-delay:450ms] [animation-fill-mode:both]">
-                  <Radio className="mb-3 h-5 w-5 text-brass" />
-                  <p className="font-mono text-[10px] tracking-widest text-paper-mute">NEXT STEP</p>
-                  <p className="mt-1 font-bold text-paper">FOLLOW UPDATES</p>
+                <div className="animate-fade-in border-2 border-[#111318] bg-[#fffdf7] p-4 [animation-delay:450ms] [animation-fill-mode:both]">
+                  <Radio className="mb-3 h-5 w-5 text-[#111318]" />
+                  <p className="font-mono text-[10px] tracking-widest text-[#6b6870]">NEXT STEP</p>
+                  <p className="mt-1 font-bold text-[#111318]">FOLLOW UPDATES</p>
                 </div>
               </div>
-              <p className="mb-7 font-mono text-xs uppercase tracking-wider text-paper-mute">
+              <p className="mb-7 font-mono text-xs uppercase tracking-wider text-[#6b6870]">
                 Thank you for your interest in Discovery 2K26.
               </p>
               {onBack && (
