@@ -136,7 +136,7 @@ const EVENT_REGISTRATION_LIMITS: Record<string, number> = {
   'paper presentation:business administration': 10,
   'paper presentation:bca': 25,
   'robo soccer': 80,
-  'cad master': 80,
+  'cad master': 100,
   'paper glider': 80,
   'rc simulator': 60,
   troubleshooting: 100,
