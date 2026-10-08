@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-const SUPPORT_PHONE = '+91 9975003984';
+const SUPPORT_PHONE = '+91 7588627555';
 const EVENT_YEAR = '2K26';
 const EVENT_NAME = `Discovery ADCET ${EVENT_YEAR}`;
 const COPYRIGHT_YEAR = new Date().getFullYear();
