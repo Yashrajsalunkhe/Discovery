@@ -4,8 +4,8 @@ import { Request, Response } from 'express';
 import { sendWelcomeEmail } from './utils/mail.js';
 import { getNextRegistrationId } from './utils/atomicCounter.js';
 import { guaranteedQueueWrite } from './utils/guaranteedQueue.js';
-import Razorpay from 'razorpay';
 import { Payment, type PaymentRegistrationContext } from './utils/payment.js';
+import { getRazorpayClient } from './utils/razorpayConfig.js';
 
 dotenv.config();
 
@@ -273,10 +273,7 @@ export async function processPaidOrder(
   const paymentRecord = await Payment.findOne({ orderId });
   if (!paymentRecord) throw new Error('PAYMENT_RECORD_NOT_FOUND');
 
-  const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID as string,
-    key_secret: process.env.RAZORPAY_KEY_SECRET as string
-  });
+  const razorpay = getRazorpayClient();
   const [order, payment] = await Promise.all([
     razorpay.orders.fetch(orderId),
     razorpay.payments.fetch(paymentId)
@@ -306,8 +303,10 @@ export async function processPaidOrder(
     return { pending: true };
   }
 
+  // NOT_CREATED is claimable too: older payment.failed webhooks set it even when the
+  // user then paid successfully on the same order, and capture was verified above.
   const claimed = await Payment.findOneAndUpdate(
-    { _id: paymentRecord._id, registrationStatus: 'PENDING' },
+    { _id: paymentRecord._id, registrationStatus: { $in: ['PENDING', 'NOT_CREATED'] } },
     { $set: { paymentId, status: 'CAPTURED', registrationStatus: 'PROCESSING' } },
     { new: true }
   );
@@ -355,6 +354,50 @@ export async function processPaidOrder(
   }
 }
 
+/**
+ * Re-check orders whose registration is still pending against Razorpay and finish
+ * any that were actually paid. Covers missed/misconfigured webhooks and payments
+ * that were not yet captured when the browser called /api/register.
+ */
+export async function reconcilePendingPayments(options: { leaderEmail?: string; leaderMobile?: string; limit?: number } = {}) {
+  await connectToMongoDB();
+  const now = Date.now();
+  const filter: Record<string, unknown> = {
+    registrationStatus: { $in: ['PENDING', 'NOT_CREATED'] },
+    status: { $ne: 'MISMATCHED' },
+    // Give the browser/webhook path a moment before stepping in
+    createdAt: { $gte: new Date(now - 7 * 24 * 60 * 60 * 1000), $lte: new Date(now - 60 * 1000) }
+  };
+  const participant = [
+    ...(options.leaderEmail ? [{ 'registrationData.leaderEmail': { $regex: `^${options.leaderEmail.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } }] : []),
+    ...(options.leaderMobile ? [{ 'registrationData.leaderMobile': options.leaderMobile.trim() }] : []),
+  ];
+  if (participant.length) filter.$or = participant;
+
+  // Least-recently-checked first, so abandoned checkouts can't starve newer paid orders
+  const pending = await Payment.find(filter).sort({ lastReconciledAt: 1, createdAt: 1 }).limit(options.limit ?? 10).lean();
+  if (!pending.length) return { checked: 0, confirmed: 0 };
+
+  const razorpay = getRazorpayClient();
+  let confirmed = 0;
+  for (const record of pending) {
+    try {
+      await Payment.updateOne({ _id: record._id }, { $set: { lastReconciledAt: new Date() } });
+      const { items } = await razorpay.orders.fetchPayments(record.orderId);
+      const captured = items.find((payment) => payment.status === 'captured');
+      if (!captured) continue;
+      const result = await processPaidOrder(record.orderId, captured.id, `reconcile:${captured.id}`);
+      if (result.registrationId) {
+        confirmed++;
+        console.log('PAYMENT_RECONCILED', { orderId: record.orderId, paymentId: captured.id, registrationId: result.registrationId });
+      }
+    } catch (error: any) {
+      console.error('PAYMENT_RECONCILE_FAILED', { orderId: record.orderId, error: error.message });
+    }
+  }
+  return { checked: pending.length, confirmed };
+}
+
 export const registerUser = async (req: Request, res: Response) => {
   try {
     await connectToMongoDB();
@@ -364,19 +407,9 @@ export const registerUser = async (req: Request, res: Response) => {
       participationType, teamSize, teamMembers, paymentId, orderId, signature, totalFee
     } = req.body;
 
-    const eventLimit = selectedEvent
-      ? getEventRegistrationLimit(selectedEvent, paperPresentationDept)
-      : undefined;
-    if (eventLimit && selectedEvent) {
-      const capacity = await getEventCapacity(selectedEvent, paperPresentationDept);
-      if (capacity.registeredRegistrations + 1 > eventLimit) {
-        return res.status(409).json({
-          success: false,
-          error: `${selectedEvent} registration is closed because the limit has been reached.`
-        });
-      }
-    }
-    
+    // Capacity is enforced inside processPaidOrder's transaction; checking it here
+    // would reject an already-paid user and leave their payment unprocessed.
+
     // Mandatory payment validation
     if (!paymentId || !orderId || !signature) {
       return res.status(400).json({ 

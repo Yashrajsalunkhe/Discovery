@@ -3,13 +3,13 @@ import express from 'express';
 import type { Request } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import { registerUser, connectToMongoDB, Registration, getEventCapacity } from './register.js';
-import { registerSpotUser } from './spotRegister.js';
+import { registerUser, connectToMongoDB, Registration, getEventCapacity, reconcilePendingPayments } from './register.js';
+import { registerSpotUser, getSpotStatus } from './spotRegister.js';
 import { checkDuplicate } from './search.js';
 import { orderRazorpay } from './utils/razorpay.js';
 import { verifyPayment } from './utils/payment-verification.js';
 import { deduplicationMiddleware } from './utils/deduplication.js';
-import { registrationRateLimit } from './utils/rateLimit.js';
+import { registrationRateLimit, spotRegistrationRateLimit } from './utils/rateLimit.js';
 import { metricsMiddleware, metrics } from './utils/monitoring.js';
 import { processGuaranteedQueue, getQueueStats } from './utils/guaranteedQueue.js';
 import { initializeCounterSafely } from './utils/atomicCounter.js';
@@ -31,11 +31,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 // Disable buffering globally to prevent timeout issues in serverless
 mongoose.set('bufferCommands', false);
 
 const app = express();
+
+// Behind Vercel's proxy: use the client IP from X-Forwarded-For so per-IP rate
+// limiting doesn't lump every visitor into one bucket.
+app.set('trust proxy', 1);
 
 // CORS configuration
 const corsOptions = {
@@ -141,7 +146,8 @@ app.use(async (req, res, next) => {
 
 // API Routes
 app.post('/api/register', registrationRateLimit, deduplicationMiddleware, checkDuplicate, verifyPayment, registerUser);
-app.post('/api/spot-register', registrationRateLimit, registerSpotUser);
+app.post('/api/spot-register', spotRegistrationRateLimit, registerSpotUser);
+app.get('/api/spot-status', getSpotStatus);
 app.post('/api/order', orderRazorpay);
 app.post('/api/payment-verification', verifyPayment);
 app.post('/api/razorpay/webhook', razorpayWebhook);
@@ -170,6 +176,16 @@ app.get('/api/registration/status', async (req, res) => {
     }
 
     const searchTerm = query.trim();
+
+    // Finish any paid-but-unconfirmed registrations for this person before looking up
+    const participant = searchTerm.includes('@')
+      ? { leaderEmail: searchTerm }
+      : /^\d{10}$/.test(searchTerm) ? { leaderMobile: searchTerm } : null;
+    try {
+      if (participant) await reconcilePendingPayments({ ...participant, limit: 5 });
+    } catch (reconcileError) {
+      console.error('Status lookup reconciliation error:', reconcileError);
+    }
 
     // Build search conditions: registration ID (numeric), email, or mobile
     const conditions: any[] = [];
@@ -484,6 +500,7 @@ const startAutoProcessing = () => {
     try {
       await connectToMongoDB();
       await processGuaranteedQueue();
+      await reconcilePendingPayments();
     } catch (err) {
       console.error('Auto queue processing error:', err);
     }
@@ -519,6 +536,7 @@ app.get('/api/cron/process-queue', async (req, res) => {
     console.log('Processing queue via GitHub Actions cron from:', req.ip, 'User-Agent:', userAgent);
     
     await processGuaranteedQueue(`github_actions_${Date.now()}`);
+    const reconciliation = await reconcilePendingPayments();
     const stats = await getQueueStats();
     
     console.log('GitHub Actions cron job completed. Queue stats:', stats);
@@ -527,6 +545,7 @@ app.get('/api/cron/process-queue', async (req, res) => {
       success: true,
       message: 'Queue processed by GitHub Actions',
       stats,
+      reconciliation,
       timestamp: new Date().toISOString(),
       processor: 'github-actions'
     });

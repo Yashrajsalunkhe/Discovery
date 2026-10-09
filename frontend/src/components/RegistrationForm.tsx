@@ -126,6 +126,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
   const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown | null>(null);
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
   const [closedEvents, setClosedEvents] = useState<Set<string>>(new Set());
+  // Spot mode: events/departments that still have spot places (null = unknown, don't filter)
+  const [spotSlots, setSpotSlots] = useState<Array<{ event: string; department: string; remaining: number }> | null>(null);
+  const [spotRegistrationId, setSpotRegistrationId] = useState<number | null>(null);
 
   // Registration closure state
   const [registrationsClosed] = useState(!spotRegistration);
@@ -147,7 +150,19 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
   const allEvents = getAllEvents();
   const availableColleges = spotRegistration ? ["Other"] : colleges;
 
+  // Spot places are tracked separately from online limits
+  const loadSpotSlots = () =>
+    fetch('/api/spot-status')
+      .then((response) => response.json())
+      .then((result) => { if (result.success) setSpotSlots(result.data); })
+      .catch(() => setSpotSlots(null));
+
   useEffect(() => {
+    if (spotRegistration) {
+      loadSpotSlots();
+      return;
+    }
+
     const eventNames = [...new Set(allEvents.map((event) => event.name))]
       .filter((name) => name !== "Paper Presentation");
 
@@ -164,10 +179,22 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
     });
   }, []);
 
+  const normalizeName = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const openSpotSlots = spotSlots?.filter((slot) => slot.remaining > 0);
+  const hasSpotPlace = (eventName: string, department?: string) =>
+    !openSpotSlots || openSpotSlots.some((slot) =>
+      normalizeName(slot.event) === normalizeName(eventName) &&
+      (!department || normalizeName(slot.department) === normalizeName(department)));
+  const availablePaperDepartments = spotRegistration
+    ? paperPresentationDepartments.filter((dept) => hasSpotPlace("Paper Presentation", dept))
+    : paperPresentationDepartments;
+
   const paperPresentationEvent = allEvents.find((event) => event.name === "Paper Presentation");
   const filteredEvents = [
-    ...allEvents.filter((event) => event.name !== "Paper Presentation" && !closedEvents.has(event.name)),
-    ...(paperPresentationEvent
+    ...allEvents.filter((event) => event.name !== "Paper Presentation" && (spotRegistration
+      ? hasSpotPlace(event.name)
+      : !closedEvents.has(event.name))),
+    ...(paperPresentationEvent && availablePaperDepartments.length > 0
       ? [{ ...paperPresentationEvent, id: "paper-presentation", department: "Multiple Departments", minTeamSize: 2, maxTeamSize: 5 }]
       : []),
   ];
@@ -429,11 +456,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
     setPaymentError(null);
 
     try {
-      const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
-      if (!razorpayKeyId) {
-        throw new Error('Payment is not configured. Please contact the event organizers.');
-      }
-
       const registrationData = {
         leaderName: values.leaderName,
         leaderEmail: values.leaderEmail,
@@ -467,6 +489,8 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
         if (!registerRes.ok || !result.success) {
           throw new Error(result.error || 'Spot registration failed.');
         }
+        setSpotRegistrationId(result.spotRegistrationId);
+        loadSpotSlots();
         setPaymentStatus('success');
         setIsSubmitted(true);
         toast({
@@ -502,6 +526,12 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
         throw new Error('Order creation failed - no order ID received');
       }
 
+      // Use the key the backend created the order with; a mismatched build-time key breaks checkout
+      const razorpayKeyId = orderResult.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID;
+      if (!razorpayKeyId) {
+        throw new Error('Payment is not configured. Please contact the event organizers.');
+      }
+
       setPaymentStatus('payment-processing');
 
       // Razorpay payment options
@@ -535,10 +565,12 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
               description: "Confirming your registration... Please wait.",
             });
 
-            // Retry registration up to 3 times with exponential backoff
+            // Retry registration with backoff. 202 means the payment isn't captured yet
+            // (auto-capture can lag a few seconds), so keep checking for a while.
+            const maxAttempts = 4;
             let lastResult: any = null;
             let lastError: any = null;
-            for (let attempt = 1; attempt <= 3; attempt++) {
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
               try {
                 const registerRes = await fetch("/api/register", {
                   method: "POST",
@@ -553,8 +585,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
 
                 lastResult = await registerRes.json();
 
-                // If successful or a definitive error (not rate-limited/server error), stop retrying
-                if (lastResult.success || (registerRes.status !== 429 && registerRes.status < 500)) {
+                const isPending = registerRes.status === 202;
+                // Stop on confirmation or a definitive error (not pending/rate-limited/server error)
+                if ((lastResult.success && lastResult.registrationId) ||
+                    (!isPending && registerRes.status !== 429 && registerRes.status < 500)) {
                   break;
                 }
 
@@ -564,8 +598,8 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                 console.warn(`Registration attempt ${attempt} network error:`, fetchErr);
               }
 
-              // Wait before retrying: 2s, 4s
-              if (attempt < 3) {
+              // Wait before retrying: 2s, 4s, 6s
+              if (attempt < maxAttempts) {
                 await new Promise(r => setTimeout(r, 2000 * attempt));
               }
             }
@@ -695,7 +729,12 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                 <CheckCircle className="h-5 w-5" />
                 {spotRegistration ? 'Spot Entry Recorded' : paymentStatus === 'pending' ? 'Registration Pending Confirmation' : 'Payment Confirmed'}
               </p>
-              {!spotRegistration && <p className="text-sm text-paper-dim mt-1">Total Fee: {formatCurrency(feeBreakdown?.totalAmount || 0)}</p>}
+              {spotRegistration
+                ? <>
+                    {spotRegistrationId && <p className="text-2xl font-bold text-paper mt-2">Spot ID: {spotRegistrationId}</p>}
+                    <p className="text-sm text-paper-dim mt-1">Fee payable at the desk: {formatCurrency(feeBreakdown?.baseFee || 0)}</p>
+                  </>
+                : <p className="text-sm text-paper-dim mt-1">Total Fee: {formatCurrency(feeBreakdown?.totalAmount || 0)}</p>}
             </div>
             <p className="text-sm text-paper-mute mb-6">{spotRegistration ? 'Please show your spot registration details to the event desk.' : 'You will receive a confirmation email with payment receipt and further instructions shortly.'}</p>
             <div className="space-y-2">
@@ -1108,7 +1147,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      {paperPresentationDepartments.map((dept) => (
+                                      {availablePaperDepartments.map((dept) => (
                                         <SelectItem key={dept} value={dept}>
                                           {dept}
                                         </SelectItem>
@@ -1435,16 +1474,16 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                       <div className="text-right">
                         <p className="text-2xl font-bold text-brass flex items-center gap-1">
                           <IndianRupee className="h-5 w-5" />
-                          {feeBreakdown?.totalAmount?.toFixed(2) || '0.00'}
+                          {(spotRegistration ? feeBreakdown?.baseFee : feeBreakdown?.totalAmount)?.toFixed(2) || '0.00'}
                         </p>
                         <p className="text-xs text-paper-mute">
-                          ₹100/- per member
+                          ₹100/- per member{spotRegistration ? ', pay at the desk' : ''}
                         </p>
                       </div>
                     </div>
 
-                    {/* Fee Breakdown */}
-                    {feeBreakdown && (
+                    {/* Fee Breakdown (online gateway charges don't apply to spot entries) */}
+                    {feeBreakdown && !spotRegistration && (
                       <div className="mt-3 pt-3 border-t border-brass/20">
                         <div className="space-y-1 text-sm">
                           <div className="flex justify-between">

@@ -57,12 +57,8 @@ export const deduplicationMiddleware = (req: Request, res: Response, next: NextF
         code: 'DUPLICATE_REQUEST_PROCESSING'
       });
     } else if (existingRequest.response) {
-      // Request was completed recently, return the cached response
-      return res.status(200).json({
-        success: true,
-        message: 'Registration was already completed successfully.',
-        cached: true
-      });
+      // Request was confirmed recently, replay the original response (keeps registrationId)
+      return res.status(200).type('application/json').send(existingRequest.response);
     }
   }
   
@@ -75,10 +71,16 @@ export const deduplicationMiddleware = (req: Request, res: Response, next: NextF
   // Add cleanup to mark as completed
   const originalSend = res.send;
   res.send = function(body) {
-    const request = requestCache.get(requestKey);
-    if (request) {
-      request.isProcessing = false;
-      request.response = body;
+    // Only remember confirmed registrations. Errors and pending (202) responses must
+    // stay retryable, otherwise a retry after a failure would be told it succeeded.
+    if (res.statusCode === 201) {
+      const request = requestCache.get(requestKey);
+      if (request) {
+        request.isProcessing = false;
+        request.response = body;
+      }
+    } else {
+      requestCache.delete(requestKey);
     }
     return originalSend.call(this, body);
   };

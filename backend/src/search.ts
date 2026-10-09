@@ -1,6 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 import { Registration, connectToMongoDB } from './register.js';
 
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+export const findExistingRegistration = (
+  leaderEmail: string,
+  leaderMobile: string,
+  selectedEvent: string
+): Promise<{ paymentId: string; orderId: string } | null> =>
+  Registration.findOne({
+    selectedEvent: { $regex: `^${escapeRegex(selectedEvent.trim().toLowerCase())}$`, $options: 'i' },
+    $or: [
+      { leaderEmail: { $regex: `^${escapeRegex(leaderEmail.trim().toLowerCase())}$`, $options: 'i' } },
+      { leaderMobile: leaderMobile.trim().toLowerCase() }
+    ]
+  }).select('paymentId orderId').lean<{ paymentId: string; orderId: string }>().exec();
+
 export const checkDuplicate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   await connectToMongoDB();
   const { leaderEmail, selectedEvent, leaderMobile } = req.body;
@@ -14,19 +29,9 @@ export const checkDuplicate = async (req: Request, res: Response, next: NextFunc
     return;
   }
   
-  const emailLower = (leaderEmail as string).trim().toLowerCase();
-  const eventLower = (selectedEvent as string).trim().toLowerCase();
-  const phoneLower = (leaderMobile as string).trim().toLowerCase();
-  
   try {
-    const existing = await Registration.findOne({
-      selectedEvent: { $regex: `^${eventLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
-      $or: [
-        { leaderEmail: { $regex: `^${emailLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } },
-        { leaderMobile: phoneLower }
-      ]
-    });
-    
+    const existing = await findExistingRegistration(leaderEmail, leaderMobile, selectedEvent);
+
     const samePayment = existing && req.body.paymentId && existing.paymentId === req.body.paymentId;
     const sameOrder = existing && req.body.orderId && existing.orderId === req.body.orderId;
 

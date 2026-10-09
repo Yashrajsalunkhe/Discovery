@@ -1,12 +1,13 @@
 import { RequestHandler } from 'express';
-import Razorpay from 'razorpay';
 import { calculateTotalWithRazorpayFees, calculateTeamFee } from './feeCalculation.js';
 import { Payment } from './payment.js';
 import { getEventCapacity, getEventRegistrationLimit } from '../register.js';
+import { findExistingRegistration } from '../search.js';
+import { getRazorpayClient, getRazorpayCredentials } from './razorpayConfig.js';
 
 export const orderRazorpay: RequestHandler = async (req, res, next) => {
-    // Validate Razorpay credentials
-    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    const { keyId, keySecret } = getRazorpayCredentials();
+    if (!keyId || !keySecret) {
         console.error('Razorpay credentials missing');
         return res.status(500).json({ 
             success: false, 
@@ -14,10 +15,7 @@ export const orderRazorpay: RequestHandler = async (req, res, next) => {
         });
     }
 
-    const razorpay = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID as string,
-        key_secret: process.env.RAZORPAY_KEY_SECRET as string,
-    });
+    const razorpay = getRazorpayClient();
     
     try {
         const { amount, currency, receipt, baseFee, participationType, teamSize, baseFeePerMember, registrationData } = req.body;
@@ -36,6 +34,16 @@ export const orderRazorpay: RequestHandler = async (req, res, next) => {
                     error: `${registrationData.selectedEvent} registration is closed because the limit has been reached.`
                 });
             }
+        }
+
+        // Reject already-registered participants before they are charged
+        const { leaderEmail, leaderMobile, selectedEvent } = registrationData || {};
+        if (leaderEmail && leaderMobile && selectedEvent &&
+            await findExistingRegistration(leaderEmail, leaderMobile, selectedEvent)) {
+            return res.status(409).json({
+                success: false,
+                error: 'User with this email or phone already registered for this event'
+            });
         }
         
         // Validate required fields
@@ -111,9 +119,11 @@ export const orderRazorpay: RequestHandler = async (req, res, next) => {
         });
 
         console.log('ORDER_CREATED', { orderId: order.id, amount: order.amount, currency: order.currency });
+        // The browser must open checkout with the same key that created the order
         res.status(200).json({ 
             success: true, 
             order,
+            keyId,
             feeBreakdown 
         });
         

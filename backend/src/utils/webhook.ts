@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { Payment, PaymentWebhookEvent } from './payment.js';
 import { connectToMongoDB, processPaidOrder } from '../register.js';
 import { guaranteedQueueWrite } from './guaranteedQueue.js';
+import { getRazorpayCredentials } from './razorpayConfig.js';
 
 interface RawBodyRequest extends Express.Request {
   rawBody?: Buffer;
@@ -49,7 +50,7 @@ export const razorpayWebhook: RequestHandler = async (req, res) => {
   const rawBody = (req as RawBodyRequest).rawBody;
   const signature = req.header('x-razorpay-signature');
   const eventId = req.header('x-razorpay-event-id');
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  const secret = getRazorpayCredentials().webhookSecret;
 
   if (!rawBody || !signature || !eventId || !secret) {
     return res.status(400).json({ success: false, error: 'Invalid webhook request' });
@@ -85,17 +86,12 @@ export const razorpayWebhook: RequestHandler = async (req, res) => {
     console.log('PAYMENT_WEBHOOK_RECEIVED', { event: req.body?.event, eventId, orderId, paymentId });
 
     if (req.body?.event === 'payment.failed') {
+      // Razorpay lets the user retry on the same order after a failed attempt, so
+      // only flag the attempt; keep the order claimable for a later captured payment.
       if (orderId) {
-        await Payment.findOneAndUpdate(
-          { orderId },
-          {
-            $set: {
-              paymentId,
-              status: 'FAILED',
-              registrationStatus: 'NOT_CREATED',
-              razorpayEventId: eventId
-            }
-          }
+        await Payment.updateOne(
+          { orderId, registrationStatus: 'PENDING', status: { $in: ['CREATED', 'AUTHORIZED'] } },
+          { $set: { status: 'FAILED' } }
         );
       }
       await PaymentWebhookEvent.create({ eventId, event: req.body?.event || 'unknown', orderId, paymentId });
