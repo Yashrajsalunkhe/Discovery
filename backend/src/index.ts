@@ -4,6 +4,7 @@ import type { Request } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { registerUser, connectToMongoDB, Registration, getEventCapacity } from './register.js';
+import { registerSpotUser } from './spotRegister.js';
 import { checkDuplicate } from './search.js';
 import { orderRazorpay } from './utils/razorpay.js';
 import { verifyPayment } from './utils/payment-verification.js';
@@ -17,7 +18,9 @@ import {
   authenticateAdmin, 
   getAllRegistrations, 
   exportRegistrationsExcel, 
-  getRegistrationStats 
+  getRegistrationStats,
+  getAllSpotRegistrations,
+  exportSpotRegistrationsExcel
 } from './utils/admin.js';
 import { getQueueDetails, retryQueueItem, getProcessingStats } from './utils/queueAdmin.js';
 import { razorpayWebhook } from './utils/webhook.js';
@@ -138,6 +141,7 @@ app.use(async (req, res, next) => {
 
 // API Routes
 app.post('/api/register', registrationRateLimit, deduplicationMiddleware, checkDuplicate, verifyPayment, registerUser);
+app.post('/api/spot-register', registrationRateLimit, registerSpotUser);
 app.post('/api/order', orderRazorpay);
 app.post('/api/payment-verification', verifyPayment);
 app.post('/api/razorpay/webhook', razorpayWebhook);
@@ -225,6 +229,8 @@ app.post('/api/admin/login', adminLogin);
 app.get('/api/admin/registrations', authenticateAdmin, getAllRegistrations);
 app.get('/api/admin/export', authenticateAdmin, exportRegistrationsExcel);
 app.get('/api/admin/stats', authenticateAdmin, getRegistrationStats);
+app.get('/api/admin/spot-registrations', authenticateAdmin, getAllSpotRegistrations);
+app.get('/api/admin/spot-export', authenticateAdmin, exportSpotRegistrationsExcel);
 
 // Admin: Resend confirmation emails for existing registrations
 app.post('/api/admin/resend-emails', authenticateAdmin, async (req, res) => {

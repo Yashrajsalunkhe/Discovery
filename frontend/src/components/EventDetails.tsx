@@ -19,7 +19,7 @@ import {
   MessageCircle
 } from "lucide-react";
 import { Event } from "@/data/events";
-import { downloadRuleBook } from "@/utils/downloadUtils";
+import { downloadCopyrightForm, downloadRuleBook } from "@/utils/downloadUtils";
 import { useToast } from "@/hooks/use-toast";
 import { CodingCompetitionRounds } from "./CodingCompetitionRounds";
 import { PromptWarsRounds } from "./PromptWarsRounds";
@@ -47,6 +47,17 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
         variant: "destructive"
       });
     }
+  };
+
+  const handleDownloadCopyrightForm = () => {
+    const success = downloadCopyrightForm(event);
+    toast({
+      title: success ? "Copyright Form Downloaded" : "Download Failed",
+      description: success
+        ? "The paper presentation copyright form has been downloaded successfully!"
+        : "Could not download the copyright form. Please try again.",
+      ...(success ? {} : { variant: "destructive" as const })
+    });
   };
 
   return (
@@ -82,6 +93,15 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
               >
                 <Download className="h-4 w-4 mr-2 text-slate-950" />
                 Download Template
+              </Button>
+            )}
+            {event.name === "Paper Presentation" && (
+              <Button
+                onClick={handleDownloadCopyrightForm}
+                className="bg-slate-700 hover:bg-slate-800 text-white font-bold border-2 border-slate-600 shadow-sm flex items-center justify-center w-full sm:w-auto px-4 py-2"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download Copyright Form
               </Button>
             )}
             {onRegister && (
@@ -156,6 +176,27 @@ export const EventDetails = ({ event, onBack, onRegister }: EventDetailsProps) =
               >
                 <Download className="h-4 w-4 text-slate-950" />
                 Download Template (.docx)
+              </Button>
+            </div>
+          )}
+
+          {event.name === "Paper Presentation" && (
+            <div className="bg-slate-700/10 border-2 border-slate-600/60 rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="font-bold text-slate-700 dark:text-slate-200 text-base sm:text-lg flex items-center gap-2">
+                  <Download className="h-5 w-5 flex-shrink-0" />
+                  Copyright Form (PDF)
+                </div>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Download and complete the copyright form for your paper presentation.
+                </p>
+              </div>
+              <Button
+                onClick={handleDownloadCopyrightForm}
+                className="bg-slate-700 hover:bg-slate-800 text-white font-bold border-2 border-slate-600 shadow-sm flex items-center gap-2 px-5 py-2.5 whitespace-nowrap w-full sm:w-auto"
+              >
+                <Download className="h-4 w-4" />
+                Download Copyright Form
               </Button>
             </div>
           )}

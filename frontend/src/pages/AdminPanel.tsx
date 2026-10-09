@@ -108,6 +108,7 @@ const AdminPanel: React.FC = () => {
     availablePaperPresentationDepts: [],
   });
   const [stats, setStats] = useState<AdminStats | null>(null);
+  const [activeDataset, setActiveDataset] = useState<'regular' | 'spot'>('regular');
 
   // Filters and search
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -284,6 +285,25 @@ const AdminPanel: React.FC = () => {
 
     setLoading(true);
     try {
+      if (activeDataset === 'spot') {
+        const response = await fetch(`${API_BASE}/admin/spot-registrations?search=${encodeURIComponent(searchTerm)}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          credentials: 'same-origin',
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        if (data.success) {
+          setRegistrations(data.data.map((registration: any) => ({
+            ...registration,
+            registrationId: registration.spotRegistrationId,
+            paymentId: 'SPOT ENTRY',
+            orderId: 'N/A',
+            totalFee: 0,
+          })));
+          setPagination({ currentPage: 1, totalPages: 1, totalCount: data.data.length, limit: data.data.length || 50 });
+        }
+        return;
+      }
       const params = new URLSearchParams({
         sortBy,
         sortOrder,
@@ -383,6 +403,16 @@ const AdminPanel: React.FC = () => {
 
     setLoading(true);
     try {
+      if (activeDataset === 'spot') {
+        const response = await fetch(`${API_BASE}/admin/spot-export`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          credentials: 'same-origin',
+        });
+        if (!response.ok) throw new Error('Spot export failed');
+        fileSaver.saveAs(await response.blob(), 'Discovery_Spot_Registrations.xlsx');
+        toast({ title: "Success", description: "Spot registrations exported successfully!" });
+        return;
+      }
       const params = new URLSearchParams();
 
       appendFilterParams(params);
@@ -431,7 +461,7 @@ const AdminPanel: React.FC = () => {
     if (isAuthenticated && token) {
       fetchRegistrations();
     }
-  }, [eventFilter, collegeFilter, departmentFilter, yearFilter, cityFilter, participationFilter, paperPresentationDeptFilter, startDate, endDate, sortBy, sortOrder, currentPage, searchTerm, isAuthenticated, token]);
+  }, [activeDataset, eventFilter, collegeFilter, departmentFilter, yearFilter, cityFilter, participationFilter, paperPresentationDeptFilter, startDate, endDate, sortBy, sortOrder, currentPage, searchTerm, isAuthenticated, token]);
 
   // ═══════════════════════════════════════════════════════════
   //  LOGIN SCREEN — Mission-Control Brutalist
@@ -692,6 +722,29 @@ const AdminPanel: React.FC = () => {
               <LogOutIcon className="w-4 h-4" />
               Logout
             </button>
+          </div>
+
+          <div className="flex gap-3">
+            {(['regular', 'spot'] as const).map((dataset) => (
+              <button
+                key={dataset}
+                onClick={() => {
+                  setActiveDataset(dataset);
+                  setCurrentPage(1);
+                  if (dataset === 'spot') clearFilters();
+                }}
+                className="px-4 py-2.5 text-xs font-bold uppercase tracking-wider"
+                style={{
+                  background: activeDataset === dataset ? (dataset === 'spot' ? '#10B981' : '#FFCC00') : '#FFFFFF',
+                  color: '#0F1115',
+                  border: '2px solid #0F1115',
+                  boxShadow: '2px 2px 0px #0F1115',
+                  ...monoFont,
+                }}
+              >
+                {dataset === 'spot' ? 'Spot Registrations' : 'Paid Registrations'}
+              </button>
+            ))}
           </div>
 
           {/* ── Stats Grid ── */}
@@ -961,7 +1014,7 @@ const AdminPanel: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-sm font-black tracking-tight" style={{ ...displayFont, color: '#0F1115' }}>
-                  REGISTRATIONS ({pagination.totalCount})
+                  {activeDataset === 'spot' ? 'SPOT REGISTRATIONS' : 'REGISTRATIONS'} ({pagination.totalCount})
                 </h2>
                 <p className="text-[11px] font-medium tracking-wider" style={{ ...monoFont, color: '#5E6672' }}>
                   Showing {registrations.length} of {pagination.totalCount}
@@ -985,7 +1038,7 @@ const AdminPanel: React.FC = () => {
                       {[
                         'Reg. ID', 'Date', 'Leader', 'Email', 'Mobile', 'College', 'Department', 'Year',
                         'Event', 'PP Dept',
-                        'Type', 'Size', 'Team', 'Fee', 'Payment ID'
+                        'Type', 'Size', 'Team', activeDataset === 'spot' ? 'Status' : 'Fee', activeDataset === 'spot' ? 'Source' : 'Payment ID'
                       ].map(
                         (h) => (
                           <th
@@ -1140,7 +1193,7 @@ const AdminPanel: React.FC = () => {
                             </span>
                           )}
                         </td>
-                        <td className="px-3 py-3 text-xs font-bold whitespace-nowrap">₹{reg.totalFee}</td>
+                        <td className="px-3 py-3 text-xs font-bold whitespace-nowrap">{activeDataset === 'spot' ? 'PENDING' : `₹${reg.totalFee}`}</td>
                         <td className="px-3 py-3 text-[10px] whitespace-nowrap" style={{ color: '#5E6672' }}>
                           {reg.paymentId}
                         </td>

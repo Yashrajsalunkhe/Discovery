@@ -114,9 +114,10 @@ interface RegistrationFormProps {
   eventTitle?: string;
   onBack?: () => void;
   showFooter?: boolean;
+  spotRegistration?: boolean;
 }
 
-export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: RegistrationFormProps) => {
+export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotRegistration = false }: RegistrationFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -127,7 +128,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
   const [closedEvents, setClosedEvents] = useState<Set<string>>(new Set());
 
   // Registration closure state
-  const [registrationsClosed] = useState(true);
+  const [registrationsClosed] = useState(!spotRegistration);
 
   // Enhanced payment states
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating-order' | 'payment-processing' | 'confirming-registration' | 'success' | 'pending' | 'failed'>('idle');
@@ -144,6 +145,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
   const { toast } = useToast();
 
   const allEvents = getAllEvents();
+  const availableColleges = spotRegistration ? ["Other"] : colleges;
 
   useEffect(() => {
     const eventNames = [...new Set(allEvents.map((event) => event.name))]
@@ -454,6 +456,26 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
         processingCharges: feeBreakdown?.processingCharges || 0
       };
 
+      if (spotRegistration) {
+        setPaymentStatus('confirming-registration');
+        const registerRes = await fetch("/api/spot-register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(registrationData),
+        });
+        const result = await registerRes.json();
+        if (!registerRes.ok || !result.success) {
+          throw new Error(result.error || 'Spot registration failed.');
+        }
+        setPaymentStatus('success');
+        setIsSubmitted(true);
+        toast({
+          title: "Spot Registration Successful!",
+          description: `Your spot registration ID is ${result.spotRegistrationId}.`,
+        });
+        return;
+      }
+
       // Create Razorpay order with team details for automatic calculation
       const orderRes = await fetch("/api/order", {
         method: "POST",
@@ -658,26 +680,24 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
           <CardContent className="pt-6">
             <CheckCircle className="mx-auto h-16 w-16 text-brass mb-4" />
             <h2 className="text-2xl font-bold text-brass mb-2">
-              {paymentStatus === 'pending' ? 'Payment Received' : 'Registration Successful!'}
+              {spotRegistration ? 'Spot Registration Successful!' : paymentStatus === 'pending' ? 'Payment Received' : 'Registration Successful!'}
             </h2>
             <p className="text-paper-dim mb-4">
               Thank you for registering{eventTitle ? ` for ${eventTitle}` : ""}.
-              {paymentStatus === 'pending'
+              {spotRegistration
+                ? 'Your spot entry has been recorded for admin verification.'
+                : paymentStatus === 'pending'
                 ? 'Your payment was received successfully. Your registration is being confirmed.'
                 : 'Your payment has been confirmed and registration is complete.'}
             </p>
             <div className="bg-brass/10 p-4 rounded-lg border border-brass/30 mb-6">
               <p className="text-lg font-semibold flex items-center justify-center gap-1 text-brass">
                 <CheckCircle className="h-5 w-5" />
-                {paymentStatus === 'pending' ? 'Registration Pending Confirmation' : 'Payment Confirmed'}
+                {spotRegistration ? 'Spot Entry Recorded' : paymentStatus === 'pending' ? 'Registration Pending Confirmation' : 'Payment Confirmed'}
               </p>
-              <p className="text-sm text-paper-dim mt-1">
-                Total Fee: {formatCurrency(feeBreakdown?.totalAmount || 0)}
-              </p>
+              {!spotRegistration && <p className="text-sm text-paper-dim mt-1">Total Fee: {formatCurrency(feeBreakdown?.totalAmount || 0)}</p>}
             </div>
-            <p className="text-sm text-paper-mute mb-6">
-              You will receive a confirmation email with payment receipt and further instructions shortly.
-            </p>
+            <p className="text-sm text-paper-mute mb-6">{spotRegistration ? 'Please show your spot registration details to the event desk.' : 'You will receive a confirmation email with payment receipt and further instructions shortly.'}</p>
             <div className="space-y-2">
               <Button
                 onClick={() => {
@@ -850,7 +870,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {colleges.map((college) => (
+                                {availableColleges.map((college) => (
                                   <SelectItem key={college} value={college}>
                                     {college}
                                   </SelectItem>
@@ -1283,7 +1303,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        {colleges.map((college) => (
+                                        {availableColleges.map((college) => (
                                           <SelectItem key={college} value={college}>
                                             {college}
                                           </SelectItem>
@@ -1445,7 +1465,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                   </div>
 
                   {/* Payment Notice */}
-                  <div className="registration-callout bg-brass/5 border border-brass/20 p-4 rounded-lg">
+                  {!spotRegistration && <div className="registration-callout bg-brass/5 border border-brass/20 p-4 rounded-lg">
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0">
                         <svg className="h-5 w-5 text-brass" fill="currentColor" viewBox="0 0 20 20">
@@ -1459,7 +1479,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </div>}
 
                   <Separator />
 
@@ -1490,8 +1510,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false }: Reg
                       ) : (
                         <>
                           <UserPlus className="mr-2 h-4 w-4" />
-                          <span className="hidden xs:inline">Proceed to Payment</span>
-                          <span className="xs:hidden">Payment</span> ({formatCurrency(feeBreakdown?.totalAmount || 0)})
+                          {spotRegistration ? 'Submit Spot Registration' : <><span className="hidden xs:inline">Proceed to Payment</span><span className="xs:hidden">Payment</span> ({formatCurrency(feeBreakdown?.totalAmount || 0)})</>}
                         </>
                       )}
                     </Button>

@@ -38,3 +38,8 @@ export const downloadRuleBook = (event: { ruleBookFile?: string; name: string })
   const fileName = `${event.name.replace(/\s+/g, '_')}_Rules.docx`;
   return downloadFile(event.ruleBookFile, fileName);
 };
+
+export const downloadCopyrightForm = (event: { name: string }) => {
+  const fileName = `${event.name.replace(/\s+/g, '_')}_Copyright_Form.pdf`;
+  return downloadFile('/docs/1. COPYRIGHT FORM.pdf', fileName);
+};

@@ -13,7 +13,7 @@ const counterSchema = new Schema<CounterDoc>({
 
 export const Counter = mongoose.model<CounterDoc>('Counter', counterSchema, 'counters');
 
-export async function getNextRegistrationId(): Promise<number> {
+export async function getNextRegistrationId(counterName = 'registrationId'): Promise<number> {
   try {
     // Ensure MongoDB connection before operation
     const isConnected = await ensureMongoConnection();
@@ -23,7 +23,7 @@ export async function getNextRegistrationId(): Promise<number> {
 
     // Use findOneAndUpdate with upsert for atomic increment
     const result = await Counter.findOneAndUpdate(
-      { _id: 'registrationId' },
+      { _id: counterName },
       { $inc: { sequence_value: 1 } },
       { 
         new: true, 

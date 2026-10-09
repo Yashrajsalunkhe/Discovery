@@ -37,6 +37,17 @@ const RegisterPage = () => {
   );
 };
 
+const SpotRegisterPage = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <RegistrationForm spotRegistration onBack={() => navigate('/')} />
+      <FooterLanding compact />
+    </div>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -56,6 +67,8 @@ const App = () => (
           <Route path="/event/:eventId" element={<EventDetailPage />} />
           <Route path="/department/:deptId/event/:eventId" element={<EventDetailPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/spot-registration" element={<SpotRegisterPage />} />
+          <Route path="/spot-registeration" element={<SpotRegisterPage />} />
           <Route path="/status" element={<CheckStatus />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/queuedata" element={

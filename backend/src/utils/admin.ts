@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Registration, connectToMongoDB } from '../register.js';
+import { SpotRegistration } from '../spotRegister.js';
 import * as XLSX from 'xlsx';
 
 export interface AdminAuthRequest extends Request {
@@ -454,5 +455,59 @@ export const getRegistrationStats = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Get stats error:', error);
     return res.status(500).json({ success: false, error: 'Failed to fetch statistics' });
+  }
+};
+
+export const getAllSpotRegistrations = async (req: Request, res: Response) => {
+  try {
+    await connectToMongoDB();
+    const search = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+    const query: Record<string, any> = search ? {
+      $or: [
+        { leaderName: { $regex: search, $options: 'i' } },
+        { leaderEmail: { $regex: search, $options: 'i' } },
+        { leaderMobile: { $regex: search, $options: 'i' } },
+        { leaderCollege: { $regex: search, $options: 'i' } },
+        { selectedEvent: { $regex: search, $options: 'i' } },
+      ],
+    } : {};
+    const registrations = await SpotRegistration.find(query).sort({ createdAt: -1 }).lean();
+    return res.json({ success: true, data: registrations });
+  } catch (error) {
+    console.error('Get spot registrations error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch spot registrations' });
+  }
+};
+
+export const exportSpotRegistrationsExcel = async (req: Request, res: Response) => {
+  try {
+    await connectToMongoDB();
+    const registrations = await SpotRegistration.find().sort({ createdAt: -1 }).lean();
+    const excelData = registrations.map((reg) => ({
+      'Spot Registration ID': reg.spotRegistrationId,
+      'Registration Date': reg.createdAt ? new Date(reg.createdAt).toLocaleDateString('en-IN') : 'N/A',
+      'Leader Name': reg.leaderName,
+      'Leader Email': reg.leaderEmail,
+      'Leader Mobile': reg.leaderMobile,
+      'Leader College': reg.leaderCollege,
+      'Department': reg.leaderDepartment,
+      'Year': reg.leaderYear,
+      'City': reg.leaderCity,
+      'Event': reg.selectedEvent,
+      'Paper Presentation Dept': reg.paperPresentationDept || 'N/A',
+      'Participation Type': reg.participationType,
+      'Team Size': reg.teamSize,
+      'Team Members': reg.teamMembers.map((member) => `${member.name} (${member.college})`).join('; '),
+    }));
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Spot_Registrations');
+    const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="Discovery_Spot_Registrations.xlsx"');
+    return res.send(excelBuffer);
+  } catch (error) {
+    console.error('Export spot registrations error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to export spot registrations' });
   }
 };
