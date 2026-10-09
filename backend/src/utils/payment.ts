@@ -29,6 +29,7 @@ export interface PaymentDoc extends Document {
   registrationData?: PaymentRegistrationContext;
   razorpayEventId?: string;
   registrationId?: number;
+  lastReconciledAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,7 +53,8 @@ const paymentSchema = new Schema<PaymentDoc>({
   },
   registrationData: { type: Schema.Types.Mixed },
   razorpayEventId: { type: String, unique: true, sparse: true, index: true },
-  registrationId: { type: Number, index: true }
+  registrationId: { type: Number, index: true },
+  lastReconciledAt: { type: Date }
 }, { timestamps: true, collection: 'payments' });
 
 export const Payment = mongoose.model<PaymentDoc>('Payment', paymentSchema);

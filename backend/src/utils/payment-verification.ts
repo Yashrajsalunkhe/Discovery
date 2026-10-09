@@ -1,5 +1,6 @@
 import { RequestHandler } from "express"
 import crypto from "crypto"
+import { getRazorpayCredentials } from "./razorpayConfig.js"
 
 export const verifyPayment: RequestHandler = async (req, res, next) => {
     const razorpay_order_id = req.body.razorpay_order_id || req.body.orderId;
@@ -14,7 +15,7 @@ export const verifyPayment: RequestHandler = async (req, res, next) => {
         });
     }
 
-    const secret = process.env.RAZORPAY_KEY_SECRET;
+    const secret = getRazorpayCredentials().keySecret;
     if (!secret) {
         return res.status(500).json({ 
             success: false, 
@@ -27,7 +28,11 @@ export const verifyPayment: RequestHandler = async (req, res, next) => {
             .update(`${razorpay_order_id}|${razorpay_payment_id}`)
             .digest('hex');
             
-        if (digest === razorpay_signature) {
+        const signature = String(razorpay_signature);
+        const isValid = signature.length === digest.length &&
+            crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+
+        if (isValid) {
             console.log('Payment verification successful for order:', razorpay_order_id);
             next();
         } else {

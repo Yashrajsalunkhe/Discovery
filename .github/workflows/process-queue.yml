@@ -1,0 +1,50 @@
+name: Payment Recovery & Queue Processing
+
+on:
+  schedule:
+    # Every 5 minutes, offset from the hour (GitHub may delay scheduled runs under load)
+    - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: process-queue
+  cancel-in-progress: false
+
+jobs:
+  process-queue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Trigger queue processing endpoint
+        env:
+          BASE_URL: https://discovery.adcet.ac.in
+          # Optional. If CRON_SECRET is also set in Vercel, the endpoint requires it.
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          AUTH_HEADER=()
+          if [ -n "$CRON_SECRET" ]; then
+            AUTH_HEADER=(-H "Authorization: Bearer ${CRON_SECRET}")
+          fi
+
+          echo "Invoking ${BASE_URL}/api/cron/process-queue ..."
+          HTTP_RESPONSE=$(curl -s -S -w "\n%{http_code}" "${BASE_URL}/api/cron/process-queue" \
+            "${AUTH_HEADER[@]}" \
+            -H "User-Agent: github-actions-process-queue" \
+            --connect-timeout 10 \
+            --max-time 120)
+
+          HTTP_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n 1)
+
+          echo "Response Status: $HTTP_STATUS"
+          echo "Response Body: $HTTP_BODY"
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "::error::Queue endpoint returned HTTP $HTTP_STATUS: $HTTP_BODY"
+            exit 1
+          fi
+
+          if ! echo "$HTTP_BODY" | jq -e '.success == true' >/dev/null; then
+            echo "::error::Queue processing reported failure."
+            exit 1
+          fi

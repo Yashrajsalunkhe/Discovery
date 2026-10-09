@@ -18,9 +18,10 @@ setInterval(() => {
   }
 }, 60 * 1000);
 
-export const createRateLimiter = (windowMs: number, maxRequests: number) => {
+export const createRateLimiter = (windowMs: number, maxRequests: number, name = 'default') => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const identifier = req.ip || req.connection.remoteAddress || 'unknown';
+    // Scoped per limiter so different routes don't share one per-IP budget
+    const identifier = `${name}:${req.ip || req.connection.remoteAddress || 'unknown'}`;
     const now = Date.now();
     const windowStart = now - windowMs;
     
@@ -66,4 +67,8 @@ export const createRateLimiter = (windowMs: number, maxRequests: number) => {
 // Rate limiter for registration endpoint: 15 requests per minute per IP
 // Keep generous — payment verification + signature checks already prevent abuse.
 // A tight limit risks blocking legitimate retries after successful payment.
-export const registrationRateLimit = createRateLimiter(60 * 1000, 15);
+export const registrationRateLimit = createRateLimiter(60 * 1000, 15, 'register');
+
+// Spot desks often share one IP (desk laptops / campus Wi-Fi). Capacity and
+// duplicate checks already bound abuse, so allow a desk-friendly rate.
+export const spotRegistrationRateLimit = createRateLimiter(60 * 1000, 60, 'spot-register');
