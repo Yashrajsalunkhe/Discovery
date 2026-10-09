@@ -54,6 +54,31 @@ export const SpotRegistration = mongoose.model<SpotRegistrationDoc>(
 
 const isAdcet = (college: string) => college.trim().toLowerCase() === 'adcet';
 
+const normalize = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+// Spot limits are group/entry limits from the event desk, not participant limits.
+const SPOT_REGISTRATION_LIMITS: Record<string, number> = {
+  'bca|techtreasurehunt': 5,
+  'businessadministration|admad': 5,
+  'businessadministration|paperpresentation': 2,
+  'aidatascience|codemania': 20,
+  'aidatascience|promptwars': 10,
+  'foodtechnology|newfoodproductdevelopment': 10,
+  'foodtechnology|paperpresentation': 4,
+  'electricalengineering|troubleshooting': 5,
+  'electricalengineering|circuitbuilder': 15,
+  'electricalengineering|paperpresentation': 5,
+  'iotcybersecurity|catchtheflag': 6,
+  'iotcybersecurity|bgmi': 0,
+  'iotcybersecurity|paperpresentation': 4,
+  'civilengineering|akruti': 20,
+  'civilengineering|setu': 5,
+  'civilengineering|paperpresentation': 10,
+};
+
+const getSpotLimit = (department: string, event: string) =>
+  SPOT_REGISTRATION_LIMITS[`${normalize(department)}|${normalize(event)}`];
+
 export const registerSpotUser = async (req: Request, res: Response) => {
   try {
     await connectToMongoDB();
@@ -82,6 +107,30 @@ export const registerSpotUser = async (req: Request, res: Response) => {
       });
     }
 
+    const normalizedEvent = selectedEvent.trim();
+    const eventDepartment = normalizedEvent.toLowerCase() === 'paper presentation'
+      ? String(paperPresentationDept || leaderDepartment).trim()
+      : leaderDepartment.trim();
+    const spotLimit = getSpotLimit(eventDepartment, normalizedEvent);
+    if (spotLimit === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Spot entry is not available for this department and event.',
+      });
+    }
+
+    const existingSpotEntries = await SpotRegistration.countDocuments({
+      selectedEvent: { $regex: `^${normalizedEvent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
+      [normalizedEvent.toLowerCase() === 'paper presentation' ? 'paperPresentationDept' : 'leaderDepartment']:
+        { $regex: `^${eventDepartment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
+    });
+    if (existingSpotEntries >= spotLimit) {
+      return res.status(409).json({
+        success: false,
+        error: `Spot registration is full for ${normalizedEvent}. The limit is ${spotLimit} entries.`,
+      });
+    }
+
     const spotRegistrationId = await getNextRegistrationId('spotRegistrationId');
     const registration = await SpotRegistration.create({
       spotRegistrationId,
@@ -92,7 +141,7 @@ export const registerSpotUser = async (req: Request, res: Response) => {
       leaderDepartment: leaderDepartment.trim(),
       leaderYear: leaderYear.trim(),
       leaderCity: leaderCity.trim(),
-      selectedEvent: selectedEvent.trim(),
+      selectedEvent: normalizedEvent,
       paperPresentationDept: paperPresentationDept?.trim() || '',
       participationType,
       teamSize: Number(teamSize) || 1,
