@@ -131,6 +131,7 @@ const SPOT_REGISTRATION_LIMITS: Record<string, number> = {
   'computerscienceengineering|paperpresentation': 10,
   'aidatascience|paperpresentation': 10,
   'bca|paperpresentation': 10,
+  'roboticsai|innovatexroboticsai': 40,
 };
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -175,6 +176,7 @@ const SPOT_EVENT_NAMES: Record<string, string> = {
   bgmi: 'BGMI',
   akruti: 'AKRUTI',
   setu: 'SETU',
+  innovatexroboticsai: 'InnovateX - Robotics & AI',
 };
 
 const SPOT_DEPARTMENT_NAMES: Record<string, string> = {
@@ -188,6 +190,7 @@ const SPOT_DEPARTMENT_NAMES: Record<string, string> = {
   mechanicalengineering: 'Mechanical Engineering',
   aeronauticalengineering: 'Aeronautical Engineering',
   computerscienceengineering: 'Computer Science Engineering',
+  roboticsai: 'Robotics & AI',
 };
 
 export const getSpotStatus = async (_req: Request, res: Response) => {
