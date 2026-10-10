@@ -708,11 +708,13 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
           <CardContent className="pt-6">
             <CheckCircle className="mx-auto h-16 w-16 text-brass mb-4" />
             <h2 className="text-2xl font-bold text-brass mb-2">
-              {spotRegistration ? 'Spot Registration Successful!' : paymentStatus === 'pending' ? 'Payment Received' : 'Registration Successful!'}
+              {paymentStatus === 'pending' ? 'Payment Received' : spotRegistration ? 'Spot Registration Successful!' : 'Registration Successful!'}
             </h2>
             <p className="text-paper-dim mb-4">
               Thank you for registering{eventTitle ? ` for ${eventTitle}` : ""}.
-              {spotRegistration
+              {spotRegistration && paymentStatus === 'pending'
+                ? 'Your payment was received successfully. Your spot entry will be confirmed automatically within a few minutes; please do not pay again.'
+                : spotRegistration
                 ? 'Your payment has been confirmed and your spot entry is recorded.'
                 : paymentStatus === 'pending'
                 ? 'Your payment was received successfully. Your registration is being confirmed.'
@@ -721,7 +723,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
             <div className="bg-brass/10 p-4 rounded-lg border border-brass/30 mb-6">
               <p className="text-lg font-semibold flex items-center justify-center gap-1 text-brass">
                 <CheckCircle className="h-5 w-5" />
-                {spotRegistration ? 'Spot Entry Recorded' : paymentStatus === 'pending' ? 'Registration Pending Confirmation' : 'Payment Confirmed'}
+                {paymentStatus === 'pending' ? 'Registration Pending Confirmation' : spotRegistration ? 'Spot Entry Recorded' : 'Payment Confirmed'}
               </p>
               {spotRegistration
                 ? <>

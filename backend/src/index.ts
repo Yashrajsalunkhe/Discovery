@@ -4,7 +4,7 @@ import type { Request } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { registerUser, connectToMongoDB, Registration, getEventCapacity, reconcilePendingPayments } from './register.js';
-import { registerSpotUser, createSpotOrder, getSpotStatus } from './spotRegister.js';
+import { registerSpotUser, createSpotOrder, getSpotStatus, reconcilePendingSpotOrders } from './spotRegister.js';
 import { checkDuplicate } from './search.js';
 import { orderRazorpay } from './utils/razorpay.js';
 import { verifyPayment } from './utils/payment-verification.js';
@@ -502,6 +502,7 @@ const startAutoProcessing = () => {
       await connectToMongoDB();
       await processGuaranteedQueue();
       await reconcilePendingPayments();
+      await reconcilePendingSpotOrders();
     } catch (err) {
       console.error('Auto queue processing error:', err);
     }
@@ -538,6 +539,7 @@ app.get('/api/cron/process-queue', async (req, res) => {
     
     await processGuaranteedQueue(`github_actions_${Date.now()}`);
     const reconciliation = await reconcilePendingPayments();
+    const spotReconciliation = await reconcilePendingSpotOrders();
     const stats = await getQueueStats();
     
     console.log('GitHub Actions cron job completed. Queue stats:', stats);
@@ -547,6 +549,7 @@ app.get('/api/cron/process-queue', async (req, res) => {
       message: 'Queue processed by GitHub Actions',
       stats,
       reconciliation,
+      spotReconciliation,
       timestamp: new Date().toISOString(),
       processor: 'github-actions'
     });

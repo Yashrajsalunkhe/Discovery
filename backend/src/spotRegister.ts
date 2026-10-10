@@ -83,6 +83,7 @@ interface SpotOrderDoc extends Document {
   status: 'CREATED' | 'REGISTERED' | 'REJECTED';
   paymentId?: string;
   spotRegistrationId?: number;
+  lastReconciledAt?: Date;
   createdAt: Date;
 }
 
@@ -93,8 +94,11 @@ const spotOrderSchema = new Schema<SpotOrderDoc>({
   status: { type: String, enum: ['CREATED', 'REGISTERED', 'REJECTED'], default: 'CREATED' },
   paymentId: { type: String },
   spotRegistrationId: { type: Number },
+  lastReconciledAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
 });
+
+spotOrderSchema.index({ status: 1, lastReconciledAt: 1, createdAt: 1 });
 
 const SpotOrder = mongoose.model<SpotOrderDoc>('SpotOrder', spotOrderSchema, 'spot_orders');
 
@@ -318,10 +322,24 @@ const getFreePlaces = async (data: SpotEntryData) => {
   return free;
 };
 
+// Created one at a time so an index added outside the app with clashing options (as
+// happened in Atlas) is logged instead of failing every spot entry.
+const ensureSpotIndexes = async () => {
+  for (const [fields, options] of SpotRegistration.schema.indexes()) {
+    try {
+      await SpotRegistration.collection.createIndex(fields as any, options as any);
+    } catch (error: any) {
+      // 85/86: an index with this name or these keys already exists with other options
+      if (error.code !== 85 && error.code !== 86) throw error;
+      console.error('SPOT_INDEX_CONFLICT', { fields, error: error.message });
+    }
+  }
+};
+
 const claimSpotPlace = async (data: SpotEntryData, payment: { paymentId: string; orderId: string; totalFee: number }) => {
   // The unique indexes are the capacity guard; make sure they exist before inserting
   // (Model.init() can't be used: its promise is cached from model load, before the DB connects)
-  spotIndexesReady ??= SpotRegistration.createIndexes().catch((error) => {
+  spotIndexesReady ??= ensureSpotIndexes().catch((error) => {
     spotIndexesReady = undefined;
     throw error;
   });
@@ -394,69 +412,136 @@ export const createSpotOrder = async (req: Request, res: Response) => {
   }
 };
 
-// Step 2: after checkout, save the entry once Razorpay confirms the payment.
-// The payment signature is checked by the verifyPayment middleware before this runs.
+export const isSpotOrder = async (orderId: string) => Boolean(await SpotOrder.exists({ orderId }));
+
+type SpotPaymentResult =
+  | { spotRegistrationId: number }
+  | { pending: true }
+  | { rejected: true; error: string }
+  | { invalid: true; error: string };
+
+/**
+ * Save the spot entry for a paid order. Shared by the browser confirmation, the Razorpay
+ * webhook and the background reconciliation, so an entry is saved even if the browser
+ * closes after payment. Safe to call repeatedly: an order only ever gets one entry.
+ */
+export async function processSpotPayment(orderId: string, paymentId: string): Promise<SpotPaymentResult> {
+  await connectToMongoDB();
+  const spotOrder = await SpotOrder.findOne({ orderId });
+  if (!spotOrder) return { invalid: true, error: 'Spot payment order not found. Please register again.' };
+
+  const confirmed = await SpotRegistration.findOne({ orderId });
+  if (confirmed) {
+    await SpotOrder.updateOne(
+      { orderId, status: { $ne: 'REGISTERED' } },
+      { $set: { status: 'REGISTERED', paymentId: confirmed.paymentId || paymentId, spotRegistrationId: confirmed.spotRegistrationId } }
+    );
+    return { spotRegistrationId: confirmed.spotRegistrationId };
+  }
+
+  const payment = await getRazorpayClient().payments.fetch(paymentId);
+  if (payment.order_id !== orderId || Number(payment.amount) !== spotOrder.amount || payment.currency !== 'INR') {
+    console.error('SPOT_PAYMENT_MISMATCH', { orderId, paymentId });
+    return { invalid: true, error: 'Payment does not match this spot entry.' };
+  }
+
+  // Auto-capture can lag a few seconds behind checkout
+  if (payment.status !== 'captured') return { pending: true };
+
+  const data = spotOrder.registrationData;
+  try {
+    // Entry already recorded at the desk without an online payment (e.g. while online
+    // confirmation was failing): attach this payment to it instead of rejecting it
+    const deskEntry = await SpotRegistration.findOneAndUpdate(
+      {
+        slotKey: data.slotKey,
+        paymentId: { $exists: false },
+        $or: [{ leaderEmail: data.leaderEmail }, { leaderMobile: data.leaderMobile }],
+      },
+      { $set: { paymentId, orderId, totalFee: spotOrder.amount / 100 } },
+      { new: true }
+    );
+    const registration = deskEntry ?? await claimSpotPlace(data, {
+      paymentId,
+      orderId,
+      totalFee: spotOrder.amount / 100,
+    });
+    await SpotOrder.updateOne(
+      { orderId },
+      { $set: { status: 'REGISTERED', paymentId, spotRegistrationId: registration.spotRegistrationId } }
+    );
+    console.log('SPOT_REGISTRATION_CONFIRMED', { orderId, paymentId, spotRegistrationId: registration.spotRegistrationId });
+    return { spotRegistrationId: registration.spotRegistrationId };
+  } catch (error) {
+    if (!(error instanceof SpotEntryError) || error.status !== 409) throw error;
+    // Event filled up (or a duplicate got in) between order and payment: needs a refund
+    await SpotOrder.updateOne({ orderId, status: 'CREATED' }, { $set: { status: 'REJECTED', paymentId } });
+    console.error('SPOT_PAID_BUT_REJECTED', { orderId, paymentId, reason: error.message });
+    return {
+      rejected: true,
+      error: `${error.message} Your payment will be refunded; please contact the spot desk with Payment ID: ${paymentId}`,
+    };
+  }
+}
+
+/**
+ * Finish spot orders that were paid but never confirmed (browser closed, webhook missed).
+ */
+export async function reconcilePendingSpotOrders(limit = 10) {
+  await connectToMongoDB();
+  const now = Date.now();
+  // Least-recently-checked first, so abandoned checkouts can't starve newer paid orders
+  const pending = await SpotOrder.find({
+    status: 'CREATED',
+    // Give the browser/webhook path a moment before stepping in
+    createdAt: { $gte: new Date(now - 7 * 24 * 60 * 60 * 1000), $lte: new Date(now - 60 * 1000) },
+  }).sort({ lastReconciledAt: 1, createdAt: 1 }).limit(limit).lean();
+  if (!pending.length) return { checked: 0, confirmed: 0 };
+
+  const razorpay = getRazorpayClient();
+  let confirmed = 0;
+  for (const order of pending) {
+    try {
+      await SpotOrder.updateOne({ _id: order._id }, { $set: { lastReconciledAt: new Date() } });
+      const { items } = await razorpay.orders.fetchPayments(order.orderId);
+      const captured = items.find((payment) => payment.status === 'captured');
+      if (!captured) continue;
+      const result = await processSpotPayment(order.orderId, captured.id);
+      if ('spotRegistrationId' in result) {
+        confirmed++;
+        console.log('SPOT_PAYMENT_RECONCILED', { orderId: order.orderId, paymentId: captured.id, spotRegistrationId: result.spotRegistrationId });
+      }
+    } catch (error: any) {
+      console.error('SPOT_RECONCILE_FAILED', { orderId: order.orderId, error: error.message });
+    }
+  }
+  return { checked: pending.length, confirmed };
+}
+
+// Step 2 (browser): confirm right after checkout. The webhook and reconciliation save
+// the entry too, so this is only the fast path. The payment signature is checked by
+// the verifyPayment middleware before this runs.
 export const registerSpotUser = async (req: Request, res: Response) => {
   try {
-    await connectToMongoDB();
     const orderId = String(req.body.orderId || req.body.razorpay_order_id);
     const paymentId = String(req.body.paymentId || req.body.razorpay_payment_id);
+    const result = await processSpotPayment(orderId, paymentId);
 
-    const spotOrder = await SpotOrder.findOne({ orderId });
-    if (!spotOrder) {
-      return res.status(400).json({ success: false, error: 'Spot payment order not found. Please register again.' });
-    }
-
-    const confirmed = await SpotRegistration.findOne({ orderId });
-    if (confirmed) {
+    if ('spotRegistrationId' in result) {
       return res.status(201).json({
         success: true,
         message: 'Spot registration completed successfully.',
-        spotRegistrationId: confirmed.spotRegistrationId,
+        spotRegistrationId: result.spotRegistrationId,
       });
     }
-
-    const payment = await getRazorpayClient().payments.fetch(paymentId);
-    if (payment.order_id !== orderId || Number(payment.amount) !== spotOrder.amount || payment.currency !== 'INR') {
-      console.error('SPOT_PAYMENT_MISMATCH', { orderId, paymentId });
-      return res.status(400).json({ success: false, error: 'Payment does not match this spot entry.' });
-    }
-
-    // Auto-capture can lag a few seconds behind checkout; the browser retries on 202
-    if (payment.status !== 'captured') {
+    if ('pending' in result) {
       return res.status(202).json({
-        success: false,
-        code: 'PAYMENT_PENDING',
-        error: `Your payment is still being confirmed. Please click 'Retry Registration' in a moment. Payment ID: ${paymentId}`,
-      });
-    }
-
-    try {
-      const registration = await claimSpotPlace(spotOrder.registrationData, {
-        paymentId,
-        orderId,
-        totalFee: spotOrder.amount / 100,
-      });
-      await SpotOrder.updateOne(
-        { orderId },
-        { $set: { status: 'REGISTERED', paymentId, spotRegistrationId: registration.spotRegistrationId } }
-      );
-      console.log('SPOT_REGISTRATION_CONFIRMED', { orderId, paymentId, spotRegistrationId: registration.spotRegistrationId });
-      return res.status(201).json({
         success: true,
-        message: 'Spot registration completed successfully.',
-        spotRegistrationId: registration.spotRegistrationId,
-      });
-    } catch (error) {
-      if (!(error instanceof SpotEntryError) || error.status !== 409) throw error;
-      // Event filled up (or a duplicate got in) between order and payment: needs a refund
-      await SpotOrder.updateOne({ orderId, status: 'CREATED' }, { $set: { status: 'REJECTED', paymentId } });
-      console.error('SPOT_PAID_BUT_REJECTED', { orderId, paymentId, reason: error.message });
-      return res.status(409).json({
-        success: false,
-        error: `${error.message} Your payment will be refunded; please contact the spot desk with Payment ID: ${paymentId}`,
+        code: 'REGISTRATION_PENDING',
+        message: 'Payment received. Your spot entry will be confirmed automatically. Please do not pay again.',
       });
     }
+    return res.status('rejected' in result ? 409 : 400).json({ success: false, error: result.error });
   } catch (error) {
     return sendSpotError(res, error, 'Failed to save spot registration.');
   }

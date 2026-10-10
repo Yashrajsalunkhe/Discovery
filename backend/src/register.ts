@@ -28,11 +28,15 @@ export async function connectToMongoDB(): Promise<typeof mongoose> {
     global.mongooseConnection = { conn: null, promise: null };
   }
   if (!global.mongooseConnection.promise) {
+    const uri = process.env.MONGO_URI?.trim();
+    if (!uri) {
+      throw new Error('MONGO_URI is not set');
+    }
     global.mongooseConnection.promise = (async (): Promise<typeof mongoose> => {
-      
-      while (true) {
+      // Bounded retries: a bad URI or blocked IP must fail the request (503), not hang it
+      for (let attempt = 1; ; attempt++) {
         try {
-          const instance = await mongoose.connect(process.env.MONGO_URI as string, {
+          const instance = await mongoose.connect(uri, {
             dbName: 'discovery_adcet',
             serverSelectionTimeoutMS: 10000, // 10 seconds - faster failure detection
             socketTimeoutMS: 15000, // 15 seconds - reduced from 20s
@@ -55,11 +59,16 @@ export async function connectToMongoDB(): Promise<typeof mongoose> {
           console.log('✅ Connected to MongoDB database: discovery_adcet');
           return instance;
         } catch (err) {
-          console.error('❌ MongoDB connection failed, retrying in 2s', err);
+          if (attempt >= 3) throw err;
+          console.error(`❌ MongoDB connection failed (attempt ${attempt}/3), retrying in 2s`, err);
           await new Promise(res => setTimeout(res, 2000)); // Reduced retry delay
         }
       }
-    })();
+    })().catch((err) => {
+      // Let the next request start a fresh connection attempt
+      global.mongooseConnection.promise = null;
+      throw err;
+    });
   }
   return global.mongooseConnection.promise as Promise<typeof mongoose>;
 }

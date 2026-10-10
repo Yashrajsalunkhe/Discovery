@@ -4,6 +4,7 @@ import { Payment, PaymentWebhookEvent } from './payment.js';
 import { connectToMongoDB, processPaidOrder } from '../register.js';
 import { guaranteedQueueWrite } from './guaranteedQueue.js';
 import { getRazorpayCredentials } from './razorpayConfig.js';
+import { isSpotOrder, processSpotPayment } from '../spotRegister.js';
 
 interface RawBodyRequest extends Express.Request {
   rawBody?: Buffer;
@@ -100,6 +101,22 @@ export const razorpayWebhook: RequestHandler = async (req, res) => {
 
     if (!['payment.captured', 'order.paid', 'payment.authorized'].includes(req.body?.event) || !orderId || !paymentId) {
       return res.status(200).json({ success: true, ignored: true });
+    }
+
+    // Spot entries have their own order records; save the entry here so it doesn't
+    // depend on the participant's browser staying open after payment
+    if (await isSpotOrder(orderId)) {
+      const result = req.body.event === 'payment.authorized'
+        ? { pending: true as const }
+        : await processSpotPayment(orderId, paymentId);
+      await PaymentWebhookEvent.create({ eventId, event: req.body?.event || 'unknown', orderId, paymentId });
+      return res.status(200).json({
+        success: true,
+        status: 'spotRegistrationId' in result
+          ? 'SPOT_REGISTRATION_CONFIRMED'
+          : 'pending' in result ? 'SPOT_REGISTRATION_PENDING' : 'SPOT_REGISTRATION_FAILED',
+        spotRegistrationId: 'spotRegistrationId' in result ? result.spotRegistrationId : undefined,
+      });
     }
 
     // Retry loop: wait for Payment record if it hasn't been written yet (race condition)
