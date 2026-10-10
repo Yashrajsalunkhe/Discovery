@@ -4,7 +4,7 @@ import type { Request } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { registerUser, connectToMongoDB, Registration, getEventCapacity, reconcilePendingPayments } from './register.js';
-import { registerSpotUser, getSpotStatus } from './spotRegister.js';
+import { registerSpotUser, createSpotOrder, getSpotStatus } from './spotRegister.js';
 import { checkDuplicate } from './search.js';
 import { orderRazorpay } from './utils/razorpay.js';
 import { verifyPayment } from './utils/payment-verification.js';
@@ -146,7 +146,8 @@ app.use(async (req, res, next) => {
 
 // API Routes
 app.post('/api/register', registrationRateLimit, deduplicationMiddleware, checkDuplicate, verifyPayment, registerUser);
-app.post('/api/spot-register', spotRegistrationRateLimit, registerSpotUser);
+app.post('/api/spot-order', spotRegistrationRateLimit, createSpotOrder);
+app.post('/api/spot-register', spotRegistrationRateLimit, verifyPayment, registerSpotUser);
 app.get('/api/spot-status', getSpotStatus);
 app.post('/api/order', orderRazorpay);
 app.post('/api/payment-verification', verifyPayment);
