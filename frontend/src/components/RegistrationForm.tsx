@@ -450,6 +450,31 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
     setTeamSize(size);
   };
 
+  // Spot entries are saved from the form data stored with the order; online registrations resend it
+  const postRegistration = (details: { paymentId: string; orderId: string; signature: string; registrationData: any }) =>
+    fetch(spotRegistration ? "/api/spot-register" : "/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...(spotRegistration ? {} : details.registrationData),
+        paymentId: details.paymentId,
+        orderId: details.orderId,
+        signature: details.signature
+      })
+    });
+
+  const getConfirmedId = (result: any) => spotRegistration ? result?.spotRegistrationId : result?.registrationId;
+
+  const confirmSuccess = (result: any) => {
+    setLastPaymentDetails(null);
+    setPaymentStatus('success');
+    setIsSubmitted(true);
+    if (spotRegistration) {
+      setSpotRegistrationId(result.spotRegistrationId);
+      loadSpotSlots();
+    }
+  };
+
   const onSubmit = async (values: RegistrationFormValues) => {
     setIsSubmitting(true);
     setPaymentStatus('creating-order');
@@ -478,33 +503,11 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
         processingCharges: feeBreakdown?.processingCharges || 0
       };
 
-      if (spotRegistration) {
-        setPaymentStatus('confirming-registration');
-        const registerRes = await fetch("/api/spot-register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(registrationData),
-        });
-        const result = await registerRes.json();
-        if (!registerRes.ok || !result.success) {
-          throw new Error(result.error || 'Spot registration failed.');
-        }
-        setSpotRegistrationId(result.spotRegistrationId);
-        loadSpotSlots();
-        setPaymentStatus('success');
-        setIsSubmitted(true);
-        toast({
-          title: "Spot Registration Successful!",
-          description: `Your spot registration ID is ${result.spotRegistrationId}.`,
-        });
-        return;
-      }
-
-      // Create Razorpay order with team details for automatic calculation
-      const orderRes = await fetch("/api/order", {
+      // Create Razorpay order; the backend calculates the fee from the team details
+      const orderRes = await fetch(spotRegistration ? "/api/spot-order" : "/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: JSON.stringify(spotRegistration ? registrationData : {
           participationType: values.participationType,
           teamSize: values.teamSize || 1,
           baseFeePerMember: 100,
@@ -540,7 +543,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
         amount: backendFeeBreakdown?.totalAmountInPaise || feeBreakdown?.totalAmountInPaise || 0,
         currency: "INR",
         name: "Discovery ADCET 2K26",
-        description: `Registration for ${registrationData.selectedEvent}`,
+        description: `${spotRegistration ? 'Spot entry' : 'Registration'} for ${registrationData.selectedEvent}`,
         image: window.location.origin + "/event-images/temp_icon.png", // Your logo
         order_id: orderId,
         prefill: {
@@ -572,22 +575,13 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
             let lastError: any = null;
             for (let attempt = 1; attempt <= maxAttempts; attempt++) {
               try {
-                const registerRes = await fetch("/api/register", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    ...registrationData,
-                    paymentId: razorpayResponse.razorpay_payment_id,
-                    orderId: razorpayResponse.razorpay_order_id,
-                    signature: razorpayResponse.razorpay_signature
-                  })
-                });
+                const registerRes = await postRegistration(paymentDetails);
 
                 lastResult = await registerRes.json();
 
                 const isPending = registerRes.status === 202;
                 // Stop on confirmation or a definitive error (not pending/rate-limited/server error)
-                if ((lastResult.success && lastResult.registrationId) ||
+                if ((lastResult.success && getConfirmedId(lastResult)) ||
                     (!isPending && registerRes.status !== 429 && registerRes.status < 500)) {
                   break;
                 }
@@ -604,13 +598,13 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
               }
             }
 
-            if (lastResult?.success && lastResult.registrationId) {
-              setLastPaymentDetails(null); // Clear — no longer needed
-              setPaymentStatus('success');
-              setIsSubmitted(true);
+            if (lastResult?.success && getConfirmedId(lastResult)) {
+              confirmSuccess(lastResult);
               toast({
                 title: "Registration Successful!",
-                description: "Your registration has been confirmed. You will receive a confirmation email shortly.",
+                description: spotRegistration
+                  ? `Your spot registration ID is ${lastResult.spotRegistrationId}.`
+                  : "Your registration has been confirmed. You will receive a confirmation email shortly.",
               });
             } else if (lastResult?.success) {
               setLastPaymentDetails(null);
@@ -719,7 +713,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
             <p className="text-paper-dim mb-4">
               Thank you for registering{eventTitle ? ` for ${eventTitle}` : ""}.
               {spotRegistration
-                ? 'Your spot entry has been recorded for admin verification.'
+                ? 'Your payment has been confirmed and your spot entry is recorded.'
                 : paymentStatus === 'pending'
                 ? 'Your payment was received successfully. Your registration is being confirmed.'
                 : 'Your payment has been confirmed and registration is complete.'}
@@ -732,7 +726,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
               {spotRegistration
                 ? <>
                     {spotRegistrationId && <p className="text-2xl font-bold text-paper mt-2">Spot ID: {spotRegistrationId}</p>}
-                    <p className="text-sm text-paper-dim mt-1">Fee payable at the desk: {formatCurrency(feeBreakdown?.baseFee || 0)}</p>
+                    <p className="text-sm text-paper-dim mt-1">Fee Paid: {formatCurrency(feeBreakdown?.totalAmount || 0)}</p>
                   </>
                 : <p className="text-sm text-paper-dim mt-1">Total Fee: {formatCurrency(feeBreakdown?.totalAmount || 0)}</p>}
             </div>
@@ -1400,21 +1394,10 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                                   setPaymentStatus('confirming-registration');
                                   setPaymentError(null);
                                   try {
-                                    const registerRes = await fetch("/api/register", {
-                                      method: "POST",
-                                      headers: { "Content-Type": "application/json" },
-                                      body: JSON.stringify({
-                                        ...lastPaymentDetails.registrationData,
-                                        paymentId: lastPaymentDetails.paymentId,
-                                        orderId: lastPaymentDetails.orderId,
-                                        signature: lastPaymentDetails.signature
-                                      })
-                                    });
+                                    const registerRes = await postRegistration(lastPaymentDetails);
                                     const result = await registerRes.json();
-                                    if (result.success && result.registrationId) {
-                                      setLastPaymentDetails(null);
-                                      setPaymentStatus('success');
-                                      setIsSubmitted(true);
+                                    if (result.success && getConfirmedId(result)) {
+                                      confirmSuccess(result);
                                       toast({ title: "Registration Successful!", description: "Your registration has been confirmed." });
                                     } else if (result.success) {
                                       setLastPaymentDetails(null);
@@ -1474,16 +1457,16 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                       <div className="text-right">
                         <p className="text-2xl font-bold text-brass flex items-center gap-1">
                           <IndianRupee className="h-5 w-5" />
-                          {(spotRegistration ? feeBreakdown?.baseFee : feeBreakdown?.totalAmount)?.toFixed(2) || '0.00'}
+                          {feeBreakdown?.totalAmount?.toFixed(2) || '0.00'}
                         </p>
                         <p className="text-xs text-paper-mute">
-                          ₹100/- per member{spotRegistration ? ', pay at the desk' : ''}
+                          ₹100/- per member
                         </p>
                       </div>
                     </div>
 
-                    {/* Fee Breakdown (online gateway charges don't apply to spot entries) */}
-                    {feeBreakdown && !spotRegistration && (
+                    {/* Fee Breakdown */}
+                    {feeBreakdown && (
                       <div className="mt-3 pt-3 border-t border-brass/20">
                         <div className="space-y-1 text-sm">
                           <div className="flex justify-between">
@@ -1504,7 +1487,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                   </div>
 
                   {/* Payment Notice */}
-                  {!spotRegistration && <div className="registration-callout bg-brass/5 border border-brass/20 p-4 rounded-lg">
+                  <div className="registration-callout bg-brass/5 border border-brass/20 p-4 rounded-lg">
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0">
                         <svg className="h-5 w-5 text-brass" fill="currentColor" viewBox="0 0 20 20">
@@ -1518,7 +1501,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                         </p>
                       </div>
                     </div>
-                  </div>}
+                  </div>
 
                   <Separator />
 
@@ -1549,7 +1532,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                       ) : (
                         <>
                           <UserPlus className="mr-2 h-4 w-4" />
-                          {spotRegistration ? 'Submit Spot Registration' : <><span className="hidden xs:inline">Proceed to Payment</span><span className="xs:hidden">Payment</span> ({formatCurrency(feeBreakdown?.totalAmount || 0)})</>}
+                          <span className="hidden xs:inline">Proceed to Payment</span><span className="xs:hidden">Payment</span> ({formatCurrency(feeBreakdown?.totalAmount || 0)})
                         </>
                       )}
                     </Button>

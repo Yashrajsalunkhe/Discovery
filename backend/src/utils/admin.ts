@@ -498,6 +498,9 @@ export const exportSpotRegistrationsExcel = async (req: Request, res: Response) 
       'Participation Type': reg.participationType,
       'Team Size': reg.teamSize,
       'Team Members': reg.teamMembers.map((member) => `${member.name} (${member.college})`).join('; '),
+      'Total Fee': reg.totalFee ?? 'N/A',
+      'Payment ID': reg.paymentId || 'N/A',
+      'Order ID': reg.orderId || 'N/A',
     }));
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(excelData);
