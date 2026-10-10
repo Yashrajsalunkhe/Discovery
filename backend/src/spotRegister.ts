@@ -114,7 +114,7 @@ const SPOT_REGISTRATION_LIMITS: Record<string, number> = {
   'businessadministration|admad': 5,
   'businessadministration|paperpresentation': 12,
   'aidatascience|codemania': 20,
-  'aidatascience|promptwars': 10,
+  'aidatascience|promptwars': 15,
   'foodtechnology|newfoodproductdevelopment': 10,
   'foodtechnology|paperpresentation': 14,
   'electricalengineering|troubleshooting': 5,
