@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import type { Request, Response } from 'express';
-import { connectToMongoDB } from './register.js';
+import { connectToMongoDB, getEventRegistrationLimit } from './register.js';
 import { getNextRegistrationId } from './utils/atomicCounter.js';
 import { calculateTeamFee } from './utils/feeCalculation.js';
 import { getRazorpayClient, getRazorpayCredentials } from './utils/razorpayConfig.js';
@@ -58,9 +58,9 @@ const spotRegistrationSchema = new Schema<SpotRegistrationDoc>({
 spotRegistrationSchema.index({ leaderEmail: 1 });
 spotRegistrationSchema.index({ leaderMobile: 1 });
 
-// Capacity and duplicates are enforced by unique indexes, so concurrent requests can't
-// both take the last place. Entries saved before slotKey existed are excluded here and
-// counted against the limit in code instead.
+// Duplicates are enforced by unique indexes, so concurrent requests can't both save an
+// entry for the same person. Entries saved before slotKey existed are excluded here and
+// checked in code instead.
 const slotted = { partialFilterExpression: { slotKey: { $exists: true } }, unique: true };
 spotRegistrationSchema.index({ slotKey: 1, slotNumber: 1 }, slotted);
 spotRegistrationSchema.index({ slotKey: 1, leaderEmail: 1 }, slotted);
@@ -108,43 +108,14 @@ const isAdcet = (college: string) => college.trim().toLowerCase() === 'adcet';
 
 const normalize = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
 
-// Spot limits are group/entry limits from the event desk, not participant limits.
-const SPOT_REGISTRATION_LIMITS: Record<string, number> = {
-  'bca|techtreasurehunt': 5,
-  'businessadministration|admad': 5,
-  'businessadministration|paperpresentation': 12,
-  'aidatascience|codemania': 20,
-  'aidatascience|promptwars': 15,
-  'foodtechnology|newfoodproductdevelopment': 10,
-  'foodtechnology|paperpresentation': 14,
-  'electricalengineering|troubleshooting': 5,
-  'electricalengineering|circuitbuilder': 15,
-  'electricalengineering|paperpresentation': 15,
-  'iotcybersecurity|catchtheflag': 6,
-  'iotcybersecurity|bgmi': 0,
-  'iotcybersecurity|paperpresentation': 14,
-  'civilengineering|akruti': 20,
-  'civilengineering|setu': 5,
-  'civilengineering|paperpresentation': 20,
-  'mechanicalengineering|paperpresentation': 30,
-  'aeronauticalengineering|paperpresentation': 10,
-  'computerscienceengineering|paperpresentation': 10,
-  'aidatascience|paperpresentation': 10,
-  'bca|paperpresentation': 10,
-  'roboticsai|innovatexroboticsai': 40,
-};
-
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const isPaperPresentation = (event: string) => normalize(event) === 'paperpresentation';
 
-// Limits belong to the event's own department (paper presentation: the chosen
-// department), never the participant's department.
-const getSpotLimitKey = (event: string, paperPresentationDept?: string) => {
+// Spot entry is open to every event with no cap. The slot key only groups an event's
+// entries (paper presentation: per chosen department) for the duplicate-entry indexes.
+const getSpotSlotKey = (event: string, paperPresentationDept?: string) => {
   const eventKey = normalize(event);
-  if (isPaperPresentation(event)) {
-    return paperPresentationDept ? `${normalize(paperPresentationDept)}|${eventKey}` : undefined;
-  }
-  return Object.keys(SPOT_REGISTRATION_LIMITS).find((key) => key.endsWith(`|${eventKey}`));
+  return isPaperPresentation(event) ? `${normalize(paperPresentationDept || '')}|${eventKey}` : eventKey;
 };
 
 const spotEventFilter = (event: string, paperPresentationDept?: string) => ({
@@ -154,56 +125,16 @@ const spotEventFilter = (event: string, paperPresentationDept?: string) => ({
     : {}),
 });
 
-const getSpotCapacity = async (event: string, paperPresentationDept?: string) => {
-  const key = getSpotLimitKey(event, paperPresentationDept);
-  if (!key) return undefined;
-  const limit = SPOT_REGISTRATION_LIMITS[key];
-  const registered = await SpotRegistration.countDocuments(spotEventFilter(event, paperPresentationDept));
-  return { limit, registered, remaining: Math.max(limit - registered, 0), isClosed: registered >= limit };
-};
-
-// Event names as stored by the frontend, keyed by the normalized event part of the limit keys
-const SPOT_EVENT_NAMES: Record<string, string> = {
-  techtreasurehunt: 'Tech Treasure Hunt',
-  admad: 'Ad-Mad',
-  paperpresentation: 'Paper Presentation',
-  codemania: 'CodeMania',
-  promptwars: 'Prompt Wars',
-  newfoodproductdevelopment: 'New Food Product Development',
-  troubleshooting: 'Troubleshooting',
-  circuitbuilder: 'Circuit Builder',
-  catchtheflag: 'Catch the Flag',
-  bgmi: 'BGMI',
-  akruti: 'AKRUTI',
-  setu: 'SETU',
-  innovatexroboticsai: 'InnovateX - Robotics & AI',
-};
-
-const SPOT_DEPARTMENT_NAMES: Record<string, string> = {
-  bca: 'BCA',
-  businessadministration: 'Business Administration',
-  aidatascience: 'AI & Data Science',
-  foodtechnology: 'Food Technology',
-  electricalengineering: 'Electrical Engineering',
-  iotcybersecurity: 'IoT & Cyber Security',
-  civilengineering: 'Civil Engineering',
-  mechanicalengineering: 'Mechanical Engineering',
-  aeronauticalengineering: 'Aeronautical Engineering',
-  computerscienceengineering: 'Computer Science Engineering',
-  roboticsai: 'Robotics & AI',
-};
-
+// Spot entries so far per event (paper presentation: per department), for the desk
 export const getSpotStatus = async (_req: Request, res: Response) => {
   try {
     await connectToMongoDB();
-    const events = await Promise.all(Object.keys(SPOT_REGISTRATION_LIMITS).map(async (key) => {
-      const [departmentKey, eventKey] = key.split('|');
-      const event = SPOT_EVENT_NAMES[eventKey];
-      const department = SPOT_DEPARTMENT_NAMES[departmentKey];
-      const capacity = await getSpotCapacity(event, isPaperPresentation(event) ? department : undefined);
-      return { event, department, ...capacity! };
-    }));
-    return res.json({ success: true, data: events });
+    const counts = await SpotRegistration.aggregate([
+      { $group: { _id: { event: '$selectedEvent', department: '$paperPresentationDept' }, registered: { $sum: 1 } } },
+      { $sort: { '_id.event': 1, '_id.department': 1 } },
+    ]);
+    const data = counts.map(({ _id, registered }) => ({ event: _id.event, department: _id.department || '', registered }));
+    return res.json({ success: true, data });
   } catch (error) {
     console.error('Spot status error:', error);
     return res.status(500).json({ success: false, error: 'Failed to fetch spot entry status.' });
@@ -284,10 +215,11 @@ const parseSpotEntry = (body: any): SpotEntryData => {
     throw new SpotEntryError(400, 'Please select a department for paper presentation.');
   }
 
-  const slotKey = getSpotLimitKey(normalizedEvent, normalizedPaperDept);
-  if (!slotKey || !SPOT_REGISTRATION_LIMITS[slotKey]) {
-    throw new SpotEntryError(400, 'Spot entry is not available for this event.');
+  // Any event (and paper presentation department) on the site is open for spot entry
+  if (getEventRegistrationLimit(normalizedEvent, normalizedPaperDept) === undefined) {
+    throw new SpotEntryError(400, 'Please choose a valid event.');
   }
+  const slotKey = getSpotSlotKey(normalizedEvent, normalizedPaperDept);
 
   return {
     leaderName: leaderName.trim(),
@@ -306,23 +238,13 @@ const parseSpotEntry = (body: any): SpotEntryData => {
   };
 };
 
-// Free place numbers for the entry's event; rejects duplicates and full events
-const getFreePlaces = async (data: SpotEntryData) => {
-  const limit = SPOT_REGISTRATION_LIMITS[data.slotKey];
-  const entries = await SpotRegistration.find(spotEventFilter(data.selectedEvent, data.paperPresentationDept))
-    .select('slotNumber leaderEmail leaderMobile').lean();
-
-  if (entries.some((entry) => entry.leaderEmail === data.leaderEmail || entry.leaderMobile === data.leaderMobile)) {
-    throw new SpotEntryError(409, DUPLICATE_ENTRY_ERROR);
-  }
-
-  const legacyEntries = entries.filter((entry) => entry.slotNumber === undefined).length;
-  const taken = new Set(entries.map((entry) => entry.slotNumber));
-  const free = Array.from({ length: limit - legacyEntries }, (_, i) => i + 1).filter((n) => !taken.has(n));
-  if (free.length === 0) {
-    throw new SpotEntryError(409, `Spot registration is full for ${data.selectedEvent}. The limit is ${limit} entries.`);
-  }
-  return free;
+// Rejects a second entry for the same person in the same event
+const assertNotDuplicate = async (data: SpotEntryData) => {
+  const duplicate = await SpotRegistration.exists({
+    ...spotEventFilter(data.selectedEvent, data.paperPresentationDept),
+    $or: [{ leaderEmail: data.leaderEmail }, { leaderMobile: data.leaderMobile }],
+  });
+  if (duplicate) throw new SpotEntryError(409, DUPLICATE_ENTRY_ERROR);
 };
 
 // Created one at a time so an index added outside the app with clashing options (as
@@ -339,8 +261,8 @@ const ensureSpotIndexes = async () => {
   }
 };
 
-const claimSpotPlace = async (data: SpotEntryData, payment: { paymentId: string; orderId: string; totalFee: number }) => {
-  // The unique indexes are the capacity guard; make sure they exist before inserting
+const saveSpotEntry = async (data: SpotEntryData, payment: { paymentId: string; orderId: string; totalFee: number }) => {
+  // The unique indexes are the duplicate guard; make sure they exist before inserting
   // (Model.init() can't be used: its promise is cached from model load, before the DB connects)
   spotIndexesReady ??= ensureSpotIndexes().catch((error) => {
     spotIndexesReady = undefined;
@@ -348,26 +270,20 @@ const claimSpotPlace = async (data: SpotEntryData, payment: { paymentId: string;
   });
   await spotIndexesReady;
 
-  const limit = SPOT_REGISTRATION_LIMITS[data.slotKey];
-  let spotRegistrationId: number | undefined;
-
-  // Claim a free place number; if another request takes it first, re-read and try again
-  for (let attempt = 0; attempt <= limit; attempt++) {
+  for (let attempt = 0; attempt < 5; attempt++) {
     // A concurrent confirmation of the same payment may have just saved the entry
     const existing = await SpotRegistration.findOne({ orderId: payment.orderId });
     if (existing) return existing;
 
-    const free = await getFreePlaces(data);
-
-    // Taken once, so retries don't burn IDs
-    spotRegistrationId ??= await getNextRegistrationId('spotRegistrationId');
+    await assertNotDuplicate(data);
+    const spotRegistrationId = await getNextRegistrationId('spotRegistrationId');
     try {
       return await SpotRegistration.create({
         ...data,
         ...payment,
         spotRegistrationId,
-        // Random pick spreads concurrent requests across the free places
-        slotNumber: free[Math.floor(Math.random() * free.length)],
+        // No cap any more; the (slotKey, slotNumber) index just needs a distinct value
+        slotNumber: spotRegistrationId,
       });
     } catch (error: any) {
       if (error.code !== 11000) throw error;
@@ -375,8 +291,7 @@ const claimSpotPlace = async (data: SpotEntryData, payment: { paymentId: string;
       if (error.keyPattern?.leaderEmail || error.keyPattern?.leaderMobile) {
         throw new SpotEntryError(409, DUPLICATE_ENTRY_ERROR);
       }
-      // Place number (or, very rarely, the spot ID) was taken concurrently; retry
-      if (error.keyPattern?.spotRegistrationId) spotRegistrationId = undefined;
+      // Spot ID was already in use; retry with the next one
     }
   }
 
@@ -388,8 +303,8 @@ export const createSpotOrder = async (req: Request, res: Response) => {
   try {
     await connectToMongoDB();
     const data = parseSpotEntry(req.body);
-    // Reject duplicates and full events before the participant is charged
-    await getFreePlaces(data);
+    // Reject duplicates before the participant is charged
+    await assertNotDuplicate(data);
 
     const { keyId, keySecret } = getRazorpayCredentials();
     if (!keyId || !keySecret) {
@@ -457,14 +372,14 @@ export async function processSpotPayment(orderId: string, paymentId: string): Pr
     // confirmation was failing): attach this payment to it instead of rejecting it
     const deskEntry = await SpotRegistration.findOneAndUpdate(
       {
-        slotKey: data.slotKey,
+        ...spotEventFilter(data.selectedEvent, data.paperPresentationDept),
         paymentId: { $exists: false },
         $or: [{ leaderEmail: data.leaderEmail }, { leaderMobile: data.leaderMobile }],
       },
       { $set: { paymentId, orderId, totalFee: spotOrder.amount / 100 } },
       { new: true }
     );
-    const registration = deskEntry ?? await claimSpotPlace(data, {
+    const registration = deskEntry ?? await saveSpotEntry(data, {
       paymentId,
       orderId,
       totalFee: spotOrder.amount / 100,
@@ -477,7 +392,7 @@ export async function processSpotPayment(orderId: string, paymentId: string): Pr
     return { spotRegistrationId: registration.spotRegistrationId };
   } catch (error) {
     if (!(error instanceof SpotEntryError) || error.status !== 409) throw error;
-    // Event filled up (or a duplicate got in) between order and payment: needs a refund
+    // A duplicate entry got in between order and payment: needs a refund
     await SpotOrder.updateOne({ orderId, status: 'CREATED' }, { $set: { status: 'REJECTED', paymentId } });
     console.error('SPOT_PAID_BUT_REJECTED', { orderId, paymentId, reason: error.message });
     return {
