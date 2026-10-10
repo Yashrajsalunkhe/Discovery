@@ -144,12 +144,18 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// Registrations are closed: no new payment orders. Confirmations, webhooks and
+// reconciliation stay open so payments already made still get their entries.
+const registrationsClosed: express.RequestHandler = (_req, res) => {
+  res.status(403).json({ success: false, error: 'Registrations for Discovery 2K26 are closed.' });
+};
+
 // API Routes
 app.post('/api/register', registrationRateLimit, deduplicationMiddleware, checkDuplicate, verifyPayment, registerUser);
-app.post('/api/spot-order', spotRegistrationRateLimit, createSpotOrder);
+app.post('/api/spot-order', registrationsClosed, spotRegistrationRateLimit, createSpotOrder);
 app.post('/api/spot-register', spotRegistrationRateLimit, verifyPayment, registerSpotUser);
 app.get('/api/spot-status', getSpotStatus);
-app.post('/api/order', orderRazorpay);
+app.post('/api/order', registrationsClosed, orderRazorpay);
 app.post('/api/payment-verification', verifyPayment);
 app.post('/api/razorpay/webhook', razorpayWebhook);
 app.get('/api/event-status/:eventName', async (req, res) => {
