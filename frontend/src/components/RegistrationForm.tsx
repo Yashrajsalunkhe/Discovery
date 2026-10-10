@@ -126,8 +126,6 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
   const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown | null>(null);
   const [showPaperPresentationDept, setShowPaperPresentationDept] = useState(false);
   const [closedEvents, setClosedEvents] = useState<Set<string>>(new Set());
-  // Spot mode: events/departments that still have spot places (null = unknown, don't filter)
-  const [spotSlots, setSpotSlots] = useState<Array<{ event: string; department: string; remaining: number }> | null>(null);
   const [spotRegistrationId, setSpotRegistrationId] = useState<number | null>(null);
 
   // Registration closure state
@@ -150,18 +148,9 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
   const allEvents = getAllEvents();
   const availableColleges = spotRegistration ? ["Other"] : colleges;
 
-  // Spot places are tracked separately from online limits
-  const loadSpotSlots = () =>
-    fetch('/api/spot-status')
-      .then((response) => response.json())
-      .then((result) => { if (result.success) setSpotSlots(result.data); })
-      .catch(() => setSpotSlots(null));
-
   useEffect(() => {
-    if (spotRegistration) {
-      loadSpotSlots();
-      return;
-    }
+    // Spot entry has no limits, so every event stays open
+    if (spotRegistration) return;
 
     const eventNames = [...new Set(allEvents.map((event) => event.name))]
       .filter((name) => name !== "Paper Presentation");
@@ -179,21 +168,11 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
     });
   }, []);
 
-  const normalizeName = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');
-  const openSpotSlots = spotSlots?.filter((slot) => slot.remaining > 0);
-  const hasSpotPlace = (eventName: string, department?: string) =>
-    !openSpotSlots || openSpotSlots.some((slot) =>
-      normalizeName(slot.event) === normalizeName(eventName) &&
-      (!department || normalizeName(slot.department) === normalizeName(department)));
-  const availablePaperDepartments = spotRegistration
-    ? paperPresentationDepartments.filter((dept) => hasSpotPlace("Paper Presentation", dept))
-    : paperPresentationDepartments;
+  const availablePaperDepartments = paperPresentationDepartments;
 
   const paperPresentationEvent = allEvents.find((event) => event.name === "Paper Presentation");
   const filteredEvents = [
-    ...allEvents.filter((event) => event.name !== "Paper Presentation" && (spotRegistration
-      ? hasSpotPlace(event.name)
-      : !closedEvents.has(event.name))),
+    ...allEvents.filter((event) => event.name !== "Paper Presentation" && !closedEvents.has(event.name)),
     ...(paperPresentationEvent && availablePaperDepartments.length > 0
       ? [{ ...paperPresentationEvent, id: "paper-presentation", department: "Multiple Departments", minTeamSize: 2, maxTeamSize: 5 }]
       : []),
@@ -469,10 +448,7 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
     setLastPaymentDetails(null);
     setPaymentStatus('success');
     setIsSubmitted(true);
-    if (spotRegistration) {
-      setSpotRegistrationId(result.spotRegistrationId);
-      loadSpotSlots();
-    }
+    if (spotRegistration) setSpotRegistrationId(result.spotRegistrationId);
   };
 
   const onSubmit = async (values: RegistrationFormValues) => {
