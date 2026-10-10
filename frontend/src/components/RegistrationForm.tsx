@@ -129,7 +129,8 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
   const [spotRegistrationId, setSpotRegistrationId] = useState<number | null>(null);
 
   // Registration closure state
-  const [registrationsClosed] = useState(!spotRegistration);
+  // Online and spot registrations are both closed
+  const registrationsClosed = true;
 
   // Enhanced payment states
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating-order' | 'payment-processing' | 'confirming-registration' | 'success' | 'pending' | 'failed'>('idle');
@@ -769,14 +770,8 @@ export const RegistrationForm = ({ eventTitle, onBack, showFooter = false, spotR
                 Registration Window Closed
               </h2>
               <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-[#6b6870] sm:text-lg">
-                Online registrations for Discovery 2K26 have now ended. The form has signed off for the day and will not accept even the most convincing late-entry excuse.
+                Online and spot registrations for Discovery 2K26 have now ended. The form has signed off for the day and will not accept even the most convincing late-entry excuse.
               </p>
-              <div className="mb-6 border-[3px] border-[#111318] bg-[#ffd21f] p-5 text-left shadow-[5px_5px_0_#111318]">
-                <p className="mb-2 font-mono text-xs font-bold tracking-[.16em] text-[#111318]">SPOT ENTRY ELIGIBILITY</p>
-                <p className="text-sm font-semibold leading-relaxed text-[#111318] sm:text-base">
-                  Spot entries are accepted only from students visiting from outside colleges. In-house students are not eligible for spot entry.
-                </p>
-              </div>
               <div className="mb-8 grid gap-3 text-left sm:grid-cols-3">
                 <div className="animate-fade-in border-2 border-[#111318] bg-[#fffdf7] p-4 [animation-delay:150ms] [animation-fill-mode:both]">
                   <Zap className="mb-3 h-5 w-5 text-[#111318]" />
